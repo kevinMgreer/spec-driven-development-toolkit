@@ -94,7 +94,9 @@ To unlock hands-off PR creation and Copilot review, set up these three things on
 
 ```
 # Copy docs/atdd/templates/mcp-github.json to .vscode/mcp.json
-# Set a GITHUB_TOKEN env var with repo + pull_request scopes
+# Set a GITHUB_TOKEN env var:
+# - classic PAT: repo scope
+# - fine-grained PAT: repository permissions for Pull requests and Contents
 ```
 
 **CI quality gates** — enforces gates on every push and auto-requests Copilot review on PRs:

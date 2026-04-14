@@ -82,21 +82,48 @@ jobs:
 
       - name: Lint
         run: |
-          if npm run --if-present lint 2>/dev/null; then echo "lint: ✅"
-          else echo "lint: ⏭️ (no lint script)"; fi
+          has_script() {
+            node -e "const fs=require('fs'); const pkg=JSON.parse(fs.readFileSync('package.json','utf8')); process.exit(pkg.scripts && pkg.scripts[process.argv[1]] ? 0 : 1)" "$1"
+          }
+
+          if has_script lint; then
+            npm run lint
+            echo "lint: ✅"
+          else
+            echo "lint: ⏭️ (no lint script)"
+          fi
 
       - name: Type check
         run: |
-          if npm run --if-present typecheck 2>/dev/null; then echo "typecheck: ✅"
-          elif npm run --if-present type-check 2>/dev/null; then echo "typecheck: ✅"
-          elif [ -f "tsconfig.json" ]; then npx tsc --noEmit && echo "typecheck: ✅"
-          else echo "typecheck: ⏭️ (no TypeScript config)"; fi
+          has_script() {
+            node -e "const fs=require('fs'); const pkg=JSON.parse(fs.readFileSync('package.json','utf8')); process.exit(pkg.scripts && pkg.scripts[process.argv[1]] ? 0 : 1)" "$1"
+          }
+
+          if has_script typecheck; then
+            npm run typecheck
+            echo "typecheck: ✅"
+          elif has_script type-check; then
+            npm run type-check
+            echo "typecheck: ✅"
+          elif [ -f "tsconfig.json" ]; then
+            npx tsc --noEmit
+            echo "typecheck: ✅"
+          else
+            echo "typecheck: ⏭️ (no TypeScript config)"
+          fi
 
       - name: Build
         run: |
-          if npm run --if-present build 2>/dev/null; then echo "build: ✅"
-          else echo "build: ⏭️ (no build script)"; fi
+          has_script() {
+            node -e "const fs=require('fs'); const pkg=JSON.parse(fs.readFileSync('package.json','utf8')); process.exit(pkg.scripts && pkg.scripts[process.argv[1]] ? 0 : 1)" "$1"
+          }
 
+          if has_script build; then
+            npm run build
+            echo "build: ✅"
+          else
+            echo "build: ⏭️ (no build script)"
+          fi
       - name: Test
         run: npm test -- --ci --passWithNoTests
 
@@ -148,10 +175,20 @@ jobs:
           pip install ruff mypy pytest 2>/dev/null || true
 
       - name: Lint (ruff)
-        run: ruff check . || echo "lint: ⏭️ (ruff not available or not configured)"
+        run: |
+          if [ -f "ruff.toml" ] || [ -f ".ruff.toml" ] || grep -q '^\[tool\.ruff' pyproject.toml 2>/dev/null || find . -path ./\.git -prune -o -path ./\.venv -prune -o -path ./venv -prune -o -name "*.py" -print -quit | grep -q .; then
+            ruff check .
+          else
+            echo "lint: ⏭️ (ruff not configured and no Python files found)"
+          fi
 
       - name: Type check (mypy)
-        run: mypy . --ignore-missing-imports 2>/dev/null || echo "typecheck: ⏭️"
+        run: |
+          if [ -f "mypy.ini" ] || [ -f ".mypy.ini" ] || [ -f "setup.cfg" ] || grep -q '^\[tool\.mypy\]' pyproject.toml 2>/dev/null || find . -path ./\.git -prune -o -path ./\.venv -prune -o -path ./venv -prune -o -name "*.py" -print -quit | grep -q .; then
+            mypy . --ignore-missing-imports
+          else
+            echo "typecheck: ⏭️ (mypy not configured and no Python files found)"
+          fi
 
       - name: Test (pytest)
         run: pytest --tb=short
@@ -195,7 +232,12 @@ jobs:
           bundler-cache: true
 
       - name: Lint (RuboCop)
-        run: bundle exec rubocop --autocorrect-all 2>/dev/null || echo "lint: ⏭️ (RuboCop not configured)"
+        run: |
+          if [ -f .rubocop.yml ] || [ -f .rubocop.yaml ] || [ -f .config/rubocop.yml ]; then
+            bundle exec rubocop
+          else
+            echo "lint: ⏭️ (RuboCop not configured)"
+          fi
 
       - name: Test (RSpec)
         run: bundle exec rspec 2>/dev/null || bundle exec rake test
