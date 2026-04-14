@@ -11,8 +11,9 @@ Gate to run: ${input:all}
 
 ## Steps
 
-1. **Detect available gates**: Run project detection if not already done. Identify which quality
-   gates the project supports (test, lint, format, typecheck, build).
+1. **Load the project profile**: Read `docs/project-profile.md` if it exists — use the commands
+   and gate availability listed there. If the file does not exist, run project detection now
+   (see `/analyze-project`) to identify which quality gates the project supports.
 
 2. **Run gates in order**:
    - **Lint** — run the linter. Auto-fix what's fixable, report the rest.

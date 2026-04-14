@@ -13,7 +13,9 @@ ${input:specs/features/}
 
 1. Read the specified `.feature` file (or find the most recently modified in `specs/features/`)
 
-2. Detect the project's test framework by searching for:
+2. **Read `docs/project-profile.md`** if it exists — use the test framework, test command,
+   test directory, and test file pattern from there. If the file does not exist, detect the
+   project's test framework by searching for:
    - `package.json` → Jest, Vitest, Mocha, Cucumber.js
    - `pyproject.toml` / `setup.py` → pytest, behave
    - `*.csproj` → NUnit, xUnit, SpecFlow

@@ -53,7 +53,12 @@ Analyze this project and produce a project profile.
 
     Do NOT set up config files or install packages yet — that happens after the spec is approved.
 
-## Output Format
+## Output
+
+Write the profile to **`docs/project-profile.md`** (create the file, overwriting any existing
+version), then print it to chat so the user can see it.
+
+The file must contain exactly:
 
 ```markdown
 ## Project Profile
@@ -92,5 +97,8 @@ Analyze this project and produce a project profile.
 - Import style: ES modules with path aliases
 - Code style: semicolons, single quotes
 ```
+
+Saving to `docs/project-profile.md` means subsequent prompts (`/write-acceptance-tests`,
+`/run-quality-gates`, etc.) can read it directly instead of re-detecting the stack from scratch.
 
 Reference: `docs/atdd/project-detection.md`
