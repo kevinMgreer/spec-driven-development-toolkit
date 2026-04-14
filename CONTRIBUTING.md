@@ -8,7 +8,7 @@ development. It supports VS Code (Copilot), Cursor, Kiro, Claude, and any AGENTS
 ## Repository Layout
 
 ```
-spec-driven-toolkit/
+spec-driven-development-toolkit/
 │
 ├── docs/atdd/                     # 🟢 SINGLE SOURCE OF TRUTH (platform-agnostic)
 │   ├── workflow.md                #    Full ATDD cycle procedure (all 8 phases)
@@ -136,24 +136,24 @@ Copy everything:
 
 ```bash
 # macOS / Linux
-cp -r spec-driven-toolkit/.github    your-project/.github
-cp -r spec-driven-toolkit/.cursor    your-project/.cursor
-cp -r spec-driven-toolkit/.kiro      your-project/.kiro
-cp -r spec-driven-toolkit/docs       your-project/docs
-cp -r spec-driven-toolkit/specs      your-project/specs
-cp    spec-driven-toolkit/AGENTS.md  your-project/AGENTS.md
-cp    spec-driven-toolkit/CLAUDE.md  your-project/CLAUDE.md
+cp -r spec-driven-development-toolkit/.github    your-project/.github
+cp -r spec-driven-development-toolkit/.cursor    your-project/.cursor
+cp -r spec-driven-development-toolkit/.kiro      your-project/.kiro
+cp -r spec-driven-development-toolkit/docs       your-project/docs
+cp -r spec-driven-development-toolkit/specs      your-project/specs
+cp    spec-driven-development-toolkit/AGENTS.md  your-project/AGENTS.md
+cp    spec-driven-development-toolkit/CLAUDE.md  your-project/CLAUDE.md
 ```
 
 ```powershell
 # Windows (PowerShell)
-Copy-Item -Recurse .\spec-driven-toolkit\.github   your-project\.github
-Copy-Item -Recurse .\spec-driven-toolkit\.cursor   your-project\.cursor
-Copy-Item -Recurse .\spec-driven-toolkit\.kiro     your-project\.kiro
-Copy-Item -Recurse .\spec-driven-toolkit\docs      your-project\docs
-Copy-Item -Recurse .\spec-driven-toolkit\specs     your-project\specs
-Copy-Item .\spec-driven-toolkit\AGENTS.md          your-project\AGENTS.md
-Copy-Item .\spec-driven-toolkit\CLAUDE.md          your-project\CLAUDE.md
+Copy-Item -Recurse .\spec-driven-development-toolkit\.github   your-project\.github
+Copy-Item -Recurse .\spec-driven-development-toolkit\.cursor   your-project\.cursor
+Copy-Item -Recurse .\spec-driven-development-toolkit\.kiro     your-project\.kiro
+Copy-Item -Recurse .\spec-driven-development-toolkit\docs      your-project\docs
+Copy-Item -Recurse .\spec-driven-development-toolkit\specs     your-project\specs
+Copy-Item .\spec-driven-development-toolkit\AGENTS.md          your-project\AGENTS.md
+Copy-Item .\spec-driven-development-toolkit\CLAUDE.md          your-project\CLAUDE.md
 ```
 
 ### Platform-Specific Install
