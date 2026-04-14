@@ -1,0 +1,88 @@
+---
+description: Full ATDD cycle procedure. Apply when implementing a feature, writing specs, generating acceptance tests, or running the spec-first workflow.
+alwaysApply: false
+---
+
+# ATDD Workflow
+
+> Full procedure is in `docs/atdd/workflow.md`. Read that file first, then follow the steps below.
+
+## The Cycle
+
+```
+Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Review → PR
+```
+
+## Phase 0 — Analyze the Project
+
+1. Detect language, package manager, test framework, linter, formatter, build system, CI/CD
+2. Discover existing conventions (test naming, directory structure, code style)
+3. Record a project profile to guide all subsequent phases
+4. See `docs/atdd/project-detection.md` for the full detection procedure
+
+## Phase 1 — Write the Spec
+
+1. Clarify actor, goal, success criteria, and error cases (ask at most 3 questions)
+2. Create `specs/features/<name>.feature` — use `docs/atdd/templates/feature.template.md`
+3. Create `specs/technical/<name>-spec.md` — use `docs/atdd/templates/tech-spec.template.md`
+4. **Mandatory gate**: Present spec to the user and wait for explicit approval
+   - Do NOT proceed to tests until the user confirms
+   - If the user requests changes, update and re-present until approved
+   - Everything after approval is autonomous
+
+Required scenario coverage:
+
+- `@smoke` (1) — single most critical happy path
+- `@happy-path` (1–2) — primary success flows
+- `@edge-case` (2–4) — boundary conditions, unusual-but-valid inputs
+- `@error` (2–3) — invalid inputs, unauthorized access, system failures
+
+## Phase 2 — Generate Tests (Red)
+
+1. Use detected test framework and conventions from Phase 0
+2. Create stubs for every scenario step — each must throw "not implemented"
+3. Add header: `// Spec: specs/features/<name>.feature`
+4. Run tests — confirm all are **red for the right reason**
+
+## Phase 3 — Implement (Green)
+
+Work in priority order: `@smoke` → `@happy-path` → `@edge-case` → `@error`
+
+- Implement only what the failing test demands
+- Run tests after each scenario
+- Never modify tests during implementation
+
+## Phase 4 — Quality Gates
+
+Run all available gates and iterate until they pass:
+
+1. Lint — auto-fix where possible
+2. Format — auto-fix where possible
+3. Type check — fix type errors
+4. Build — fix compilation errors
+5. Test — full suite must be green
+
+Max 3 fix attempts per gate. Re-run all gates after each fix.
+See `docs/atdd/quality-gates.md`.
+
+## Phase 5 — Refactor
+
+- All tests must be green before starting
+- Run tests after every change
+- Re-run all quality gates after refactoring
+
+## Phase 6 — Spec Review
+
+- Every scenario has a corresponding passing test
+- Every business rule in the technical spec is enforced
+- No behavior exists without a spec scenario
+
+## Phase 7 — PR (Optional)
+
+1. Create feature branch, commit, push
+2. Include spec, quality gate results, and scenario summary in PR body
+3. Ask the user before pushing
+
+## Spec Change Protocol
+
+When requirements change: update spec → update tests (confirm red) → update implementation → confirm green.

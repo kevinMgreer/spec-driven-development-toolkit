@@ -1,0 +1,44 @@
+---
+description: Gherkin .feature file conventions — syntax, formatting, step writing, tags, and anti-patterns.
+globs: ["**/*.feature"]
+alwaysApply: false
+---
+
+> Full Gherkin reference is in `docs/atdd/gherkin.md`. Key rules summarized below.
+
+## File Location & Naming
+
+- All `.feature` files go in `specs/features/`
+- Names use `kebab-case.feature`
+- One feature per file
+
+## Tags
+
+| Tag           | Meaning                                        | Count     |
+| ------------- | ---------------------------------------------- | --------- |
+| `@smoke`      | Single most critical path                      | Exactly 1 |
+| `@happy-path` | Primary success flows                          | 1–2       |
+| `@edge-case`  | Boundary conditions                            | 2–4       |
+| `@error`      | Invalid inputs, auth failures, system failures | 2–3       |
+| `@wip`        | Not yet implemented                            | Temporary |
+
+## Step Rules
+
+- **Given** — state/context, never an action
+- **When** — the action or event being tested (one per scenario)
+- **Then** — observable outcome from user/caller perspective, never internal state
+- Use `And` / `But` for additional steps of the same type
+
+## Formatting
+
+- 2-space indent inside `Feature:`, `Background:`, `Scenario:`
+- Blank line between scenarios
+- String literals in double quotes: `"expected text"`
+- Scenario Outline variables in angle brackets: `<variable_name>`
+
+## Anti-Patterns to Avoid
+
+- Multiple `When` steps — split into separate scenarios
+- `Then` asserting DB state or internal calls — assert via observable behavior
+- Vague `Then`: `"Then it should work"` — specify exact observable outcome with concrete values
+- Scenario depending on state from another scenario — use Background or explicit Given steps

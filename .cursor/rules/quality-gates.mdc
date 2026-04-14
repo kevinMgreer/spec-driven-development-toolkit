@@ -1,0 +1,30 @@
+---
+description: Quality gate rules. Apply when running tests, linting, building, checking code quality, or preparing for PR.
+alwaysApply: false
+---
+
+> Full quality gates reference is in `docs/atdd/quality-gates.md`.
+
+## Available Gates
+
+Detect which gates the project supports from its configuration files:
+
+1. **Lint** — ESLint, Biome, Ruff, Flake8, RuboCop, golangci-lint, Clippy
+2. **Format** — Prettier, Biome, Black, Ruff format, rustfmt, gofmt
+3. **Type check** — TypeScript, mypy, pyright, .NET, Go
+4. **Build** — npm build, dotnet build, go build, cargo build, make, gradle, maven
+5. **Test** — Full test suite (mandatory gate)
+
+## When to Run
+
+- After all scenarios are implemented (before refactor)
+- After refactoring is complete
+- Before creating a PR
+
+## Execution Rules
+
+- Auto-fix lint and format issues when the tool supports it
+- Fix type errors and build failures in production code, never in tests
+- Run all gates and iterate until they pass (max 3 attempts per gate)
+- If a gate still fails after 3 attempts, escalate to the user
+- After fixing any gate, re-run ALL gates to catch regressions

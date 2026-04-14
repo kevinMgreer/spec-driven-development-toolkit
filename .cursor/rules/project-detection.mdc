@@ -1,0 +1,29 @@
+---
+description: Project detection rules. Apply when starting work in a new project or detecting the project's stack.
+alwaysApply: false
+---
+
+> Full project detection reference is in `docs/atdd/project-detection.md`.
+
+## What to Detect
+
+Before generating any code, detect:
+
+1. **Language and package manager** — check for `package.json`, `pyproject.toml`, `*.csproj`, `go.mod`, `Cargo.toml`, `Gemfile`, etc.
+2. **Test framework** — check deps, config files, existing test files and their naming patterns
+3. **Linter** — ESLint, Biome, Ruff, Flake8, RuboCop, golangci-lint, Clippy
+4. **Formatter** — Prettier, Biome, Black, rustfmt, gofmt
+5. **Type checker** — TypeScript, mypy, pyright
+6. **Build system** — npm scripts, Make, dotnet, go, cargo, gradle, maven
+7. **CI/CD** — GitHub Actions, GitLab CI, Jenkins, CircleCI
+8. **Conventions** — test naming, directories, imports, code style
+
+## Adaptation Rules
+
+- For legacy projects: match all existing conventions exactly
+- For greenfield projects: prompt the user for tooling preferences (language, test framework,
+  package manager, linter, formatter) in a single prompt before writing specs
+- Never replace existing configs — add alongside them
+- Use the project's existing test framework, directory structure, and naming patterns
+
+See also: `docs/atdd/legacy-integration.md`

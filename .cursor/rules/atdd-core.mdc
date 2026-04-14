@@ -1,0 +1,37 @@
+---
+description: Core spec-first ATDD rules. Always applied to every request in this project.
+alwaysApply: true
+---
+
+# Spec-Driven ATDD — Core Rules
+
+This project uses **spec-first ATDD**. These rules apply to every feature, in every session.
+The toolkit is **language-agnostic** and **platform-agnostic** — it works in any project.
+
+## Non-Negotiable Rules
+
+- **Never write production code** before acceptance tests exist and are failing (red)
+- **Never modify tests** to make them pass — fix the implementation instead
+- **Never add logic** not required by a failing test
+- **Always update the spec first** when requirements change, then tests, then code
+- **Always confirm tests are red** for the right reason before implementing
+- **Always run project detection** before generating code in a new repository
+- **Always run quality gates** (lint, format, typecheck, build, test) before declaring a phase complete
+
+## Where Specs Live
+
+```
+specs/
+├── features/       # Gherkin .feature files  — behavior, business-facing
+└── technical/      # Markdown technical specs — rules, API contracts, constraints
+```
+
+## The Cycle
+
+```
+Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Review → PR
+```
+
+For the full procedure: `docs/atdd/workflow.md`
+For quality gates: `docs/atdd/quality-gates.md`
+For project detection: `docs/atdd/project-detection.md`
