@@ -24,9 +24,9 @@ spec-driven-development-toolkit/
 │
 ├── specs/                         # 📋 Example specs (copy into target project)
 │   ├── features/
-│   │   └── task-management.feature
+│   │   └── example-task-management.feature
 │   └── technical/
-│       └── task-management-spec.md
+│       └── example-task-management-spec.md
 │
 ├── AGENTS.md                      # 🤖 Universal AI instruction file (AGENTS.md standard)
 ├── CLAUDE.md                      # 🟣 Claude Code / Claude Projects root instruction

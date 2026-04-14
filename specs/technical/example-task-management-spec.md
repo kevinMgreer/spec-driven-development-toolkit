@@ -4,7 +4,7 @@
 | ---------------- | ---------------------------------------- |
 | **Status**       | Approved                                 |
 | **Version**      | 1.0                                      |
-| **Feature file** | `specs/features/task-management.feature` |
+| **Feature file** | `specs/features/example-task-management.feature` |
 | **Last updated** | 2026-04-13                               |
 
 ---

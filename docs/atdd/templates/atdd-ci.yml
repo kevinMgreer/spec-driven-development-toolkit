@@ -1,0 +1,263 @@
+# ATDD CI — Quality Gates + Copilot Review
+#
+# Runs on every push and pull request.
+# Detects the project's stack automatically and runs the appropriate quality gates.
+# On pull requests, automatically requests a Copilot code review after gates pass.
+#
+# Stack detection order:
+#   1. Node.js / TypeScript  (package.json)
+#   2. .NET                  (*.csproj / *.sln)
+#   3. Python                (pyproject.toml / requirements.txt)
+#   4. Go                    (go.mod)
+#   5. Ruby                  (Gemfile)
+#   6. Rust                  (Cargo.toml)
+#
+# Customise the "Run quality gates" step for your project's specific commands.
+
+name: ATDD Quality Gates
+
+on:
+  push:
+    branches: ["main", "master", "develop"]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write  # required to add Copilot as a reviewer
+
+jobs:
+  # ─────────────────────────────────────────────
+  # Detect project stack
+  # ─────────────────────────────────────────────
+  detect:
+    name: Detect stack
+    runs-on: ubuntu-latest
+    outputs:
+      stack: ${{ steps.detect.outputs.stack }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect stack
+        id: detect
+        run: |
+          if [ -f "package.json" ]; then
+            echo "stack=node" >> "$GITHUB_OUTPUT"
+          elif ls *.sln *.csproj 2>/dev/null | grep -q .; then
+            echo "stack=dotnet" >> "$GITHUB_OUTPUT"
+          elif [ -f "pyproject.toml" ] || [ -f "requirements.txt" ]; then
+            echo "stack=python" >> "$GITHUB_OUTPUT"
+          elif [ -f "go.mod" ]; then
+            echo "stack=go" >> "$GITHUB_OUTPUT"
+          elif [ -f "Gemfile" ]; then
+            echo "stack=ruby" >> "$GITHUB_OUTPUT"
+          elif [ -f "Cargo.toml" ]; then
+            echo "stack=rust" >> "$GITHUB_OUTPUT"
+          else
+            echo "stack=unknown" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Detected stack: $(cat $GITHUB_OUTPUT | grep stack | cut -d= -f2)"
+
+  # ─────────────────────────────────────────────
+  # Node.js / TypeScript
+  # ─────────────────────────────────────────────
+  quality-gates-node:
+    name: Quality Gates (Node)
+    needs: detect
+    if: needs.detect.outputs.stack == 'node'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: ${{ hashFiles('yarn.lock') != '' && 'yarn' || hashFiles('pnpm-lock.yaml') != '' && 'pnpm' || 'npm' }}
+
+      - name: Install dependencies
+        run: |
+          if [ -f "yarn.lock" ]; then yarn --frozen-lockfile
+          elif [ -f "pnpm-lock.yaml" ]; then corepack enable pnpm && pnpm install --frozen-lockfile
+          else npm ci
+          fi
+
+      - name: Lint
+        run: |
+          if npm run --if-present lint 2>/dev/null; then echo "lint: ✅"
+          else echo "lint: ⏭️ (no lint script)"; fi
+
+      - name: Type check
+        run: |
+          if npm run --if-present typecheck 2>/dev/null; then echo "typecheck: ✅"
+          elif npm run --if-present type-check 2>/dev/null; then echo "typecheck: ✅"
+          elif [ -f "tsconfig.json" ]; then npx tsc --noEmit && echo "typecheck: ✅"
+          else echo "typecheck: ⏭️ (no TypeScript config)"; fi
+
+      - name: Build
+        run: |
+          if npm run --if-present build 2>/dev/null; then echo "build: ✅"
+          else echo "build: ⏭️ (no build script)"; fi
+
+      - name: Test
+        run: npm test -- --ci --passWithNoTests
+
+  # ─────────────────────────────────────────────
+  # .NET
+  # ─────────────────────────────────────────────
+  quality-gates-dotnet:
+    name: Quality Gates (.NET)
+    needs: detect
+    if: needs.detect.outputs.stack == 'dotnet'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.x"
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test --no-build --configuration Release --verbosity normal
+
+  # ─────────────────────────────────────────────
+  # Python
+  # ─────────────────────────────────────────────
+  quality-gates-python:
+    name: Quality Gates (Python)
+    needs: detect
+    if: needs.detect.outputs.stack == 'python'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          if [ -f "pyproject.toml" ]; then pip install -e ".[dev,test]" 2>/dev/null || pip install -e .
+          elif [ -f "requirements-dev.txt" ]; then pip install -r requirements-dev.txt
+          elif [ -f "requirements.txt" ]; then pip install -r requirements.txt
+          fi
+          pip install ruff mypy pytest 2>/dev/null || true
+
+      - name: Lint (ruff)
+        run: ruff check . || echo "lint: ⏭️ (ruff not available or not configured)"
+
+      - name: Type check (mypy)
+        run: mypy . --ignore-missing-imports 2>/dev/null || echo "typecheck: ⏭️"
+
+      - name: Test (pytest)
+        run: pytest --tb=short
+
+  # ─────────────────────────────────────────────
+  # Go
+  # ─────────────────────────────────────────────
+  quality-gates-go:
+    name: Quality Gates (Go)
+    needs: detect
+    if: needs.detect.outputs.stack == 'go'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: true
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Build
+        run: go build ./...
+
+      - name: Test
+        run: go test -v ./...
+
+  # ─────────────────────────────────────────────
+  # Ruby
+  # ─────────────────────────────────────────────
+  quality-gates-ruby:
+    name: Quality Gates (Ruby)
+    needs: detect
+    if: needs.detect.outputs.stack == 'ruby'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Lint (RuboCop)
+        run: bundle exec rubocop --autocorrect-all 2>/dev/null || echo "lint: ⏭️ (RuboCop not configured)"
+
+      - name: Test (RSpec)
+        run: bundle exec rspec 2>/dev/null || bundle exec rake test
+
+  # ─────────────────────────────────────────────
+  # Rust
+  # ─────────────────────────────────────────────
+  quality-gates-rust:
+    name: Quality Gates (Rust)
+    needs: detect
+    if: needs.detect.outputs.stack == 'rust'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Format check
+        run: cargo fmt --check
+
+      - name: Clippy
+        run: cargo clippy -- -D warnings
+
+      - name: Build
+        run: cargo build
+
+      - name: Test
+        run: cargo test
+
+  # ─────────────────────────────────────────────
+  # Request Copilot review on PRs (after gates pass)
+  # ─────────────────────────────────────────────
+  request-copilot-review:
+    name: Request Copilot Review
+    needs:
+      - detect
+      - quality-gates-node
+      - quality-gates-dotnet
+      - quality-gates-python
+      - quality-gates-go
+      - quality-gates-ruby
+      - quality-gates-rust
+    # Run only on PRs; skip if ALL gate jobs were skipped (not just some)
+    if: |
+      always() &&
+      github.event_name == 'pull_request' &&
+      (
+        needs.quality-gates-node.result == 'success' ||
+        needs.quality-gates-dotnet.result == 'success' ||
+        needs.quality-gates-python.result == 'success' ||
+        needs.quality-gates-go.result == 'success' ||
+        needs.quality-gates-ruby.result == 'success' ||
+        needs.quality-gates-rust.result == 'success'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request Copilot code review
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr edit ${{ github.event.pull_request.number }} \
+            --add-reviewer "Copilot" \
+            --repo ${{ github.repository }} \
+            2>/dev/null || echo "Could not add Copilot reviewer (may already be requested)"

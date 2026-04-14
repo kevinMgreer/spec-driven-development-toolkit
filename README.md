@@ -60,10 +60,20 @@ and `specs/` contains working examples.
 
 ### 2. Use it
 
-**VS Code (Copilot)** — full automation with agents and prompts:
+**VS Code (Copilot)** — choose your automation level:
+
+| Mode | Agent | What stops for human input |
+|------|-------|---------------------------|
+| **Supervised** | `@atdd-cycle` | Spec approval + asks before PR |
+| **Fully autonomous** | `@full-autonomous-cycle` | Spec approval only — then hands-off through PR, Copilot review, and comment resolution |
 
 ```
+# Supervised — you approve the spec, then decide on each next step
 @atdd-cycle Implement a user login feature with email/password authentication
+that locks accounts after 5 failed attempts within 15 minutes
+
+# Fully autonomous — you approve the spec, then it runs to completion
+@full-autonomous-cycle Implement a user login feature with email/password authentication
 that locks accounts after 5 failed attempts within 15 minutes
 ```
 
@@ -74,6 +84,27 @@ Or step by step with slash commands:
 /write-spec             → /write-acceptance-tests → /implement-from-spec
 /run-quality-gates      → /refactor-passing-tests → /verify-spec-coverage
 /create-pull-request    → /address-review-comments
+```
+
+### 3. Enable full autonomy (optional one-time setup)
+
+To unlock hands-off PR creation and Copilot review, set up these three things once per project:
+
+**GitHub MCP** — lets the agent interact with GitHub directly (create PRs, fetch review comments):
+```
+# Copy docs/atdd/templates/mcp-github.json to .vscode/mcp.json
+# Set a GITHUB_TOKEN env var with repo + pull_request scopes
+```
+
+**CI quality gates** — enforces gates on every push and auto-requests Copilot review on PRs:
+```
+# Copy docs/atdd/templates/atdd-ci.yml to .github/workflows/atdd-ci.yml
+```
+
+**Local git hooks** (optional) — blocks push if quality gates fail locally:
+```
+# Copy docs/atdd/templates/lefthook.yml to lefthook.yml
+# Run: lefthook install   (install once: npm i -g @evilmartians/lefthook)
 ```
 
 **Cursor / Kiro / Claude** — describe what you want to build. The AI reads the ATDD rules
@@ -98,6 +129,9 @@ The single source of truth — all platform adapters reference or embed content 
 | `checklist.md`                    | Per-feature progress tracking checklist                       |
 | `templates/feature.template.md`   | Gherkin feature file template                                 |
 | `templates/tech-spec.template.md` | Technical spec template                                       |
+| `templates/atdd-ci.yml`           | GitHub Actions CI — auto-detects stack, runs quality gates, requests Copilot review |
+| `templates/lefthook.yml`          | Git pre-push hooks — enforces quality gates locally           |
+| `templates/mcp-github.json`       | GitHub MCP server config — enables agent-driven PR/review     |
 
 ### Universal AI Configuration
 
@@ -111,7 +145,8 @@ The single source of truth — all platform adapters reference or embed content 
 | File                                             | Purpose                                                  |
 | ------------------------------------------------ | -------------------------------------------------------- |
 | `copilot-instructions.md`                        | Project-wide spec-first rules                            |
-| `agents/atdd-cycle.agent.md`                     | Full automation: analyze → spec → tests → implement → PR |
+| `agents/atdd-cycle.agent.md`                     | **Supervised**: analyze → spec → tests → implement → PR (asks before PR) |
+| `agents/full-autonomous-cycle.agent.md`          | **Autonomous**: spec approval only → runs to PR + Copilot review resolution |
 | `agents/spec-writer.agent.md`                    | Writes Gherkin features + technical specs                |
 | `agents/spec-reviewer.agent.md`                  | Validates implementation against specs                   |
 | `instructions/atdd-workflow.instructions.md`     | Red-green-refactor rules                                 |
@@ -156,8 +191,8 @@ The single source of truth — all platform adapters reference or embed content 
 
 | File                                      | Purpose                                     |
 | ----------------------------------------- | ------------------------------------------- |
-| `specs/features/task-management.feature`  | Complete Gherkin example with all tag types |
-| `specs/technical/task-management-spec.md` | Complete technical spec example             |
+| `specs/features/example-task-management.feature`  | Complete Gherkin example with all tag types |
+| `specs/technical/example-task-management-spec.md` | Complete technical spec example             |
 
 ---
 
