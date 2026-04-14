@@ -1,0 +1,103 @@
+# lefthook.yml — Git hook configuration for ATDD quality gates
+#
+# Enforces quality gates locally before push, matching CI behaviour.
+# Install: https://lefthook.dev  (or: npm i -g @evilmartians/lefthook)
+# Activate: lefthook install
+#
+# Customise the commands below to match your project's scripts.
+# The stack-specific blocks are commented out — uncomment the one that applies.
+
+# ─────────────────────────────────────────────────────────
+# Node.js / TypeScript  (npm / yarn / pnpm)
+# ─────────────────────────────────────────────────────────
+# pre-push:
+#   parallel: true
+#   commands:
+#     lint:
+#       run: npm run lint
+#     typecheck:
+#       run: npm run typecheck
+#     test:
+#       run: npm test -- --passWithNoTests
+#
+# pre-commit:
+#   commands:
+#     format:
+#       glob: "*.{ts,tsx,js,jsx,json,css,md}"
+#       run: npx prettier --write {staged_files}
+#       stage_fixed: true
+
+# ─────────────────────────────────────────────────────────
+# .NET
+# ─────────────────────────────────────────────────────────
+# pre-push:
+#   commands:
+#     build:
+#       run: dotnet build --configuration Release
+#     test:
+#       run: dotnet test --no-build --configuration Release
+
+# ─────────────────────────────────────────────────────────
+# Python
+# ─────────────────────────────────────────────────────────
+# pre-push:
+#   parallel: true
+#   commands:
+#     lint:
+#       run: ruff check .
+#     typecheck:
+#       run: mypy . --ignore-missing-imports
+#     test:
+#       run: pytest --tb=short
+#
+# pre-commit:
+#   commands:
+#     format:
+#       glob: "*.py"
+#       run: ruff format {staged_files}
+#       stage_fixed: true
+
+# ─────────────────────────────────────────────────────────
+# Go
+# ─────────────────────────────────────────────────────────
+# pre-push:
+#   parallel: true
+#   commands:
+#     vet:
+#       run: go vet ./...
+#     test:
+#       run: go test ./...
+#
+# pre-commit:
+#   commands:
+#     format:
+#       glob: "*.go"
+#       run: gofmt -w {staged_files}
+#       stage_fixed: true
+
+# ─────────────────────────────────────────────────────────
+# Ruby
+# ─────────────────────────────────────────────────────────
+# pre-push:
+#   commands:
+#     lint:
+#       run: bundle exec rubocop
+#     test:
+#       run: bundle exec rspec
+
+# ─────────────────────────────────────────────────────────
+# Rust
+# ─────────────────────────────────────────────────────────
+# pre-push:
+#   commands:
+#     clippy:
+#       run: cargo clippy -- -D warnings
+#     test:
+#       run: cargo test
+#
+# pre-commit:
+#   commands:
+#     format:
+#       glob: "*.rs"
+#       run: cargo fmt
+#       stage_fixed: true
