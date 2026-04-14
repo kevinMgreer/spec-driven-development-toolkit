@@ -5,7 +5,7 @@
 If you discover a security vulnerability in this project, please report it responsibly.
 
 **Do not open a public issue.** Instead, email the maintainers or use
-[GitHub's private vulnerability reporting](https://github.com/kevinMgreer/spec-driven-toolkit/security/advisories/new).
+[GitHub's private vulnerability reporting](https://github.com/kevinMgreer/spec-driven-development-toolkit/security/advisories/new).
 
 We will acknowledge receipt within 48 hours and provide an estimated timeline for a fix.
 
