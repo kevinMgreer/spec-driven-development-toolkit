@@ -62,9 +62,9 @@ and `specs/` contains working examples.
 
 **VS Code (Copilot)** — choose your automation level:
 
-| Mode | Agent | What stops for human input |
-|------|-------|---------------------------|
-| **Supervised** | `@atdd-cycle` | Spec approval + asks before PR |
+| Mode                 | Agent                    | What stops for human input                                                             |
+| -------------------- | ------------------------ | -------------------------------------------------------------------------------------- |
+| **Supervised**       | `@atdd-cycle`            | Spec approval + asks before PR                                                         |
 | **Fully autonomous** | `@full-autonomous-cycle` | Spec approval only — then hands-off through PR, Copilot review, and comment resolution |
 
 ```
@@ -91,17 +91,20 @@ Or step by step with slash commands:
 To unlock hands-off PR creation and Copilot review, set up these three things once per project:
 
 **GitHub MCP** — lets the agent interact with GitHub directly (create PRs, fetch review comments):
+
 ```
 # Copy docs/atdd/templates/mcp-github.json to .vscode/mcp.json
 # Set a GITHUB_TOKEN env var with repo + pull_request scopes
 ```
 
 **CI quality gates** — enforces gates on every push and auto-requests Copilot review on PRs:
+
 ```
 # Copy docs/atdd/templates/atdd-ci.yml to .github/workflows/atdd-ci.yml
 ```
 
 **Local git hooks** (optional) — blocks push if quality gates fail locally:
+
 ```
 # Copy docs/atdd/templates/lefthook.yml to lefthook.yml
 # Run: lefthook install   (install once: npm i -g @evilmartians/lefthook)
@@ -118,20 +121,20 @@ automatically and follows the spec-first workflow.
 
 The single source of truth — all platform adapters reference or embed content from here.
 
-| File                              | Contents                                                      |
-| --------------------------------- | ------------------------------------------------------------- |
-| `workflow.md`                     | Complete ATDD cycle procedure (all 8 phases)                  |
-| `quality-gates.md`                | Quality gate definitions, detection, and execution            |
-| `project-detection.md`            | Language/framework detection for any project                  |
-| `legacy-integration.md`           | Integrating into existing projects                            |
-| `spec-writing.md`                 | How to write clear, testable, behavior-focused specifications |
-| `gherkin.md`                      | Gherkin syntax, formatting, step rules, and anti-patterns     |
-| `checklist.md`                    | Per-feature progress tracking checklist                       |
-| `templates/feature.template.md`   | Gherkin feature file template                                 |
-| `templates/tech-spec.template.md` | Technical spec template                                       |
+| File                              | Contents                                                                            |
+| --------------------------------- | ----------------------------------------------------------------------------------- |
+| `workflow.md`                     | Complete ATDD cycle procedure (all 8 phases)                                        |
+| `quality-gates.md`                | Quality gate definitions, detection, and execution                                  |
+| `project-detection.md`            | Language/framework detection for any project                                        |
+| `legacy-integration.md`           | Integrating into existing projects                                                  |
+| `spec-writing.md`                 | How to write clear, testable, behavior-focused specifications                       |
+| `gherkin.md`                      | Gherkin syntax, formatting, step rules, and anti-patterns                           |
+| `checklist.md`                    | Per-feature progress tracking checklist                                             |
+| `templates/feature.template.md`   | Gherkin feature file template                                                       |
+| `templates/tech-spec.template.md` | Technical spec template                                                             |
 | `templates/atdd-ci.yml`           | GitHub Actions CI — auto-detects stack, runs quality gates, requests Copilot review |
-| `templates/lefthook.yml`          | Git pre-push hooks — enforces quality gates locally           |
-| `templates/mcp-github.json`       | GitHub MCP server config — enables agent-driven PR/review     |
+| `templates/lefthook.yml`          | Git pre-push hooks — enforces quality gates locally                                 |
+| `templates/mcp-github.json`       | GitHub MCP server config — enables agent-driven PR/review                           |
 
 ### Universal AI Configuration
 
@@ -142,28 +145,28 @@ The single source of truth — all platform adapters reference or embed content 
 
 ### VS Code (Copilot) — `.github/`
 
-| File                                             | Purpose                                                  |
-| ------------------------------------------------ | -------------------------------------------------------- |
-| `copilot-instructions.md`                        | Project-wide spec-first rules                            |
-| `agents/atdd-cycle.agent.md`                     | **Supervised**: analyze → spec → tests → implement → PR (asks before PR) |
+| File                                             | Purpose                                                                     |
+| ------------------------------------------------ | --------------------------------------------------------------------------- |
+| `copilot-instructions.md`                        | Project-wide spec-first rules                                               |
+| `agents/atdd-cycle.agent.md`                     | **Supervised**: analyze → spec → tests → implement → PR (asks before PR)    |
 | `agents/full-autonomous-cycle.agent.md`          | **Autonomous**: spec approval only → runs to PR + Copilot review resolution |
-| `agents/spec-writer.agent.md`                    | Writes Gherkin features + technical specs                |
-| `agents/spec-reviewer.agent.md`                  | Validates implementation against specs                   |
-| `instructions/atdd-workflow.instructions.md`     | Red-green-refactor rules                                 |
-| `instructions/spec-writing.instructions.md`      | Behavior-focused spec writing guide                      |
-| `instructions/gherkin.instructions.md`           | Auto-applied to `*.feature` files                        |
-| `instructions/quality-gates.instructions.md`     | Quality gate detection and execution                     |
-| `instructions/project-detection.instructions.md` | Language/framework detection guide                       |
-| `prompts/analyze-project.prompt.md`              | `/analyze-project` — detect project stack                |
-| `prompts/write-spec.prompt.md`                   | `/write-spec` — generate spec from requirements          |
-| `prompts/write-acceptance-tests.prompt.md`       | `/write-acceptance-tests` — failing test stubs           |
-| `prompts/implement-from-spec.prompt.md`          | `/implement-from-spec` — minimum code to pass            |
-| `prompts/run-quality-gates.prompt.md`            | `/run-quality-gates` — lint/format/build/test gates      |
-| `prompts/verify-spec-coverage.prompt.md`         | `/verify-spec-coverage` — compliance check               |
-| `prompts/refactor-passing-tests.prompt.md`       | `/refactor-passing-tests` — safe refactor                |
-| `prompts/create-pull-request.prompt.md`          | `/create-pull-request` — branch, commit, push, PR        |
-| `prompts/address-review-comments.prompt.md`      | `/address-review-comments` — handle PR feedback          |
-| `skills/atdd/`                                   | On-demand ATDD skill with templates and references       |
+| `agents/spec-writer.agent.md`                    | Writes Gherkin features + technical specs                                   |
+| `agents/spec-reviewer.agent.md`                  | Validates implementation against specs                                      |
+| `instructions/atdd-workflow.instructions.md`     | Red-green-refactor rules                                                    |
+| `instructions/spec-writing.instructions.md`      | Behavior-focused spec writing guide                                         |
+| `instructions/gherkin.instructions.md`           | Auto-applied to `*.feature` files                                           |
+| `instructions/quality-gates.instructions.md`     | Quality gate detection and execution                                        |
+| `instructions/project-detection.instructions.md` | Language/framework detection guide                                          |
+| `prompts/analyze-project.prompt.md`              | `/analyze-project` — detect project stack                                   |
+| `prompts/write-spec.prompt.md`                   | `/write-spec` — generate spec from requirements                             |
+| `prompts/write-acceptance-tests.prompt.md`       | `/write-acceptance-tests` — failing test stubs                              |
+| `prompts/implement-from-spec.prompt.md`          | `/implement-from-spec` — minimum code to pass                               |
+| `prompts/run-quality-gates.prompt.md`            | `/run-quality-gates` — lint/format/build/test gates                         |
+| `prompts/verify-spec-coverage.prompt.md`         | `/verify-spec-coverage` — compliance check                                  |
+| `prompts/refactor-passing-tests.prompt.md`       | `/refactor-passing-tests` — safe refactor                                   |
+| `prompts/create-pull-request.prompt.md`          | `/create-pull-request` — branch, commit, push, PR                           |
+| `prompts/address-review-comments.prompt.md`      | `/address-review-comments` — handle PR feedback                             |
+| `skills/atdd/`                                   | On-demand ATDD skill with templates and references                          |
 
 ### Cursor — `.cursor/rules/`
 
@@ -189,8 +192,8 @@ The single source of truth — all platform adapters reference or embed content 
 
 ### Example Specs (`specs/`)
 
-| File                                      | Purpose                                     |
-| ----------------------------------------- | ------------------------------------------- |
+| File                                              | Purpose                                     |
+| ------------------------------------------------- | ------------------------------------------- |
 | `specs/features/example-task-management.feature`  | Complete Gherkin example with all tag types |
 | `specs/technical/example-task-management-spec.md` | Complete technical spec example             |
 
