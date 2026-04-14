@@ -55,8 +55,9 @@ Analyze this project and produce a project profile.
 
 ## Output
 
-Write the profile to **`docs/project-profile.md`** (create the file, overwriting any existing
-version), then print it to chat so the user can see it.
+Ensure the **`docs/`** directory exists first; if it does not, create it. Then write the profile
+to **`docs/project-profile.md`** (create or overwrite the file), and print the same content to
+chat so the user can see it.
 
 The file must contain exactly:
 
