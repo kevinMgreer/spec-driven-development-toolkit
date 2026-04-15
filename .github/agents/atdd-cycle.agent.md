@@ -123,7 +123,8 @@ Use the todo list to track progress through each phase.
    - Acceptable failure: "not implemented", assertion error, `NotImplementedException`
    - Unacceptable failure: compile error, import error, missing setup — fix these first
 
-4. **Quality gate — Paste the test runner output before continuing.**
+4. **Quality gate — Print the test runner output before continuing.**
+   - Print the actual test runner output (from step 2 if compilation succeeded, or step 3)
    - Every test must be failing — no green tests at this stage
    - If any test passes, the stub body is wrong — add a throw/assert
    - Report: "X scenarios, all red ✓"

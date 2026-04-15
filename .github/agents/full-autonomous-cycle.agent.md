@@ -132,7 +132,7 @@ Use the todo list to track progress through each phase.
    - Unacceptable failure: compile error, import error, missing setup — fix these first
 
 4. **HARD GATE — Print the test runner output before continuing.**
-   - Paste the actual output from step 3
+   - Print the actual test runner output (from step 2 if compilation succeeded, or step 3)
    - Every test must be failing — no green tests at this stage
    - If any test passes, the stub body is wrong — add a throw/assert
 

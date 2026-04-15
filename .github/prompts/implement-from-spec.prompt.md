@@ -16,14 +16,15 @@ ${input}
 2. **Check whether acceptance tests exist** — search for a test file that references the feature
    (look for the header comment `// Spec: specs/features/<name>.feature` or equivalent).
 
-   **If no test file exists** — generate stubs before implementing:
-   - Detect the project's test framework (`package.json`, `pyproject.toml`, `*.csproj`, etc.)
-   - Find existing test files to match naming convention and directory structure
-   - Create a stub test for every scenario in the `.feature` file
-   - Each stub must throw a clear "not implemented" error — silent skips are not acceptable
-   - Add header: `// Spec: specs/features/<name>.feature` (adjust comment syntax per language)
-   - Run the tests and confirm every stub is **red** before continuing
-   - If any fail due to import/setup errors, fix the environment first
+   **If no test file exists** — stop and run `/write-acceptance-tests` first:
+   - Invoke `/write-acceptance-tests ${input}` to generate, run, and confirm red stubs
+   - Do not proceed with implementation until every stub fails for the right reason
+   - Return here once stubs are confirmed red
+
+   **If test file(s) exist** — read them in full before writing any code:
+   - Open every file that references the feature spec
+   - Understand the assertion structure, helpers, and setup — implementation must satisfy the
+     assertions as written, not just pass runner output
 
 3. Run the current tests to see which are failing and why
 4. Implement in priority order: `@smoke` → `@happy-path` → `@edge-case` → `@error`
