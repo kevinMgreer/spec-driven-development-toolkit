@@ -11,8 +11,21 @@ ${input}
 
 ## Steps
 
-1. Read the `.feature` file and the test file that references it
-2. Read `specs/technical/<name>-spec.md` for business rules and constraints
+1. Read the `.feature` file and `specs/technical/<name>-spec.md`
+
+2. **Check whether acceptance tests exist** — search for a test file that references the feature
+   (look for the header comment `// Spec: specs/features/<name>.feature` or equivalent).
+
+   **If no test file exists** — stop and run `/write-acceptance-tests` first:
+   - Invoke `/write-acceptance-tests ${input}` to generate, run, and confirm red stubs
+   - Do not proceed with implementation until every stub fails for the right reason
+   - Return here once stubs are confirmed red
+
+   **If test file(s) exist** — read them in full before writing any code:
+   - Open every file that references the feature spec
+   - Understand the assertion structure, helpers, and setup — implementation must satisfy the
+     assertions as written, not just pass runner output
+
 3. Run the current tests to see which are failing and why
 4. Implement in priority order: `@smoke` → `@happy-path` → `@edge-case` → `@error`
 

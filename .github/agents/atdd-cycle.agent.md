@@ -22,6 +22,18 @@ spec-compliant, quality-gated implementation — optionally through to PR creati
 - **ALWAYS** run quality gates before declaring a phase complete
 - **ALWAYS** refactor only after all tests are green
 
+### The Test-First Rule (non-negotiable)
+
+The **first files you create after spec approval must be test files**. This is not optional.
+
+- Do NOT create DTOs, entities, records, interfaces, controllers, services, or repositories
+  before a test file exists
+- Do NOT check the build state before writing tests
+- Do NOT reason about "what types are needed" before writing tests
+- "I need these types to compile" is not an exception — write the test file first, then add
+  the minimum empty shells (no fields, no logic) needed to make it compile
+- If the test file is not the first file you create in Phase 2, you have broken the rule
+
 ## Cycle
 
 ```
@@ -42,7 +54,9 @@ Use the todo list to track progress through each phase.
    - Test directory structure (`tests/`, `__tests__/`, `test/`, `spec/`, co-located)
    - Import patterns, code style, and existing test utilities
 
-3. Record findings as a project profile. Use this profile for all subsequent phases.
+3. If `docs/project-profile.md` does not exist, write the findings to that file. If it already
+   exists, read it and treat it as the authoritative project profile (update only if the user
+   asks). Use this profile for all subsequent phases.
 
 4. If this is a **greenfield project** (no existing code):
    - Prompt the user for tooling preferences in a **single prompt**:
@@ -50,7 +64,7 @@ Use the todo list to track progress through each phase.
      - **Optional**: linter, formatter, directory structure, code style, CI/CD
    - Example: "Jest or Vitest?", "xUnit or NUnit?", "npm or pnpm?"
    - If the user says "pick defaults," choose the most common tooling and note the choices
-   - Record all choices in the project profile
+   - Record all choices in `docs/project-profile.md`
    - Do NOT set up config files yet — wait until the spec is approved (Phase 1 gate)
    - Reference: `docs/atdd/project-detection.md`
 
@@ -87,16 +101,34 @@ Use the todo list to track progress through each phase.
 
 ### Phase 2 — Acceptance Tests (Red)
 
-1. Using the project profile from Phase 0, generate acceptance test stubs:
+**Order is mandatory: test file first, everything else second.**
+
+1. **Write the test file first** — before any other file:
    - Use the detected test framework and conventions
    - Place in the correct directory using the project's naming pattern
-   - Each step definition stub must throw/assert a "not implemented" error
-   - Add the header: `// Spec: specs/features/<name>.feature` (adjust comment syntax per language)
+   - Create one test per scenario in the `.feature` file
+   - Each test body must throw/assert a "not implemented" error
+   - Add the header: `// Spec: specs/features/<name>.feature` (adjust per language)
 
-2. Run the tests. Confirm they are **red** (failing for the right reason — not broken imports or
-   syntax errors). If any fail for the wrong reason, fix the setup first.
+2. **After the test file exists**, try to build/compile:
+   - If it compiles, proceed to step 3 and run the test command
+   - If it does not compile due to missing types, create the minimum empty shells needed:
+     - Empty class/interface/record with no properties, no fields, no method bodies
+     - No logic of any kind — not even `return null` with business meaning
+     - Repeat: only what is needed for the test file to compile
+   - Once the test file compiles, proceed to step 3
 
-3. **Quality gate**: All stubs red for "not implemented" reasons. Report: "X scenarios, all red ✓"
+3. Run the **test command** — not the build command:
+   - `dotnet test` / `pytest` / `npm test` / `go test ./...`
+   - A successful build is not enough — the tests must run and fail
+   - Acceptable failure: "not implemented", assertion error, `NotImplementedException`
+   - Unacceptable failure: compile error, import error, missing setup — fix these first
+
+4. **Quality gate — Print the test runner output before continuing.**
+   - Print the actual test runner output (from step 2 if compilation succeeded, or step 3)
+   - Every test must be failing — no green tests at this stage
+   - If any test passes, the stub body is wrong — add a throw/assert
+   - Report: "X scenarios, all red ✓"
 
 ---
 

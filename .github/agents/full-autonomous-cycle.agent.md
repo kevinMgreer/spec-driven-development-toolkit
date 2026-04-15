@@ -27,6 +27,18 @@ After the user approves the spec, you proceed through every remaining phase with
 - **ALWAYS** run quality gates before declaring a phase complete
 - **ALWAYS** refactor only after all tests are green
 
+### The Test-First Rule (non-negotiable)
+
+The **first files you create after spec approval must be test files**. This is not optional.
+
+- Do NOT create DTOs, entities, records, interfaces, controllers, services, or repositories
+  before a test file exists
+- Do NOT check the build state before writing tests
+- Do NOT reason about "what types are needed" before writing tests
+- "I need these types to compile" is not an exception — write the test file first, then add
+  the minimum empty shells (no fields, no logic) needed to make it compile
+- If the test file is not the first file you create in Phase 2, you have broken the rule
+
 ## Cycle
 
 ```
@@ -48,12 +60,15 @@ Use the todo list to track progress through each phase.
    - Test directory structure (`tests/`, `__tests__/`, `test/`, `spec/`, co-located)
    - Import patterns, code style, and existing test utilities
 
-3. Record findings as a project profile. Use this profile for all subsequent phases.
+3. If `docs/project-profile.md` does not exist, write the findings to that file. If it already
+   exists, read it and treat it as the authoritative project profile (update only if the user
+   asks). Use this profile for all subsequent phases.
 
 4. If this is a **greenfield project** (no existing code):
    - Prompt the user for tooling preferences in a **single prompt**
    - **Required**: language/runtime, test framework, package manager
    - If the user says "pick defaults," choose the most common tooling and note the choices
+   - Record all choices in `docs/project-profile.md`
    - Do NOT set up config files yet — wait until the spec is approved
 
 5. If this is a **legacy project** (existing code):
@@ -68,11 +83,20 @@ Use the todo list to track progress through each phase.
    - What are the must-have acceptance criteria?
    - What are the critical error and edge cases?
 
-2. Invoke the `spec-writer` subagent with the full requirements context.
+2. Create `specs/features/<name>.feature` — Gherkin scenarios:
+   - Feature block (`As a / I want / So that`)
+   - Exactly 1x `@smoke` scenario — the single most critical happy path
+   - 1–2x `@happy-path` — primary success flows
+   - 2–4x `@edge-case` — boundary conditions and unusual-but-valid inputs
+   - 2–3x `@error` — invalid inputs, unauthorized access, system failures
+   - Use `Scenario Outline` + `Examples` tables where multiple inputs share a behavior
+   - Reference: `docs/atdd/gherkin.md` for syntax and conventions
 
-3. The spec-writer will create:
-   - `specs/features/<name>.feature` — Gherkin scenarios
-   - `specs/technical/<name>-spec.md` — Technical spec
+3. Create `specs/technical/<name>-spec.md`:
+   - Business rules and constraints
+   - API contract (inputs, outputs, errors)
+   - Data validation rules
+   - Reference: `docs/atdd/spec-writing.md`
 
 4. Show the user the created specs. Ask: _"Do these specs look correct? Any adjustments before I
    proceed with full autonomous execution?"_
@@ -85,16 +109,34 @@ Use the todo list to track progress through each phase.
 
 ### Phase 2 — Acceptance Tests (Red)
 
-1. Using the project profile from Phase 0, generate acceptance test stubs:
+**Order is mandatory: test file first, everything else second.**
+
+1. **Write the test file first** — before any other file:
    - Use the detected test framework and conventions
    - Place in the correct directory using the project's naming pattern
-   - Each step definition stub must throw/assert a "not implemented" error
+   - Create one test per scenario in the `.feature` file
+   - Each test body must throw/assert a "not implemented" error
    - Add the header: `// Spec: specs/features/<name>.feature` (adjust per language)
 
-2. Run the tests. Confirm they are **red** for the right reason (not import errors or syntax).
-   If any fail for the wrong reason, fix the setup before proceeding.
+2. **After the test file exists**, try to build/compile:
+   - If it compiles — proceed to step 3 and run the test command
+   - If it does not compile due to missing types, create the minimum empty shells needed:
+     - Empty class/interface/record with no properties, no fields, no method bodies
+     - No logic of any kind — not even `return null` with business meaning
+     - Repeat: only what is needed for the test file to compile
 
-3. Report: "X scenarios, all red ✓" and continue immediately.
+3. Run the **test command** — not the build command:
+   - `dotnet test` / `pytest` / `npm test` / `go test ./...`
+   - A successful build is not enough — the tests must run and fail
+   - Acceptable failure: "not implemented", assertion error, `NotImplementedException`
+   - Unacceptable failure: compile error, import error, missing setup — fix these first
+
+4. **HARD GATE — Print the test runner output before continuing.**
+   - Print the actual test runner output (from step 2 if compilation succeeded, or step 3)
+   - Every test must be failing — no green tests at this stage
+   - If any test passes, the stub body is wrong — add a throw/assert
+
+5. Report: "X scenarios, all red ✓" and proceed to Phase 3.
 
 ---
 
@@ -142,9 +184,15 @@ Reference: `docs/atdd/quality-gates.md`
 
 ### Phase 6 — Spec Review
 
-1. Invoke the `spec-reviewer` subagent to validate implementation against spec.
-2. If gaps or violations are found: add missing tests → implement → re-verify.
-3. Run the full test suite and all quality gates one final time.
+Verify compliance inline — do not delegate to a subagent:
+
+1. For every scenario in `specs/features/<name>.feature`, confirm there is a corresponding
+   passing test that would fail if the scenario's behavior were removed.
+2. For every business rule in `specs/technical/<name>-spec.md`, confirm it is enforced by
+   at least one test.
+3. Confirm no production behavior exists without a spec scenario.
+4. If gaps are found: add missing test stubs → confirm red → implement → confirm green.
+5. Run the full test suite and all quality gates one final time.
 
 ---
 
