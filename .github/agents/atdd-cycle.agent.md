@@ -111,11 +111,12 @@ Use the todo list to track progress through each phase.
    - Add the header: `// Spec: specs/features/<name>.feature` (adjust per language)
 
 2. **After the test file exists**, try to build/compile:
-   - If it compiles — run the tests and skip to step 4
+   - If it compiles, proceed to step 3 and run the test command
    - If it does not compile due to missing types, create the minimum empty shells needed:
      - Empty class/interface/record with no properties, no fields, no method bodies
      - No logic of any kind — not even `return null` with business meaning
      - Repeat: only what is needed for the test file to compile
+   - Once the test file compiles, proceed to step 3
 
 3. Run the **test command** — not the build command:
    - `dotnet test` / `pytest` / `npm test` / `go test ./...`
