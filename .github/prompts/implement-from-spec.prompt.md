@@ -11,8 +11,20 @@ ${input}
 
 ## Steps
 
-1. Read the `.feature` file and the test file that references it
-2. Read `specs/technical/<name>-spec.md` for business rules and constraints
+1. Read the `.feature` file and `specs/technical/<name>-spec.md`
+
+2. **Check whether acceptance tests exist** — search for a test file that references the feature
+   (look for the header comment `// Spec: specs/features/<name>.feature` or equivalent).
+
+   **If no test file exists** — generate stubs before implementing:
+   - Detect the project's test framework (`package.json`, `pyproject.toml`, `*.csproj`, etc.)
+   - Find existing test files to match naming convention and directory structure
+   - Create a stub test for every scenario in the `.feature` file
+   - Each stub must throw a clear "not implemented" error — silent skips are not acceptable
+   - Add header: `// Spec: specs/features/<name>.feature` (adjust comment syntax per language)
+   - Run the tests and confirm every stub is **red** before continuing
+   - If any fail due to import/setup errors, fix the environment first
+
 3. Run the current tests to see which are failing and why
 4. Implement in priority order: `@smoke` → `@happy-path` → `@edge-case` → `@error`
 
