@@ -6,6 +6,9 @@ AI-assisted development with automated quality gates throughout.
 
 Works with **VS Code (Copilot) · Cursor · Kiro · Claude Code** — and any tool that reads `AGENTS.md`.
 
+> **Companion:** [spec-mcp-server](https://github.com/kevinMgreer/spec-mcp-server) — an MCP server that exposes your `specs/` directory to AI assistants directly.
+> The VS Code install below configures it automatically. Install it globally once: `npm install -g spec-mcp-server`
+
 ---
 
 ## The Core Idea
@@ -90,10 +93,17 @@ Or step by step with slash commands:
 
 To unlock hands-off PR creation and Copilot review, set up these three things once per project:
 
+**Spec MCP server** — gives AI assistants direct access to your `specs/` directory (installed automatically by the VS Code install script):
+
+```bash
+npm install -g spec-mcp-server   # install once globally
+# .vscode/mcp.json is written automatically by install.sh / install.ps1
+```
+
 **GitHub MCP** — lets the agent interact with GitHub directly (create PRs, fetch review comments):
 
 ```
-# Copy docs/atdd/templates/mcp-github.json to .vscode/mcp.json
+# Merge docs/atdd/templates/mcp-github.json into .vscode/mcp.json
 # Set a GITHUB_TOKEN env var:
 # - classic PAT: repo scope
 # - fine-grained PAT: repository permissions for Pull requests and Contents

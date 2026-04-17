@@ -1,6 +1,6 @@
 ---
 description: "Use when validating that an implementation matches its specification. Reviews code against feature files and technical specs, identifies missing scenarios, spec violations, and untested behavior. Trigger phrases: 'review spec', 'verify spec', 'spec compliance', 'spec coverage', 'check implementation against spec', 'validate feature', 'did I miss anything'."
-tools: [read, search]
+tools: [read, search, spec-mcp-server/list-specs, spec-mcp-server/get-spec, spec-mcp-server/check-coverage]
 user-invocable: true
 ---
 

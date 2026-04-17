@@ -1,6 +1,6 @@
 ---
 description: "Fully autonomous ATDD cycle — runs from requirements all the way through spec approval, test generation, implementation, quality gates, PR creation, Copilot review request, and review comment resolution without stopping. The ONLY human gate is spec approval. Use this when you want hands-off execution after spec sign-off. Trigger phrases: 'full autonomous cycle', 'autonomous ATDD', 'hands-off build', 'one-shot feature', 'build and PR', 'build and review', 'do everything autonomously'."
-tools: [read, edit, search, execute, agent, todo]
+tools: [read, edit, search, execute, agent, todo, spec-mcp-server/list-specs, spec-mcp-server/get-spec, spec-mcp-server/check-coverage, spec-mcp-server/create-spec]
 argument-hint: "Describe the feature or user story to implement"
 ---
 
