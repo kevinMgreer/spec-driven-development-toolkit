@@ -1,6 +1,6 @@
 ---
 description: "Use when writing specifications from requirements or user stories. Creates Gherkin feature files with Given/When/Then scenarios and paired technical specs. Trigger phrases: 'write spec', 'create feature file', 'spec from requirements', 'write Gherkin', 'acceptance criteria', 'define scenarios', 'spec this out'."
-tools: [read, search, edit]
+tools: [read, search, edit, spec-mcp-server/list-specs, spec-mcp-server/get-spec, spec-mcp-server/check-coverage, spec-mcp-server/create-spec]
 argument-hint: "Describe the feature or paste the user story / requirements"
 ---
 

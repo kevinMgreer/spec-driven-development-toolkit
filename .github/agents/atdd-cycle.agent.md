@@ -1,6 +1,6 @@
 ---
 description: "Use when implementing a new feature or user story end-to-end using the ATDD cycle. Orchestrates project analysis, spec writing, acceptance test generation, implementation, quality gates, spec verification, and optionally PR creation. Trigger phrases: 'implement feature', 'ATDD cycle', 'build story', 'spec-first feature', 'new feature from requirements', 'TDD from spec', 'full cycle', 'build this out'."
-tools: [read, edit, search, execute, agent, todo]
+tools: [read, edit, search, execute, agent, todo, spec-mcp-server/list-specs, spec-mcp-server/get-spec, spec-mcp-server/check-coverage, spec-mcp-server/create-spec]
 argument-hint: "Describe the feature or user story to implement"
 ---
 
