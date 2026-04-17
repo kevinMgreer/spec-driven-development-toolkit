@@ -167,6 +167,31 @@ for platform in "${PLATFORMS[@]}"; do
             copy_dir "$SCRIPT_DIR/.github/prompts" "$TARGET/.github/prompts" ".github/prompts/"
             copy_dir "$SCRIPT_DIR/.github/skills" "$TARGET/.github/skills" ".github/skills/"
             copy_file "$SCRIPT_DIR/.github/copilot-instructions.md" "$TARGET/.github/copilot-instructions.md" "copilot-instructions.md"
+            # Write .vscode/mcp.json for spec-mcp-server if not already present
+            MCP_CONFIG="$TARGET/.vscode/mcp.json"
+            if [[ ! -f "$MCP_CONFIG" ]] || [[ "$FORCE" == true ]]; then
+                if [[ "$DRY_RUN" == true ]]; then
+                    echo "  WOULD WRITE .vscode/mcp.json (spec-mcp-server config)"
+                else
+                    mkdir -p "$TARGET/.vscode"
+                    cat > "$MCP_CONFIG" << 'EOF'
+{
+  "servers": {
+    "spec-mcp-server": {
+      "type": "stdio",
+      "command": "spec-mcp-server",
+      "env": {
+        "SPECS_DIR": "${workspaceFolder}/specs"
+      }
+    }
+  }
+}
+EOF
+                    echo "  WRITE .vscode/mcp.json (spec-mcp-server config)"
+                fi
+            else
+                echo "  EXISTS .vscode/mcp.json (skipped — use --force to overwrite)"
+            fi
             ;;
         cursor)
             echo "Cursor:"

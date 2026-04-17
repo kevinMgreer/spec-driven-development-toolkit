@@ -140,6 +140,32 @@ foreach ($platform in $Platforms) {
             Copy-Directory "$ScriptDir\.github\prompts" "$Target\.github\prompts" ".github/prompts/"
             Copy-Directory "$ScriptDir\.github\skills" "$Target\.github\skills" ".github/skills/"
             Copy-SingleFile "$ScriptDir\.github\copilot-instructions.md" "$Target\.github\copilot-instructions.md" "copilot-instructions.md"
+            # Write .vscode/mcp.json for spec-mcp-server if not already present
+            $McpConfig = Join-Path $Target ".vscode\mcp.json"
+            if (-not (Test-Path $McpConfig) -or $Force) {
+                if ($DryRun) {
+                    Write-Host "  WOULD WRITE .vscode/mcp.json (spec-mcp-server config)" -ForegroundColor Cyan
+                } else {
+                    $McpDir = Join-Path $Target ".vscode"
+                    if (-not (Test-Path $McpDir)) { New-Item -ItemType Directory -Path $McpDir -Force | Out-Null }
+                    @'
+{
+  "servers": {
+    "spec-mcp-server": {
+      "type": "stdio",
+      "command": "spec-mcp-server",
+      "env": {
+        "SPECS_DIR": "${workspaceFolder}/specs"
+      }
+    }
+  }
+}
+'@ | Set-Content $McpConfig -Encoding UTF8
+                    Write-Host "  WRITE .vscode/mcp.json (spec-mcp-server config)" -ForegroundColor Green
+                }
+            } else {
+                Write-Host "  EXISTS .vscode/mcp.json (skipped - use -Force to overwrite)" -ForegroundColor Yellow
+            }
         }
         'cursor' {
             Write-Host "Cursor:" -ForegroundColor White

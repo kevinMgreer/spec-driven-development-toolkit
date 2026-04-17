@@ -44,10 +44,31 @@ Use the todo list to track progress through each phase.
 
 ---
 
+## spec-mcp-server Integration
+
+If the `spec-mcp-server` MCP tool is available (check the tool list), **always prefer it over
+filesystem search** for spec-related operations:
+
+| Instead of…                                            | Use…                  |
+| ------------------------------------------------------ | --------------------- |
+| Searching `specs/` with `file_search` or `grep_search` | `list-specs` tool     |
+| Reading `.feature` and `-spec.md` files manually       | `get-spec` tool       |
+| Checking which scenarios have test coverage            | `check-coverage` tool |
+| Creating new spec files from templates                 | `create-spec` tool    |
+
+Call `list-specs` at the start of Phase 0 to immediately understand what has already been
+specced and at what ATDD phase each feature sits. Call `get-spec` before writing any tests
+for an existing spec rather than reading the files directly.
+
+---
+
 ### Phase 0 — Project Analysis
 
 1. Detect the project's language, package manager, test framework, linter, formatter, type
    checker, build system, and CI/CD platform. Reference: `docs/atdd/project-detection.md`
+
+1a. **If `spec-mcp-server` is available**: call `list-specs` now and include the results in
+the project profile. Note which features are `spec-only`, `tests-written`, or `implemented`.
 
 2. Discover existing conventions:
    - Test file naming patterns (`.test.ts`, `.spec.ts`, `test_*.py`, `*_test.go`)
@@ -77,21 +98,25 @@ Use the todo list to track progress through each phase.
 
 ### Phase 1 — Spec
 
-1. Parse the requirements. If any of the following are unclear, ask **at most 3 questions**:
+1. **If `spec-mcp-server` is available**: call `list-specs` and check whether a spec for this
+   feature already exists. If it does, call `get-spec` to retrieve it and skip to step 4.
+
+2. Parse the requirements. If any of the following are unclear, ask **at most 3 questions**:
    - Who is the primary actor and what are they trying to accomplish?
    - What are the must-have acceptance criteria?
    - What are the critical error and edge cases?
 
-2. Invoke the `spec-writer` subagent with the full requirements context.
+3. Invoke the `spec-writer` subagent with the full requirements context. If `spec-mcp-server`
+   is available, have the spec-writer use `create-spec` to scaffold the files.
 
-3. The spec-writer will create:
+4. The spec-writer will create:
    - `specs/features/<name>.feature` — Gherkin scenarios
    - `specs/technical/<name>-spec.md` — Technical spec
 
-4. Show the user the created specs. Ask: _"Do these specs look correct? Any adjustments before I
+5. Show the user the created specs. Ask: _"Do these specs look correct? Any adjustments before I
    generate tests?"_
 
-5. **MANDATORY GATE — Wait for explicit user approval before proceeding.**
+6. **MANDATORY GATE — Wait for explicit user approval before proceeding.**
    - Do NOT proceed to Phase 2 until the user confirms the spec is acceptable
    - If the user requests changes, update the spec and re-present for approval
    - Iterate until the user explicitly approves
@@ -104,6 +129,8 @@ Use the todo list to track progress through each phase.
 **Order is mandatory: test file first, everything else second.**
 
 1. **Write the test file first** — before any other file:
+   - If `spec-mcp-server` is available, call `get-spec` to retrieve the feature file content
+     rather than reading the file directly
    - Use the detected test framework and conventions
    - Place in the correct directory using the project's naming pattern
    - Create one test per scenario in the `.feature` file
@@ -190,10 +217,12 @@ Reference: `docs/atdd/quality-gates.md`
 
 ### Phase 6 — Spec Review
 
-1. Invoke the `spec-reviewer` subagent to validate the implementation against the spec.
-2. If gaps or violations are found, address them: add missing tests → implement → re-verify.
-3. Run the full test suite one final time to confirm green.
-4. Run all quality gates one final time.
+1. **If `spec-mcp-server` is available**: call `check-coverage` for each implemented spec and
+   include the results in the review. Any missing scenarios must be addressed before declaring done.
+2. Invoke the `spec-reviewer` subagent to validate the implementation against the spec.
+3. If gaps or violations are found, address them: add missing tests → implement → re-verify.
+4. Run the full test suite one final time to confirm green.
+5. Run all quality gates one final time.
 
 ---
 
