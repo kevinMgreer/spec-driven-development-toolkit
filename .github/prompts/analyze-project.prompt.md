@@ -1,7 +1,7 @@
 ---
 description: "Analyze a project to detect its language, test framework, linter, formatter, build system, and conventions. Use before starting ATDD in a new or existing project."
 agent: agent
-tools: [read, search, execute]
+tools: [read, search, execute, edit, edit/createFile, edit/editFiles]
 argument-hint: "Optional: path to the project root (defaults to workspace root)"
 ---
 
@@ -32,9 +32,56 @@ Analyze this project and produce a project profile.
 8. **Directory structure**: Identify `src/`, `lib/`, `test/`, `tests/`, `__tests__/`, `spec/`
    directories and any existing `specs/` directory.
 
-9. **Git**: Check default branch, `.gitignore`, conventional commits config.
+9. **Git**: Check default branch, `.gitignore`, conventional commits config (`commitlint.*`,
+   `.czrc`), and recent commit messages (look at the last 5–10 commits to detect prefix style).
 
-10. **Greenfield detection**: If no project files are found (empty repo or docs only), this is a
+10. **Existing project documentation** (mandatory if any docs exist). Read the project's own
+    docs before drawing conclusions — they often carry intent and vocabulary the code alone
+    does not reveal. Check and, when present, read:
+
+    | File / location                                       | What to extract                                                |
+    | ----------------------------------------------------- | -------------------------------------------------------------- |
+    | `README.md` / `README.rst` / `README.adoc`            | Setup/run/test commands, project purpose, domain vocabulary    |
+    | `CONTRIBUTING.md`                                     | Commit conventions, branch naming, PR process, local dev steps |
+    | `ARCHITECTURE.md` / `docs/architecture.md`            | Architecture style, module boundaries, dependency direction    |
+    | `docs/adr/` or `docs/decisions/` (ADRs)               | Authoritative architectural decisions — these beat inference   |
+    | `docs/` (other docs)                                  | Dev setup, deployment, domain glossary, runbooks, style guides |
+    | `.github/PULL_REQUEST_TEMPLATE.md` / `ISSUE_TEMPLATE` | PR/issue hygiene expectations                                  |
+    | `STYLE.md` / `STYLEGUIDE.md` / `CODING_STANDARDS.md`  | Explicit conventions that override inferred ones               |
+    | `SECURITY.md`                                         | Constraints the agent must respect (e.g., PII handling)        |
+
+    Precedence rules when docs and code disagree:
+    - README commands **override** inferred commands (use the command in the README verbatim).
+    - ADRs / `ARCHITECTURE.md` **override** architecture patterns guessed from samples.
+    - `CONTRIBUTING.md` **overrides** commit/branch conventions guessed from git history.
+    - Domain terms in README/docs **must** be used in specs and tests (not generic substitutes).
+    - If docs and code genuinely conflict, record both and flag under a `Known inconsistencies`
+      subsection in the profile. Do not silently pick one.
+
+    Record every file you read under `Sources consulted` in the profile output. If no docs
+    exist, record `none detected` — do not invent rationale.
+
+11. **Code conventions** (mandatory unless greenfield). Using any hints from step 10 to
+    identify canonical examples, pick **2–4 representative source files** that span layers
+    (e.g., one controller/handler, one service, one repository, one test) and read them in
+    full. From those files only, extract:
+    - Architecture style (layered, hexagonal, MVC, vertical slice, modular monolith, etc.)
+    - Module layout (folder-by-feature vs folder-by-layer; tests co-located vs separated)
+    - Dependency wiring (constructor DI, container, factories, plain imports)
+    - Error handling (exceptions vs Result; custom error classes; boundary mapping)
+    - Validation library and where it lives
+    - Async/cancellation patterns
+    - Logging library and conventions
+    - Configuration loading
+    - Naming (files, classes, functions, constants, tests)
+    - Public API style (REST/GraphQL/gRPC; URL casing; error format)
+    - Persistence (ORM, migrations, transactions)
+    - Comment/doc style
+
+    Record only what you actually observe — do not guess. For each item the value is either the
+    pattern or "none detected."
+
+12. **Greenfield detection**: If no project files are found (empty repo or docs only), this is a
     greenfield project. Prompt the user for their tooling preferences in a **single prompt**:
 
     **Required** (always ask):
@@ -55,14 +102,34 @@ Analyze this project and produce a project profile.
 
 ## Output
 
-Ensure the **`docs/`** directory exists first; if it does not, create it. Then write the profile
-to **`docs/project-profile.md`** (create or overwrite the file), and print the same content to
-chat so the user can see it.
+**Step 1 — Write the file.** Use the file-edit tools declared in this prompt's frontmatter
+(`edit`, `edit/createFile`, `edit/editFiles`, or the host runtime's equivalent write/create tool)
+to write the profile to **`docs/project-profile.md`**, creating `docs/` if needed and
+overwriting any existing version. Do not stop at "I would write…" — actually persist the file to
+disk. This is the entire point of the prompt. If your runtime does not expose any of these
+tools, stop and tell the user so they can run the prompt in a mode that has write access.
 
-The file must contain exactly:
+**Step 2 — Verify the file landed.** Re-read `docs/project-profile.md` to confirm contents.
+
+**Step 3 — Confirm to the user.** Print verbatim:
+
+> ✓ Wrote `docs/project-profile.md` (Tooling: N rows, Conventions: N rows, Reference Files: N
+> entries). Future prompts will read this instead of re-detecting.
+
+Then print the profile contents to chat so the user can review.
+
+If you cannot write the file (permissions, sandbox, etc.), **stop** and tell the user — do not
+silently continue. The whole toolkit relies on this file existing.
+
+The file must contain three required sections — `Tooling`, `Conventions`, `Reference Files` —
+plus an optional `Anti-patterns to avoid in this repo` section.
 
 ```markdown
 ## Project Profile
+
+_Last updated: <YYYY-MM-DD>_
+
+### Tooling
 
 | Category          | Detected |
 | ----------------- | -------- |
@@ -77,6 +144,7 @@ The file must contain exactly:
 | Lint fix command  | `...`    |
 | Formatter         | ...      |
 | Format command    | `...`    |
+| Format fix cmd    | `...`    |
 | Type checker      | ...      |
 | Type check cmd    | `...`    |
 | Build command     | `...`    |
@@ -92,14 +160,68 @@ The file must contain exactly:
 - [x] Type check: `<command>`
 - [x] Build: `<command>`
 
-### Conventions Detected
+### Conventions
 
-- Test naming: `*.test.ts`
-- Import style: ES modules with path aliases
-- Code style: semicolons, single quotes
+> Sampled from `<file 1>`, `<file 2>`, `<file 3>`. Update this section if new patterns emerge.
+
+| Convention area    | Pattern in this codebase                                 |
+| ------------------ | -------------------------------------------------------- |
+| Architecture style | ...                                                      |
+| Module layout      | ...                                                      |
+| Dependency wiring  | ...                                                      |
+| Error handling     | ...                                                      |
+| Validation         | ...                                                      |
+| Async patterns     | ...                                                      |
+| Logging            | ...                                                      |
+| Configuration      | ...                                                      |
+| Naming             | files: ..., classes: ..., functions: ..., constants: ... |
+| Public API style   | ...                                                      |
+| Persistence style  | ...                                                      |
+| Comment style      | ...                                                      |
+| Commit conventions | ...                                                      |
+| Branch naming      | ...                                                      |
+
+### Reference Files
+
+When implementing new code, mirror the patterns in:
+
+- Controller/handler example: `<path>`
+- Service example: `<path>`
+- Repository example: `<path>`
+- Test example: `<path>`
+
+### Anti-patterns to avoid in this repo
+
+- (List any patterns the user explicitly rejects, or leave empty if none yet)
+
+### Sources consulted
+
+**Documentation:**
+
+- `<path>` — what you used it for (e.g., `README.md` — setup commands, domain vocabulary)
+- (or `none detected` if the project has no docs)
+
+**Code samples:**
+
+- `<path>` — layer / role
+- `<path>` — layer / role
+
+**Other signals:**
+
+- `<path>` — e.g., `.github/workflows/ci.yml` — CI gate commands
+- `<path>` — e.g., `package.json` scripts
+
+### Known inconsistencies (optional)
+
+- (Only populate if docs and code disagree; describe the conflict and the chosen resolution)
 ```
 
+For each `Conventions` row, write the actual observed pattern or **"none detected"** — never
+invent a convention that isn't present in the sampled files.
+
 Saving to `docs/project-profile.md` means subsequent prompts (`/write-acceptance-tests`,
-`/run-quality-gates`, etc.) can read it directly instead of re-detecting the stack from scratch.
+`/implement-from-spec`, `/run-quality-gates`, `/verify-spec-coverage`) can read it directly.
+The `/implement-from-spec` prompt is required to re-read this file before writing any
+production code.
 
 Reference: `docs/atdd/project-detection.md`

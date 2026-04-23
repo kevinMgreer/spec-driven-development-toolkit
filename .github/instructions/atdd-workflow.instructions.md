@@ -30,8 +30,13 @@ Requirements → Spec → Acceptance Tests → Red → Green → Refactor → Re
 
 ### Implementation Phase (Green)
 
+- **Before writing any production code**, re-read `docs/project-profile.md` (the `Conventions`
+  and `Reference Files` sections) and open at least one reference file from the same layer you
+  are about to write. State explicitly which conventions you will follow.
 - Implement only what is required to make failing tests pass
 - Work scenario by scenario, in priority order: `@smoke` → `@happy-path` → `@edge-case` → `@error`
+- **Mirror** the patterns recorded in the project profile — do not introduce a new architecture,
+  error-handling style, validation library, or naming scheme without explicit user approval
 - Never add logic not demanded by a failing test
 - If you find yourself writing "just in case" code — stop and delete it
 
@@ -42,10 +47,17 @@ Requirements → Spec → Acceptance Tests → Red → Green → Refactor → Re
 - Refactoring changes structure without changing behavior
 - Do not add features during refactor
 
-### Review Phase
+### Review Phase — Spec & Doc Sync (Hard Gate)
+
+This is a **blocking** gate. Repair drift in-phase, do not defer.
 
 - Every scenario must have a corresponding test that would fail if behavior were removed
+- Every numbered business rule in the technical spec must be enforced by a test
 - Implementations without test coverage must have explicit justification
+- The `.feature` file must accurately describe what the code does today — fix drift now
+- `README.md` must be updated if the feature is user-visible
+- `docs/project-profile.md` must be updated if Phase 3 introduced a new convention or dependency
+- Re-run the full test suite and all quality gates after every fix above
 
 ---
 
@@ -59,8 +71,13 @@ When requirements change:
 4. Confirm new/changed tests are red
 5. Update implementation to pass the new tests
 6. Confirm all tests green
+7. Update `README.md` and any other user-facing docs that describe the changed behavior — this
+   is part of the change, not a follow-up
+8. Update `docs/project-profile.md` if a new convention or dependency was introduced
 
 **Never** update implementation to accommodate changed behavior without first updating the spec.
+**Never** declare a behavior change "done" while the spec, README, or project profile still
+describe the old behavior.
 
 ---
 

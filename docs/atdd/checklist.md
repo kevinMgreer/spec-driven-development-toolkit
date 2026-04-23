@@ -18,13 +18,49 @@ Copy into a PR description, issue, or tracking document.
 
 ### Phase 0 — Analyze 🔍
 
+**Tooling**
+
 - [ ] Language and package manager detected
 - [ ] Test framework identified
 - [ ] Linter detected (or noted as N/A)
 - [ ] Formatter detected (or noted as N/A)
 - [ ] Type checker detected (or noted as N/A)
 - [ ] Build system detected (or noted as N/A)
-- [ ] Existing conventions discovered (test naming, directory structure, code style)
+- [ ] CI/CD platform detected (or noted as N/A)
+
+**Existing documentation** (mandatory if any docs exist — read before sampling code)
+
+- [ ] `README.md` / variants read (if present)
+- [ ] `CONTRIBUTING.md` read (if present)
+- [ ] `ARCHITECTURE.md` / `docs/architecture.md` read (if present)
+- [ ] `docs/adr/` or `docs/decisions/` read (if present)
+- [ ] `STYLE.md` / `STYLEGUIDE.md` / `CODING_STANDARDS.md` / `SECURITY.md` read (if present)
+- [ ] `.github/PULL_REQUEST_TEMPLATE.md` read (if present)
+- [ ] Precedence applied (README commands, ADRs, `CONTRIBUTING.md` override inference)
+- [ ] Any conflicts between docs and code recorded under `Known inconsistencies`
+
+**Conventions** (mandatory unless greenfield — sample 2–4 representative source files)
+
+- [ ] Architecture style recorded
+- [ ] Module layout recorded
+- [ ] Dependency wiring recorded
+- [ ] Error handling style recorded
+- [ ] Validation approach recorded
+- [ ] Async/cancellation patterns recorded
+- [ ] Logging library and conventions recorded
+- [ ] Configuration loading recorded
+- [ ] Naming conventions recorded (files, classes, functions, constants, tests)
+- [ ] Public API style recorded (or N/A)
+- [ ] Persistence style recorded (or N/A)
+- [ ] Commit and branch conventions recorded
+
+**Profile written**
+
+- [ ] `docs/project-profile.md` contains `Tooling`, `Conventions`, `Reference Files`, and
+      `Sources consulted` sections
+- [ ] At least one reference file listed per layer the agent will mirror in Phase 3
+- [ ] Every doc and code file read during analysis is listed under `Sources consulted`
+- [ ] Verification message printed: `✓ Wrote docs/project-profile.md (...)`
 
 ---
 
@@ -63,10 +99,20 @@ Copy into a PR description, issue, or tracking document.
 
 ### Phase 3 — Implementation (Green) 🟡 → 🟢
 
+**Pre-implementation convention sync (mandatory)**
+
+- [ ] `docs/project-profile.md` re-read (`Conventions`, `Reference Files`, `Anti-patterns`)
+- [ ] At least one reference file from each affected layer opened
+- [ ] Conventions-to-follow statement produced before any production file was created
+
+**Implementation**
+
 - [ ] `@smoke` scenario(s) implemented — test green ✅
 - [ ] `@happy-path` scenario(s) implemented — test green ✅
 - [ ] `@edge-case` scenario(s) implemented — test green ✅
 - [ ] `@error` scenario(s) implemented — test green ✅
+- [ ] All new code mirrors the architecture, error style, validation, and naming patterns in
+      the project profile
 - [ ] No code added beyond what failing tests required
 - [ ] No test files modified during implementation
 
@@ -95,13 +141,34 @@ Copy into a PR description, issue, or tracking document.
 
 ---
 
-### Phase 6 — Spec Review ✔️
+### Phase 6 — Spec & Doc Sync (Hard Gate) ✔️
+
+**6a Compliance**
 
 - [ ] Every scenario has a corresponding test
-- [ ] Every business rule in the technical spec is enforced by a test
+- [ ] Every numbered business rule in the technical spec is enforced by a test
 - [ ] No implementation behavior exists without a spec scenario
 - [ ] The `.feature` file accurately documents current behavior
-- [ ] Spec review passed (via `/verify-spec-coverage` or `@spec-reviewer`)
+- [ ] Spec review run (via `/verify-spec-coverage` or `@spec-reviewer`)
+
+**6b Spec drift repair (any drift fixed in-phase, not deferred)**
+
+- [ ] Extra inputs/outputs not in spec → scenario added or code removed
+- [ ] Relaxed/tightened business rules → spec updated, test catches regression
+- [ ] Changed validation messages, status codes, error shapes → spec updated
+- [ ] New edge cases → `@edge-case` scenario added
+
+**6c Documentation sync**
+
+- [ ] `README.md` updated (or marked ⏭️ "feature not user-visible" with reason)
+- [ ] `docs/project-profile.md` updated if Phase 3 introduced a new convention or dependency
+- [ ] Any other docs that describe the changed behavior updated
+
+**6d Final verification**
+
+- [ ] Full test suite re-run after all repairs — green
+- [ ] All quality gates re-run after all repairs — passing
+- [ ] Spec & Doc Sync report produced (every row ✅ or explicit ⏭️)
 
 ---
 

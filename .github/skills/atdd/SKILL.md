@@ -18,25 +18,25 @@ argument-hint: "Describe the feature or ATDD task (e.g. 'write spec for user log
 ## Workflow
 
 ```
-Requirements → Spec → Tests (Red) → Implementation (Green) → Refactor → Review
+Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
 ```
 
 ## Quick Commands
 
 | Command                    | Purpose                                                                         |
 | -------------------------- | ------------------------------------------------------------------------------- |
-| `/analyze-project`         | Detect language, frameworks, tools, and conventions                             |
+| `/analyze-project`         | Detect language, frameworks, tools, AND code conventions; write project profile |
 | `/write-spec`              | Generate Gherkin + technical spec from requirements                             |
 | `/write-acceptance-tests`  | Generate failing test stubs from a spec file                                    |
-| `/implement-from-spec`     | Implement code to make failing tests pass                                       |
+| `/implement-from-spec`     | Implement code to make failing tests pass (re-reads project profile first)      |
 | `/run-quality-gates`       | Run lint, format, typecheck, build, test — iterate until green                  |
-| `/verify-spec-coverage`    | Check implementation against spec                                               |
 | `/refactor-passing-tests`  | Safe refactor after all tests are green                                         |
+| `/verify-spec-coverage`    | Hard spec & doc sync gate — repairs spec/README/profile drift in-place          |
 | `/create-pull-request`     | Create branch, commit, push, open PR                                            |
 | `/address-review-comments` | Handle PR review feedback, update spec if needed                                |
-| `@atdd-cycle`              | Full automated cycle (analyze → spec → tests → implement → gates → verify → PR) |
+| `@atdd-cycle`              | Full automated cycle (analyze → spec → tests → implement → gates → sync → PR)   |
 | `@spec-writer`             | Dedicated spec writing agent                                                    |
-| `@spec-reviewer`           | Dedicated spec compliance review agent                                          |
+| `@spec-reviewer`           | Dedicated spec & doc compliance review agent                                    |
 
 ## Templates & References
 
@@ -55,57 +55,37 @@ Requirements → Spec → Tests (Red) → Implementation (Green) → Refactor �
 2. **Red before green** — never implement without a confirmed-failing test
 3. **Minimum viable implementation** — only write code that a failing test demands
 4. **Behavior, not implementation** — specs describe observable outcomes, not internal mechanics
+5. **Mirror the codebase** — Phase 3 re-reads `docs/project-profile.md` and follows the
+   conventions already in use
+6. **Sync or stop** — Phase 6 (Spec & Doc Sync) is a hard gate; the cycle is not done while
+   the spec, README, or project profile drift from what the code does
 
-## Full Cycle Procedure
+## Profile Bootstrap (First Action)
 
-### 0. Analyze Project
+If `docs/project-profile.md` does not exist, your first action is `/analyze-project` — even
+for ad-hoc requests. Tell the user: _"No project profile found — running Phase 0 first so I
+have an accurate picture of this codebase's tooling and conventions."_
 
-Use `/analyze-project` to detect the project's language, frameworks, and conventions.
-Critical for first-time use in a new repository. See `docs/atdd/project-detection.md`.
+## Cycle — Pointer
 
-For **greenfield projects**, prompt the user for tooling preferences (language, test framework,
-package manager, linter, formatter) in a single prompt before writing any specs.
+```
+Analyze → Spec → Tests (Red) → Implement (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
+```
 
-### 1. Write Spec
+**Full procedure: [`docs/atdd/workflow.md`](../../../docs/atdd/workflow.md)** (authoritative).
 
-Use `/write-spec` or `@spec-writer` to create:
+Per-phase prompt mapping:
 
-- `specs/features/<name>.feature` — Gherkin scenarios with full coverage
-- `specs/technical/<name>-spec.md` — Business rules, API contract, data constraints
-
-**Mandatory gate**: Present the spec to the user and wait for explicit approval before proceeding.
-If the user requests changes, update and re-present. Everything after approval is autonomous.
-
-### 2. Generate Tests (Red)
-
-Use `/write-acceptance-tests` to create failing test stubs.
-Run and confirm: all stubs are **red** for the right reason.
-
-### 3. Implement (Green)
-
-Use `/implement-from-spec` to implement scenario by scenario.
-Work in order: `@smoke` → `@happy-path` → `@edge-case` → `@error`.
-Run tests after each unit of work.
-
-### 4. Quality Gates
-
-Use `/run-quality-gates` to run lint, format, typecheck, build, and test. Iterate until all
-gates pass. See `docs/atdd/quality-gates.md`.
-
-### 5. Verify
-
-Use `/verify-spec-coverage` or `@spec-reviewer` to confirm all scenarios are covered and all
-business rules are enforced.
-
-### 6. Refactor
-
-Use `/refactor-passing-tests` to clean up with all tests green.
-Run tests after every change. Re-run quality gates when done.
-
-### 7. PR (Optional)
-
-Use `/create-pull-request` to create a branch, commit, push, and open a PR.
-Use `/address-review-comments` to handle review feedback.
+| Phase | Trigger                                    | Key output / gate                                                      |
+| ----- | ------------------------------------------ | ---------------------------------------------------------------------- |
+| 0     | `/analyze-project`                         | `docs/project-profile.md` with Tooling, Conventions, Sources consulted |
+| 1     | `/write-spec` / `@spec-writer`             | `specs/features/*.feature` + `specs/technical/*-spec.md` — USER GATE   |
+| 2     | `/write-acceptance-tests`                  | All scenarios have failing stubs; "all red ✓" reported                 |
+| 3     | `/implement-from-spec`                     | Minimum code, mirror profile, `@smoke` first                           |
+| 4     | `/run-quality-gates`                       | lint / format / typecheck / build / test all pass                      |
+| 5     | `/refactor-passing-tests`                  | Structure only, tests stay green                                       |
+| 6     | `/verify-spec-coverage` / `@spec-reviewer` | No spec/README/profile drift (hard gate)                               |
+| 7     | `/create-pull-request`                     | Branch, commit, push, PR                                               |
 
 ## Spec Directory Layout
 

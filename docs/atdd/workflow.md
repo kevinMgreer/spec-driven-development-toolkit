@@ -33,7 +33,7 @@ Requirements
   5. Refactor (tests stay green, re-run all gates)
      │
      ▼
-  6. Spec Review (compliance check)
+  6. Spec & Doc Sync (hard gate — repair drift in-place)
      │
      ▼
   7. PR (optional — branch, commit, push, PR)
@@ -51,15 +51,24 @@ Requirements
 | Always update spec first when requirements change           | Code must match spec, not the reverse                           |
 | Always confirm tests are red _for the right reason_         | A test that passes due to a broken import is not actually red   |
 | Never proceed past spec without explicit user approval      | The spec gate is the mandatory human checkpoint                 |
+| Never declare done with spec, README, or profile drift      | Phase 6 is a hard gate — fix drift in-phase, do not defer       |
+| Always re-read `docs/project-profile.md` before Phase 3     | New code must mirror existing architecture, not invent new ones |
 
 ---
 
 ## Phase 0 — Analyze the Project
 
 **Input**: a new or existing repository
-**Output**: project profile documenting language, tools, and conventions
+**Output**: `docs/project-profile.md` containing **both** tooling and conventions, plus a list
+of reference files the agent will mirror in Phase 3.
 
-Before writing any code, detect the project's stack:
+This phase is intentionally heavyweight. The most common failure mode of AI-assisted ATDD is
+code that passes the tests but does not look like the surrounding codebase. The fix is a deep
+project profile that the agent must re-read before writing implementation in Phase 3.
+
+### Step A — Tooling Detection
+
+Detect the project's stack:
 
 1. **Language and package manager** — `package.json`, `pyproject.toml`, `*.csproj`, `go.mod`, etc.
 2. **Test framework** — Jest, Vitest, pytest, NUnit, RSpec, Go testing, etc.
@@ -68,15 +77,78 @@ Before writing any code, detect the project's stack:
 5. **Type checker** — TypeScript, mypy, pyright, etc.
 6. **Build system** — npm build, dotnet build, go build, cargo build, etc.
 7. **CI/CD** — GitHub Actions, GitLab CI, Jenkins, etc.
-8. **Conventions** — test directory, file naming, import style, code style
+
+### Step B — Existing Documentation Scan (mandatory if any docs exist)
+
+Read the project's own documentation before sampling code. Docs carry architectural rationale,
+domain vocabulary, and explicit conventions that code samples alone do not reveal. Check, and
+when present read:
+
+- `README.md` (and variants) — setup/run/test commands, domain vocabulary, project purpose
+- `CONTRIBUTING.md` — commit conventions, branch naming, PR process, local dev steps
+- `ARCHITECTURE.md` / `docs/architecture.md` — architecture style, module boundaries
+- `docs/adr/` or `docs/decisions/` — accepted architectural decisions (**authoritative**)
+- `docs/` (other top-level docs) — dev setup, glossary, runbooks, style guides
+- `.github/PULL_REQUEST_TEMPLATE.md` — PR hygiene
+- `STYLE.md` / `STYLEGUIDE.md` / `CODING_STANDARDS.md` — explicit conventions
+- `SECURITY.md` — constraints the agent must respect
+
+Precedence when documentation and code disagree:
+
+- README commands **override** inferred commands.
+- ADRs and `ARCHITECTURE.md` **override** architecture style inferred from samples.
+- `CONTRIBUTING.md` **overrides** commit/branch conventions inferred from git history.
+- Domain terms in README/docs **must** be used in specs and tests.
+- True conflicts go under `Known inconsistencies` in the profile — never silently pick one.
+
+Record every doc you read under `Sources consulted` in the profile. If no docs exist, record
+`none detected`.
+
+### Step C — Conventions Discovery (mandatory for legacy projects)
+
+Using hints from Step B to identify canonical examples, sample **2–4 representative source
+files** (e.g., a controller/handler, a service, a repository, a test) and extract the patterns
+the codebase actually uses. Skip only for empty greenfield projects.
+
+For each of the following, record either the observed pattern or "none detected" — never guess:
+
+- Architecture style (layered, hexagonal, MVC, vertical slice, modular monolith, etc.)
+- Module layout (folder-by-feature vs folder-by-layer; co-located vs separated tests)
+- Dependency wiring (constructor DI, container, factories, plain imports)
+- Error handling (exceptions vs Result/Either; custom error types; boundary mapping)
+- Validation (where and which library)
+- Async patterns and cancellation conventions
+- Logging library and conventions
+- Configuration loading and secret management
+- Naming (files, classes, functions, constants, tests)
+- Public API style (REST/GraphQL/gRPC; URL casing; error format)
+- Persistence (ORM, migrations, transactions)
+- Comment and doc style
+- Commit and branch conventions
+
+Full reference: [Project Detection — Conventions Discovery](./project-detection.md#step-9--conventions-discovery-mandatory-for-legacy-projects).
+
+### Step D — Write the Profile
+
+Write all findings to **`docs/project-profile.md`** using the template (`Tooling`,
+`Conventions`, `Reference Files`, `Sources consulted`, and optionally `Anti-patterns to avoid
+in this repo` and `Known inconsistencies`) defined in
+[Project Detection — Detection Output Format](./project-detection.md#detection-output-format).
+
+If `docs/project-profile.md` already exists, **read it first** and treat it as authoritative.
+Only update it if (a) the user asks, or (b) you discover the project has materially changed
+since the profile was written (new architecture, new tools, new docs, etc.).
+
+### Step E — Greenfield vs Legacy
 
 For greenfield projects: prompt the user for tooling preferences (language, test framework,
-package manager, linter, formatter) before writing any specs. Present all questions in a single
-prompt. See [Project Detection](./project-detection.md) for the full preference questionnaire.
+package manager, linter, formatter) in a **single** prompt before writing any specs. Skip
+conventions discovery (there are none yet) and add an empty `Conventions` section that will be
+filled in as the project grows.
 
-For legacy projects: match all existing conventions. See [Legacy Integration](./legacy-integration.md).
-
-Full detection procedure: [Project Detection](./project-detection.md).
+For legacy projects: conventions discovery is **non-negotiable**. The agent must not generate
+implementation code without first recording the conventions it will follow. See
+[Legacy Integration](./legacy-integration.md).
 
 ---
 
@@ -164,6 +236,21 @@ Run the tests. Every stub must fail. If any fail for the wrong reason (import er
 **Input**: failing tests  
 **Output**: production code that makes tests pass, scenario by scenario
 
+### Step 0 — Re-read the Project Profile (mandatory)
+
+Before creating or editing any production file in Phase 3, **re-read `docs/project-profile.md`**
+— specifically the `Conventions` and `Reference Files` sections. Then **open at least one
+reference file from the same layer you are about to write** (e.g., if you are writing a service,
+open the listed service example).
+
+State explicitly which conventions you will follow before writing code, e.g.:
+
+> Following profile: layered architecture, constructor DI, custom `AppError` for business
+> failures, zod validation at controller boundary, JSDoc on public exports, kebab-case files.
+> Mirroring `src/features/orders/orders.service.ts`.
+
+If the profile is missing, stop and run Phase 0 first.
+
 ### Order of Implementation
 
 Work through scenarios in priority order:
@@ -179,6 +266,8 @@ Work through scenarios in priority order:
 ### Discipline
 
 - Implement only the minimum code to pass the current failing test
+- **Mirror** the patterns recorded in the project profile — do not introduce a new architecture,
+  error-handling style, validation library, or naming scheme without explicit user approval
 - Run the full test suite after each implementation unit
 - If a test you haven't implemented yet turns green, investigate — you may have implemented more than needed
 - Do not add logging, caching, metrics, or "nice-to-have" features unless a test requires it
@@ -224,14 +313,60 @@ Full quality gate reference: [Quality Gates](./quality-gates.md).
 
 ---
 
-## Phase 6 — Spec Review
+## Phase 6 — Spec & Doc Sync (Hard Gate)
+
+This is a **hard, blocking gate**. The cycle does not complete until every check below either
+passes or has been **fixed in this phase** (not deferred). Spec drift is the most common silent
+failure of AI-assisted development; the cure is to require the agent to repair drift before
+declaring done, not to surface it as a "recommendation."
+
+### Sub-phase 6a — Spec Compliance
 
 Verify that the implementation actually satisfies the spec:
 
 - Every scenario in the `.feature` file has a corresponding test
-- Every named business rule in the technical spec is enforced (with a test that would catch a violation)
+- Every numbered business rule in the technical spec is enforced (with a test that would catch
+  a violation)
 - No implementation behavior exists without a spec scenario
-- The `.feature` file remains accurate documentation of current behavior
+- The `.feature` file remains accurate documentation of current behavior — every `Then` step
+  describes what the code actually does today
+
+### Sub-phase 6b — Spec Drift Repair (mandatory if drift found)
+
+Drift exists when, for example:
+
+- The implementation supports inputs/outputs not described in any scenario
+- A business rule was relaxed, tightened, or removed during implementation
+- Validation messages, status codes, or error shapes differ from the spec
+- A new edge case was handled but no `@edge-case` scenario describes it
+
+For each drift item: **update the spec file first** (`.feature` and/or `-spec.md`), then add or
+adjust a test that would catch a regression, then re-run the full test suite. Do not declare
+Phase 6 complete with known drift.
+
+### Sub-phase 6c — Documentation Sync
+
+Verify the user-facing documentation reflects what the code now does. Update in this order:
+
+1. **`README.md`** — if the feature is user-visible, confirm the README's feature list, usage
+   examples, configuration table, or CLI flags are accurate. Update them in this phase if not.
+2. **`docs/project-profile.md`** — if Phase 3 introduced new conventions, dependencies, or
+   reference files, update the profile so future runs match.
+3. **Any other docs the project maintains** that describe the changed behavior (only update what
+   exists; do not create new doc files unless the user asks).
+
+If a user-visible behavior change has no doc update, the gate has not passed.
+
+### Sub-phase 6d — Final Verification
+
+After every fix above:
+
+- Re-run the full test suite — must be green
+- Re-run all available quality gates — must pass
+- Produce the compliance report (see [verify-spec-coverage prompt](../../.github/prompts/verify-spec-coverage.prompt.md))
+  including the `Documentation Sync` section
+
+Only when all four sub-phases pass does the cycle proceed to Phase 7.
 
 ---
 
@@ -258,8 +393,13 @@ When requirements change _after_ tests have been written:
 4. Confirm new/changed tests are red
 5. Update implementation to pass the new tests
 6. Confirm all tests are green
+7. Update `README.md` and any other user-facing docs that describe the changed behavior — this
+   is part of the change, not a follow-up
+8. Update `docs/project-profile.md` if the change introduced a new convention or dependency
 
-**Never** update implementation to accommodate new behavior without first updating the spec and confirming red tests.
+**Never** update implementation to accommodate new behavior without first updating the spec and
+confirming red tests. **Never** declare a behavior change "done" while the spec, README, or
+project profile still describe the old behavior.
 
 ---
 

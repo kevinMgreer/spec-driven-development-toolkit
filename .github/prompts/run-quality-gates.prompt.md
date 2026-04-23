@@ -11,9 +11,13 @@ Gate to run: ${input:all}
 
 ## Steps
 
-1. **Load the project profile**: Read `docs/project-profile.md` if it exists — use the commands
-   and gate availability listed there. If the file does not exist, run project detection now
-   (see `/analyze-project`) to identify which quality gates the project supports.
+1. **Load the project profile — mandatory.** Read `docs/project-profile.md` and use the
+   commands and gate availability listed in the `Tooling` and `Quality Gates Available`
+   sections.
+
+   **If `docs/project-profile.md` does not exist, stop.** Do not detect gates on the fly —
+   that causes the profile to never get written and means future runs will detect everything
+   from scratch. Run `/analyze-project` first, then return here.
 
 2. **Run gates in order**:
    - **Lint** — run the linter. Auto-fix what's fixable, report the rest.

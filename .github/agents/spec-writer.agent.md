@@ -37,6 +37,15 @@ further interruption.
 
 ### 2. Search for Context
 
+- **Read `docs/project-profile.md` — mandatory.** Note the public API style (REST/GraphQL/etc.),
+  error format, and naming conventions. The spec's `Then` steps and the technical spec's API
+  contract must use the same vocabulary the codebase already uses (e.g., if the API uses
+  `problem+json` errors, the spec's `@error` scenarios assert against `problem+json`).
+
+  **If `docs/project-profile.md` does not exist, stop.** Tell the orchestrator (or user) that
+  Phase 0 must run first via `/analyze-project` so the spec is grounded in the real codebase.
+  Do not write a spec without the profile — specs that don't match repo vocabulary cause drift.
+
 - Check `specs/` for related existing features (avoid duplication, reuse step vocabulary)
 - Scan `src/` or equivalent for existing domain entities and language
 - Check `docs/` or `README.md` for business context and glossary
