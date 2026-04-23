@@ -46,6 +46,7 @@ Copy and paste into a PR description, issue, or tracking document.
 - [ ] Validation approach recorded
 - [ ] Async/cancellation patterns recorded
 - [ ] Logging conventions recorded
+- [ ] Configuration loading (and secret management, if applicable) recorded
 - [ ] Naming conventions recorded
 - [ ] Public API style recorded (or N/A)
 - [ ] Persistence style recorded (or N/A)

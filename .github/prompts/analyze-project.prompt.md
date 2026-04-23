@@ -1,7 +1,7 @@
 ---
 description: "Analyze a project to detect its language, test framework, linter, formatter, build system, and conventions. Use before starting ATDD in a new or existing project."
 agent: agent
-tools: [read, search, execute]
+tools: [read, search, execute, edit, edit/createFile, edit/editFiles]
 argument-hint: "Optional: path to the project root (defaults to workspace root)"
 ---
 
@@ -102,10 +102,12 @@ Analyze this project and produce a project profile.
 
 ## Output
 
-**Step 1 — Write the file.** Use the `write` / `create` file tool to write the profile to
-**`docs/project-profile.md`**, creating `docs/` if needed and overwriting any existing version.
-Do not stop at "I would write…" — actually persist the file to disk. This is the entire point
-of the prompt.
+**Step 1 — Write the file.** Use the file-edit tools declared in this prompt's frontmatter
+(`edit`, `edit/createFile`, `edit/editFiles`, or the host runtime's equivalent write/create tool)
+to write the profile to **`docs/project-profile.md`**, creating `docs/` if needed and
+overwriting any existing version. Do not stop at "I would write…" — actually persist the file to
+disk. This is the entire point of the prompt. If your runtime does not expose any of these
+tools, stop and tell the user so they can run the prompt in a mode that has write access.
 
 **Step 2 — Verify the file landed.** Re-read `docs/project-profile.md` to confirm contents.
 

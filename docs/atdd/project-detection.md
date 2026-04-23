@@ -164,9 +164,9 @@ convention that is not actually present in the code.
 
 If the project already has docs, **read them before finalizing the profile**. They often carry
 context the code alone cannot reveal — architectural rationale, intentional patterns,
-constraints, and the project's own vocabulary. In practice, start this pass early so the docs
-can point you to canonical reference files to sample in Step 9 — but always complete it before
-Step 11.
+constraints, and the project's own vocabulary. Use this pass to validate and refine what you
+observed in Step 9, resolve ambiguities, and identify authoritative guidance that should outweigh
+isolated code samples. Complete this review before Step 11.
 
 Look for these files (check if each exists, then read the ones that do):
 
@@ -197,8 +197,8 @@ How to use what you find:
 5. **If docs conflict with code**, record both in the profile and note the conflict under
    `Anti-patterns to avoid in this repo` or a new `Known inconsistencies` subsection — do not
    silently pick one.
-6. **If no docs exist**, record `none detected` under `Documentation sources consulted`. Do not
-   invent rationale.
+6. **If no docs exist**, record `none detected` under the `**Documentation:**` subsection of
+   `### Sources consulted` in the output template. Do not invent rationale.
 
 Record in the profile which files you read (see `Sources consulted` in the output template) so
 the user can audit what informed the profile and future sessions know which docs to re-check.
