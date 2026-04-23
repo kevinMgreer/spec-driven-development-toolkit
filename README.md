@@ -16,7 +16,7 @@ Works with **VS Code (Copilot) · Cursor · Kiro · Claude Code** — and any to
 > Never write production code unless a failing acceptance test requires it.
 
 ```
-Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Review → PR
+Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
 ```
 
 Feed requirements to the AI. It writes the spec (you approve). Then everything from test generation
@@ -174,7 +174,7 @@ The single source of truth — all platform adapters reference or embed content 
 | `prompts/write-acceptance-tests.prompt.md`       | `/write-acceptance-tests` — failing test stubs                              |
 | `prompts/implement-from-spec.prompt.md`          | `/implement-from-spec` — minimum code to pass                               |
 | `prompts/run-quality-gates.prompt.md`            | `/run-quality-gates` — lint/format/build/test gates                         |
-| `prompts/verify-spec-coverage.prompt.md`         | `/verify-spec-coverage` — compliance check                                  |
+| `prompts/verify-spec-coverage.prompt.md`         | `/verify-spec-coverage` — hard spec & doc sync gate (repairs drift in-place)|
 | `prompts/refactor-passing-tests.prompt.md`       | `/refactor-passing-tests` — safe refactor                                   |
 | `prompts/create-pull-request.prompt.md`          | `/create-pull-request` — branch, commit, push, PR                           |
 | `prompts/address-review-comments.prompt.md`      | `/address-review-comments` — handle PR feedback                             |
@@ -255,7 +255,7 @@ Requirements
   5. Refactor  (tests stay green, re-run gates)
      │
      ▼
-  6. Spec Review  (compliance check)
+  6. Spec & Doc Sync  (hard gate — repair spec/README/profile drift in-place)
      │
      ▼
   7. Pull Request  (branch, commit, push, PR)

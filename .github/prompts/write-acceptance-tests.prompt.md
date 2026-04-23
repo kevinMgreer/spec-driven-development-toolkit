@@ -13,15 +13,14 @@ ${input:specs/features/}
 
 1. Read the specified `.feature` file (or find the most recently modified in `specs/features/`)
 
-2. **Read `docs/project-profile.md`** if it exists — use the test framework, test command,
-   test directory, and test file pattern from there. If the file does not exist, detect the
-   project's test framework by searching for:
-   - `package.json` → Jest, Vitest, Mocha, Cucumber.js
-   - `pyproject.toml` / `setup.py` → pytest, behave
-   - `*.csproj` → NUnit, xUnit, SpecFlow
-   - `Gemfile` → RSpec, Cucumber-Ruby
-   - `go.mod` → Go testing, godog
-   - Find existing test files to confirm conventions (directory, naming, imports)
+2. **Read `docs/project-profile.md` — mandatory.** Use the test framework, test command, test
+   directory, and test file pattern from the `Tooling` section, and the test-related entries in
+   the `Conventions` and `Reference Files` sections.
+
+   **If `docs/project-profile.md` does not exist, stop.** Do not detect on the fly — silent
+   fallback is what causes the profile to never get written. Run `/analyze-project` first, then
+   return here. Tell the user: _"No project profile found — running /analyze-project first so
+   the test stubs match this codebase's conventions."_
 
 3. Generate a test file with:
    - **Header comment**: `// Spec: specs/features/<name>.feature` (or language equivalent)

@@ -1,12 +1,19 @@
-# Spec-Driven ATDD Development
+# Spec-Driven ATDD
 
-This project uses **Spec-Driven ATDD** (Acceptance Test-Driven Development): all features must be
-specified and acceptance-tested before any implementation begins. The toolkit is language-agnostic
-and platform-agnostic — it works in any project regardless of language, framework, or existing setup.
+Language-agnostic, platform-agnostic spec-first ATDD toolkit.
 
-## Core Rule
+> **Golden Rule:** Never write production code unless a failing acceptance test requires it.
 
-> Never write production code unless a failing acceptance test requires it.
+## First Action of Any Feature Work (Profile Bootstrap)
+
+Before writing a spec, tests, code, or running quality gates — including ad-hoc requests like
+"fix this bug" — **check whether `docs/project-profile.md` exists**.
+
+- **Missing**: first action is `/analyze-project` (or Phase 0 of `@atdd-cycle`). Tell the user:
+  _"No project profile found — running Phase 0 first so I have an accurate picture of this
+  codebase's tooling and conventions."_
+- **Exists**: read it first; treat as authoritative.
+- **Never** detect on the fly without persisting the profile to disk.
 
 ## Directory Structure
 
@@ -18,57 +25,43 @@ specs/
 
 ## The ATDD Cycle
 
-**Analyze → Spec → Tests (Red) → Implement (Green) → Quality Gates → Refactor → Review → PR**
+```
+Analyze → Spec → Tests (Red) → Implement (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
+```
 
-1. **Analyze**: Detect language, test framework, linter, formatter, build system, conventions
-2. **Spec First**: Write `specs/features/<name>.feature` and `specs/technical/<name>-spec.md`
-3. **Acceptance Tests**: Generate test stubs — run them to confirm they are **red**
-4. **Implement**: Write the minimum code to go **green**
-5. **Quality Gates**: Run lint, format, typecheck, build, test — iterate until all pass
-6. **Refactor**: Clean up while keeping tests green
-7. **Review**: Verify all spec scenarios are covered
-8. **PR**: Create branch, commit, push, open PR (optional)
+Full procedure: **[`docs/atdd/workflow.md`](../docs/atdd/workflow.md)** (read on demand).
 
-## Rules for Agents
+## Hard Rules
 
-- Always run project detection before generating code in a new repository
-- For greenfield projects, prompt the user for tooling preferences (language, test framework, package manager) before writing specs
-- Always check `specs/` before implementing any feature
-- If a spec does not exist, write it before proceeding
-- **Never proceed past spec without explicit user approval** — this is the mandatory human gate
-- If the user requests spec changes, update and re-present until approved
-- Reference the spec in test files: `// Spec: specs/features/<name>.feature`
-- Never modify tests to make them pass — fix the implementation
-- Tags mark scenario priority: `@smoke` → `@happy-path` → `@edge-case` → `@error`
-- Run quality gates (lint, format, typecheck, build, test) before declaring a phase complete
-- Match existing project conventions (test patterns, code style, directory structure)
+- Red before green; never modify tests to make them pass
+- Never add logic not demanded by a failing test
+- Update spec first when requirements change, then tests, then code
+- Phase 1 requires explicit user approval before tests are generated
+- Phase 3 re-reads `docs/project-profile.md` and mirrors its conventions — no inventing
+- Phase 0 reads existing docs (README, CONTRIBUTING, ARCHITECTURE, ADRs) before drawing
+  conclusions — they override inference
+- Phase 6 (Spec & Doc Sync) is a **blocking** gate that repairs drift in-phase —
+  includes `README.md` and `docs/project-profile.md` updates
 
-## Workflow Agents & Prompts
+## Commands & Agents
 
-- `@atdd-cycle` — Full automated cycle from requirements to verified, quality-gated implementation
-- `@spec-writer` — Write Gherkin features and technical specs from requirements
-- `@spec-reviewer` — Validate implementation against spec
-- `/analyze-project` — Detect project language, frameworks, tools, and conventions
-- `/write-spec` — Generate spec from requirements
-- `/write-acceptance-tests` — Generate test code from a spec file
-- `/implement-from-spec` — Implement code to make failing tests pass
-- `/run-quality-gates` — Run all quality gates and iterate until passing
-- `/verify-spec-coverage` — Check spec compliance
-- `/refactor-passing-tests` — Safe refactor after green
-- `/create-pull-request` — Create branch, commit, push, open PR
-- `/address-review-comments` — Handle PR review feedback
+| Trigger                    | Purpose                                                          |
+| -------------------------- | ---------------------------------------------------------------- |
+| `@atdd-cycle`              | Full automated cycle from requirements → PR                      |
+| `@spec-writer`             | Write Gherkin + technical spec                                   |
+| `@spec-reviewer`           | Read-only spec & doc compliance review                           |
+| `/analyze-project`         | Detect tooling + conventions; write `docs/project-profile.md`    |
+| `/write-spec`              | Generate spec from requirements                                  |
+| `/write-acceptance-tests`  | Generate failing test stubs from a spec                          |
+| `/implement-from-spec`     | Implement code to make failing tests pass                        |
+| `/run-quality-gates`       | Run lint/format/typecheck/build/test until green                 |
+| `/refactor-passing-tests`  | Safe refactor after green                                        |
+| `/verify-spec-coverage`    | Hard spec & doc sync gate (repairs drift in-place)               |
+| `/create-pull-request`     | Create branch, commit, push, open PR                             |
+| `/address-review-comments` | Handle PR review feedback                                        |
 
-## Full Documentation
+## Reference Documentation
 
-All ATDD workflow knowledge is in `docs/atdd/`:
-
-| Document                          | Contents                                     |
-| --------------------------------- | -------------------------------------------- |
-| `docs/atdd/workflow.md`           | Complete ATDD cycle procedure                |
-| `docs/atdd/quality-gates.md`      | Quality gate definitions and execution       |
-| `docs/atdd/project-detection.md`  | Language/framework detection for any project |
-| `docs/atdd/legacy-integration.md` | Integrating into existing projects           |
-| `docs/atdd/spec-writing.md`       | Spec writing guide                           |
-| `docs/atdd/gherkin.md`            | Gherkin conventions                          |
-| `docs/atdd/checklist.md`          | Per-feature tracking checklist               |
-| `docs/atdd/templates/`            | Feature and tech-spec templates              |
+All detail lives in `docs/atdd/` — read on demand:
+`workflow.md`, `project-detection.md`, `quality-gates.md`, `legacy-integration.md`,
+`spec-writing.md`, `gherkin.md`, `checklist.md`, `templates/`.

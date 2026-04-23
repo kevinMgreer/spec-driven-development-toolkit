@@ -16,14 +16,52 @@ Before generating any code, detect:
 5. **Type checker** — TypeScript, mypy, pyright
 6. **Build system** — npm scripts, Make, dotnet, go, cargo, gradle, maven
 7. **CI/CD** — GitHub Actions, GitLab CI, Jenkins, CircleCI
-8. **Conventions** — test naming, directories, imports, code style
+8. **Test conventions** — naming, directories, imports
+9. **Existing project documentation** (mandatory if any docs exist) — read these **before**
+   sampling code so they can point to canonical examples and override inference:
+   - `README.md` (and variants) — setup/run/test commands, domain vocabulary
+   - `CONTRIBUTING.md` — commit conventions, branch naming, PR process
+   - `ARCHITECTURE.md` / `docs/architecture.md` — architecture style, module boundaries
+   - `docs/adr/` or `docs/decisions/` — authoritative architectural decisions
+   - `docs/` (other), `STYLE.md` / `STYLEGUIDE.md`, `SECURITY.md`,
+     `.github/PULL_REQUEST_TEMPLATE.md`
+
+   Precedence: README overrides inferred commands; ADRs / `ARCHITECTURE.md` override inferred
+   architecture; `CONTRIBUTING.md` overrides inferred commit/branch style; domain terms in
+   docs must appear verbatim in specs and tests. Real conflicts go under `Known
+   inconsistencies` in the profile.
+10. **Code conventions** (mandatory for legacy projects) — sample 2–4 representative source
+   files (ideally identified from step 9 hints) and extract:
+   - Architecture style (layered, hexagonal, MVC, vertical slice, etc.)
+   - Module layout (folder-by-feature vs folder-by-layer; co-located vs separated tests)
+   - Dependency wiring (constructor DI, container, factories, plain imports)
+   - Error handling (exceptions vs Result; custom error classes; boundary mapping)
+   - Validation library and where validation lives
+   - Async/cancellation patterns
+   - Logging library and conventions
+   - Configuration loading
+   - Naming (files, classes, functions, constants, tests)
+   - Public API style (REST/GraphQL/gRPC; URL casing; error format)
+   - Persistence (ORM, migrations, transactions)
+   - Commit and branch conventions
+
+## Output
+
+Write all findings to `docs/project-profile.md` with sections — `Tooling`, `Conventions`,
+`Reference Files` (one file per layer the agent will mirror in Phase 3), and `Sources
+consulted` (every doc and code file that informed the profile). Add `Known inconsistencies`
+only when docs and code disagree. Record only what you observe — never guess.
 
 ## Adaptation Rules
 
-- For legacy projects: match all existing conventions exactly
+- For legacy projects: match all existing conventions exactly; conventions discovery is
+  non-negotiable
 - For greenfield projects: prompt the user for tooling preferences (language, test framework,
-  package manager, linter, formatter) in a single prompt before writing specs
+  package manager, linter, formatter) in a single prompt before writing specs; the
+  `Conventions` section starts empty
 - Never replace existing configs — add alongside them
 - Use the project's existing test framework, directory structure, and naming patterns
+- The agent **must** re-read `docs/project-profile.md` before writing production code in
+  Phase 3 and state which conventions it will follow
 
 See also: `docs/atdd/legacy-integration.md`

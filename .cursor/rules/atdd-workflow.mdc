@@ -5,84 +5,44 @@ alwaysApply: false
 
 # ATDD Workflow
 
-> Full procedure is in `docs/atdd/workflow.md`. Read that file first, then follow the steps below.
+> **Authoritative procedure: [`docs/atdd/workflow.md`](../../docs/atdd/workflow.md).**
+> Read that file before executing any phase. This rule is a cheatsheet, not the procedure.
 
 ## The Cycle
 
 ```
-Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Review → PR
+Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
 ```
 
-## Phase 0 — Analyze the Project
+## Phase Map
 
-1. Detect language, package manager, test framework, linter, formatter, build system, CI/CD
-2. Discover existing conventions (test naming, directory structure, code style)
-3. Record a project profile to guide all subsequent phases
-4. See `docs/atdd/project-detection.md` for the full detection procedure
+| Phase | Name                   | Key gate / deliverable                                                |
+| ----- | ---------------------- | --------------------------------------------------------------------- |
+| 0     | Analyze the Project    | `docs/project-profile.md` (Tooling + Conventions + Sources consulted) |
+| 1     | Write the Spec         | `specs/features/*.feature` + `specs/technical/*-spec.md` — USER GATE  |
+| 2     | Generate Tests (Red)   | Every scenario has a failing stub; failure is "not implemented"       |
+| 3     | Implement (Green)      | Minimum code per scenario, mirroring profile; `@smoke` first          |
+| 4     | Quality Gates          | Lint / format / typecheck / build / test all pass                     |
+| 5     | Refactor               | Structure only, tests stay green, re-run gates                        |
+| 6     | Spec & Doc Sync (Hard) | No drift: spec ↔ code ↔ tests ↔ README ↔ `docs/project-profile.md`    |
+| 7     | PR (optional)          | Feature branch, commit, push; include scenario summary                |
 
-## Phase 1 — Write the Spec
+## Hard Gates
 
-1. Clarify actor, goal, success criteria, and error cases (ask at most 3 questions)
-2. Create `specs/features/<name>.feature` — use `docs/atdd/templates/feature.template.md`
-3. Create `specs/technical/<name>-spec.md` — use `docs/atdd/templates/tech-spec.template.md`
-4. **Mandatory gate**: Present spec to the user and wait for explicit approval
-   - Do NOT proceed to tests until the user confirms
-   - If the user requests changes, update and re-present until approved
-   - Everything after approval is autonomous
+- **Phase 1 → 2**: explicit user approval of the spec. Iterate until approved.
+- **Phase 2 → 3**: all tests red for the right reason. Print test runner output.
+- **Phase 6 → done**: repair drift in-phase. Do not defer spec / README / profile updates.
 
-Required scenario coverage:
+## Before Phase 3
 
-- `@smoke` (1) — single most critical happy path
-- `@happy-path` (1–2) — primary success flows
-- `@edge-case` (2–4) — boundary conditions, unusual-but-valid inputs
-- `@error` (2–3) — invalid inputs, unauthorized access, system failures
+Always:
 
-## Phase 2 — Generate Tests (Red)
-
-1. Use detected test framework and conventions from Phase 0
-2. Create stubs for every scenario step — each must throw "not implemented"
-3. Add header: `// Spec: specs/features/<name>.feature`
-4. Run tests — confirm all are **red for the right reason**
-
-## Phase 3 — Implement (Green)
-
-Work in priority order: `@smoke` → `@happy-path` → `@edge-case` → `@error`
-
-- Implement only what the failing test demands
-- Run tests after each scenario
-- Never modify tests during implementation
-
-## Phase 4 — Quality Gates
-
-Run all available gates and iterate until they pass:
-
-1. Lint — auto-fix where possible
-2. Format — auto-fix where possible
-3. Type check — fix type errors
-4. Build — fix compilation errors
-5. Test — full suite must be green
-
-Max 3 fix attempts per gate. Re-run all gates after each fix.
-See `docs/atdd/quality-gates.md`.
-
-## Phase 5 — Refactor
-
-- All tests must be green before starting
-- Run tests after every change
-- Re-run all quality gates after refactoring
-
-## Phase 6 — Spec Review
-
-- Every scenario has a corresponding passing test
-- Every business rule in the technical spec is enforced
-- No behavior exists without a spec scenario
-
-## Phase 7 — PR (Optional)
-
-1. Create feature branch, commit, push
-2. Include spec, quality gate results, and scenario summary in PR body
-3. Ask the user before pushing
+1. Re-read `docs/project-profile.md` (`Conventions`, `Reference Files`, `Anti-patterns`).
+2. Open at least one reference file from the same layer you're about to write.
+3. State explicitly which conventions you will follow.
 
 ## Spec Change Protocol
 
-When requirements change: update spec → update tests (confirm red) → update implementation → confirm green.
+Spec → tests → code → `README.md` → `docs/project-profile.md` (if conventions changed). In that
+order. Doc updates are part of the change, not a follow-up. Full protocol:
+`docs/atdd/workflow.md` § Spec Change Protocol.
