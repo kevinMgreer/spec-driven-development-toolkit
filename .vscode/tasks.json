@@ -1,0 +1,98 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Extension: Unit Tests",
+      "type": "shell",
+      "command": "npm run unit-test",
+      "options": {
+        "cwd": "${workspaceFolder}/extension"
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Extension: Build",
+      "type": "shell",
+      "command": "node esbuild.js",
+      "options": {
+        "cwd": "${workspaceFolder}/extension"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": {
+        "owner": "esbuild",
+        "fileLocation": ["relative", "${workspaceFolder}/extension"],
+        "pattern": {
+          "regexp": "^✘ \\[ERROR\\] (.+)$",
+          "message": 1
+        }
+      }
+    },
+    {
+      "label": "Extension: Watch",
+      "type": "shell",
+      "command": "node esbuild.js --watch",
+      "options": {
+        "cwd": "${workspaceFolder}/extension"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "never",
+        "panel": "dedicated"
+      },
+      "problemMatcher": {
+        "owner": "esbuild",
+        "pattern": {
+          "regexp": "^✘ \\[ERROR\\] (.+)$",
+          "message": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "build started",
+          "endsPattern": "build finished"
+        }
+      }
+    },
+    {
+      "label": "Extension: Type Check",
+      "type": "shell",
+      "command": "npx tsc --noEmit",
+      "options": {
+        "cwd": "${workspaceFolder}/extension"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "Extension: Lint",
+      "type": "shell",
+      "command": "npx eslint src --ext ts",
+      "options": {
+        "cwd": "${workspaceFolder}/extension"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": "$eslint-stylish"
+    }
+  ]
+}

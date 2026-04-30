@@ -1,0 +1,31 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Extension: Run (Development Host)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}/extension"],
+      "outFiles": ["${workspaceFolder}/extension/dist/**/*.js"],
+      "preLaunchTask": "Extension: Build",
+      "presentation": {
+        "hidden": false,
+        "group": "extension",
+        "order": 1
+      }
+    },
+    {
+      "name": "Extension: Run + Watch (Development Host)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}/extension"],
+      "outFiles": ["${workspaceFolder}/extension/dist/**/*.js"],
+      "preLaunchTask": "Extension: Watch",
+      "presentation": {
+        "hidden": false,
+        "group": "extension",
+        "order": 2
+      }
+    }
+  ]
+}

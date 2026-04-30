@@ -1,0 +1,113 @@
+{
+  "name": "atdd-toolkit",
+  "displayName": "ATDD Toolkit",
+  "description": "Spec-first Acceptance Test-Driven Development for any language or framework. @atdd-cycle, @spec-writer, @spec-reviewer — no project setup required.",
+  "version": "0.1.0",
+  "publisher": "spec-driven-toolkit",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kevinMgreer/spec-driven-toolkit"
+  },
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": ["AI", "Testing"],
+  "keywords": ["atdd", "bdd", "tdd", "gherkin", "spec", "acceptance testing", "copilot", "spec-first"],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "atdd.cycle",
+        "name": "atdd-cycle",
+        "fullName": "ATDD Cycle",
+        "description": "Run the full spec-first ATDD cycle from requirements to PR — analyze, spec, test, implement, quality gates, refactor, sync, PR",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "analyze",
+            "description": "Analyze the project and write docs/project-profile.md"
+          },
+          {
+            "name": "spec",
+            "description": "Write a Gherkin feature file + technical spec from requirements"
+          },
+          {
+            "name": "tests",
+            "description": "Generate failing acceptance test stubs from the spec"
+          },
+          {
+            "name": "implement",
+            "description": "Implement production code to make the failing tests pass"
+          },
+          {
+            "name": "gates",
+            "description": "Run quality gates — lint, format, typecheck, build, test"
+          },
+          {
+            "name": "refactor",
+            "description": "Safely refactor with all tests green"
+          },
+          {
+            "name": "verify",
+            "description": "Spec & Doc Sync hard gate — verifies and repairs drift in-place"
+          },
+          {
+            "name": "pr",
+            "description": "Create a pull request for the completed feature"
+          },
+          {
+            "name": "review",
+            "description": "Address PR review comments using the spec change protocol"
+          }
+        ]
+      },
+      {
+        "id": "atdd.fullCycle",
+        "name": "full-autonomous-cycle",
+        "fullName": "ATDD Full Autonomous Cycle",
+        "description": "Fully autonomous ATDD cycle — one human gate (spec approval), then hands-off through PR creation, Copilot review request, and comment resolution",
+        "isSticky": false
+      },
+      {
+        "id": "atdd.specWriter",
+        "name": "spec-writer",
+        "fullName": "ATDD Spec Writer",
+        "description": "Write Gherkin .feature files and paired technical specs from requirements or user stories",
+        "isSticky": false
+      },
+      {
+        "id": "atdd.specReviewer",
+        "name": "spec-reviewer",
+        "fullName": "ATDD Spec Reviewer",
+        "description": "Review spec compliance, identify implementation drift, validate scenario coverage, and check README/profile alignment",
+        "isSticky": false
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "node esbuild.js --production",
+    "build": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "lint": "eslint src --ext ts",
+    "compile": "tsc -p tsconfig.json",
+    "pretest": "tsc -p tsconfig.json && node esbuild.js",
+    "test": "node ./out/test/runTests.js",
+    "unit-test": "tsc -p tsconfig.json && npx mocha --ui tdd --timeout 10000 \"out/test/suite/workspaceTools.test.js\" \"out/test/suite/systemPrompts.test.js\""
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.7",
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.95.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "@vscode/test-electron": "^2.4.1",
+    "esbuild": "^0.21.5",
+    "eslint": "^8.57.0",
+    "glob": "^11.0.0",
+    "mocha": "^10.7.0",
+    "typescript": "^5.5.4"
+  }
+}
