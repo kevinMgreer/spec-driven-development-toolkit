@@ -118,7 +118,7 @@ Copy to `specs/technical/<feature-name>-spec.md` and fill in the placeholders.
 - `<Authentication requirement — who can call this?>`
 - `<Authorization requirement — what roles are allowed?>`
 - `<Input validation — what sanitization is required?>`
- - `<Sensitive data handling — PII, secrets, etc.>`
+- `<Sensitive data handling — PII, secrets, etc.>`
 
 ---
 

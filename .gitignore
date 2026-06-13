@@ -10,3 +10,9 @@ Thumbs.db
 # Environment
 .env
 .env.*
+
+# Build output / dependencies
+node_modules/
+dist/
+out/
+*.vsix

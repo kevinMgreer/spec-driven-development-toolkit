@@ -30,6 +30,7 @@ your-project/
 ├── .github/            ← VS Code config (merge with existing .github/)
 ├── .cursor/            ← Cursor config (if using Cursor)
 ├── .kiro/              ← Kiro config (if using Kiro)
+├── .claude/            ← Claude Code commands + agents (if using Claude Code)
 ├── docs/atdd/          ← ATDD knowledge base (NEW)
 ├── specs/              ← Spec files (NEW)
 │   ├── features/
@@ -50,6 +51,7 @@ If the target project already has some of these files:
 | `.github/` has workflows | Add toolkit files alongside — don't modify existing workflows        |
 | `AGENTS.md` exists       | Append ATDD rules section to existing file                           |
 | `CLAUDE.md` exists       | Append ATDD rules section to existing file                           |
+| `.claude/` exists        | Add toolkit commands/agents alongside — don't overwrite existing ones |
 | `docs/` exists           | Create `docs/atdd/` subdirectory — don't conflict with other docs    |
 | `specs/` exists          | Use existing directory — add `features/` and `technical/` if missing |
 | `.eslintrc` exists       | Use it — don't create a new one                                      |

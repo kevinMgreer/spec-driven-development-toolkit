@@ -20,7 +20,10 @@ spec-driven-development-toolkit/
 │   ├── checklist.md               #    Per-feature tracking checklist
 │   └── templates/
 │       ├── feature.template.md    #    Gherkin feature file template
-│       └── tech-spec.template.md  #    Technical spec template
+│       ├── tech-spec.template.md  #    Technical spec template
+│       ├── atdd-ci.yml            #    GitHub Actions CI template (quality gates)
+│       ├── lefthook.yml           #    Git pre-push hooks template
+│       └── mcp-github.json        #    GitHub MCP server config template
 │
 ├── specs/                         # 📋 Example specs (copy into target project)
 │   ├── features/
@@ -35,6 +38,7 @@ spec-driven-development-toolkit/
 │   ├── copilot-instructions.md
 │   ├── agents/
 │   │   ├── atdd-cycle.agent.md
+│   │   ├── full-autonomous-cycle.agent.md
 │   │   ├── spec-writer.agent.md
 │   │   └── spec-reviewer.agent.md
 │   ├── instructions/
@@ -65,6 +69,10 @@ spec-driven-development-toolkit/
 │   ├── quality-gates.mdc
 │   └── project-detection.mdc
 │
+├── .claude/                       # 🟣 Claude Code configuration
+│   ├── commands/                  #    Slash commands (/atdd-cycle, /write-spec, …)
+│   └── agents/                    #    Subagents (spec-writer, spec-reviewer)
+│
 ├── .kiro/steering/                # 🟠 Kiro IDE configuration
 │   ├── atdd-core.md
 │   ├── atdd-workflow.md
@@ -86,10 +94,10 @@ spec-driven-development-toolkit/
 
 ```
 docs/atdd/                          ← Single source of truth (Markdown)
-  ┌──────────┬──────────┬──────────┬──────────┐
-  ▼          ▼          ▼          ▼          ▼
-.github/   .cursor/   .kiro/     CLAUDE.md  AGENTS.md
-(VS Code)  (Cursor)   (Kiro)     (Claude)   (Universal)
+  ┌──────────┬──────────┬──────────┬─────────────────────┬──────────┐
+  ▼          ▼          ▼          ▼                     ▼          ▼
+.github/   .cursor/   .kiro/     .claude/ + CLAUDE.md  AGENTS.md
+(VS Code)  (Cursor)   (Kiro)     (Claude Code)         (Universal)
 ```
 
 The real content lives in `docs/atdd/`. Each platform gets a thin adapter that either:
@@ -139,6 +147,7 @@ Copy everything:
 cp -r spec-driven-development-toolkit/.github    your-project/.github
 cp -r spec-driven-development-toolkit/.cursor    your-project/.cursor
 cp -r spec-driven-development-toolkit/.kiro      your-project/.kiro
+cp -r spec-driven-development-toolkit/.claude    your-project/.claude
 cp -r spec-driven-development-toolkit/docs       your-project/docs
 cp -r spec-driven-development-toolkit/specs      your-project/specs
 cp    spec-driven-development-toolkit/AGENTS.md  your-project/AGENTS.md
@@ -150,6 +159,7 @@ cp    spec-driven-development-toolkit/CLAUDE.md  your-project/CLAUDE.md
 Copy-Item -Recurse .\spec-driven-development-toolkit\.github   your-project\.github
 Copy-Item -Recurse .\spec-driven-development-toolkit\.cursor   your-project\.cursor
 Copy-Item -Recurse .\spec-driven-development-toolkit\.kiro     your-project\.kiro
+Copy-Item -Recurse .\spec-driven-development-toolkit\.claude   your-project\.claude
 Copy-Item -Recurse .\spec-driven-development-toolkit\docs      your-project\docs
 Copy-Item -Recurse .\spec-driven-development-toolkit\specs     your-project\specs
 Copy-Item .\spec-driven-development-toolkit\AGENTS.md          your-project\AGENTS.md
@@ -160,14 +170,14 @@ Copy-Item .\spec-driven-development-toolkit\CLAUDE.md          your-project\CLAU
 
 Only copy what you need:
 
-| Your IDE               | Copy these                     |
-| ---------------------- | ------------------------------ |
-| **VS Code (Copilot)**  | `.github/`, `docs/`, `specs/`  |
-| **Cursor**             | `.cursor/`, `docs/`, `specs/`  |
-| **Kiro**               | `.kiro/`, `docs/`, `specs/`    |
-| **Claude Code**        | `CLAUDE.md`, `docs/`, `specs/` |
-| **Any AGENTS.md tool** | `AGENTS.md`, `docs/`, `specs/` |
-| **Multiple IDEs**      | Full install (above)           |
+| Your IDE               | Copy these                                 |
+| ---------------------- | ------------------------------------------ |
+| **VS Code (Copilot)**  | `.github/`, `docs/`, `specs/`              |
+| **Cursor**             | `.cursor/`, `docs/`, `specs/`              |
+| **Kiro**               | `.kiro/`, `docs/`, `specs/`                |
+| **Claude Code**        | `CLAUDE.md`, `.claude/`, `docs/`, `specs/` |
+| **Any AGENTS.md tool** | `AGENTS.md`, `docs/`, `specs/`             |
+| **Multiple IDEs**      | Full install (above)                       |
 
 **Always copy `docs/` and `specs/`** — the platform configs reference `docs/` and `specs/` contains the example features.
 
@@ -180,7 +190,10 @@ Only copy what you need:
 1. Edit the relevant file in `docs/atdd/`
 2. Check if any platform adapter summarizes that content and needs updating:
    - `.github/copilot-instructions.md` and `.github/instructions/*.instructions.md`
-   - `.github/skills/atdd/references/` (copies of docs for the skill)
+   - `.github/skills/atdd/references/` (copies of docs for the skill — must stay byte-identical
+     to their `docs/atdd/` counterparts; CI checks this)
+   - `.claude/commands/*.md` and `.claude/agents/*.md` (mirror the `.github/prompts/` and
+     `.github/agents/` content — keep the pairs aligned when editing either side)
    - `.cursor/rules/*.mdc`
    - `.kiro/steering/*.md`
    - `CLAUDE.md`
@@ -213,7 +226,7 @@ Only copy what you need:
 | **VS Code (Copilot)** | `.github/`              | `.agent.md`, `.prompt.md`, `.instructions.md`, `SKILL.md` | `instructions.md` via `applyTo`; agents/prompts by user invocation; skills on demand |
 | **Cursor**            | `.cursor/rules/`        | `.mdc` with YAML frontmatter                              | `alwaysApply: true` or by `globs` match                                              |
 | **Kiro**              | `.kiro/steering/`       | `.md` with YAML frontmatter                               | `inclusion: always`, `fileMatch`, `auto`, or `manual`                                |
-| **Claude Code**       | `CLAUDE.md` (repo root) | Markdown                                                  | Always loaded for the project                                                        |
+| **Claude Code**       | `CLAUDE.md` + `.claude/` | `CLAUDE.md` (always loaded); `commands/*.md` (slash commands); `agents/*.md` (subagents) | `CLAUDE.md` always; commands by user invocation; subagents auto-delegated or on request |
 | **AGENTS.md**         | `AGENTS.md` (repo root) | Markdown                                                  | IDE-dependent (Kiro reads it; others vary)                                           |
 
 ---

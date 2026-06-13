@@ -363,8 +363,9 @@ After every fix above:
 
 - Re-run the full test suite — must be green
 - Re-run all available quality gates — must pass
-- Produce the compliance report (see [verify-spec-coverage prompt](../../.github/prompts/verify-spec-coverage.prompt.md))
-  including the `Documentation Sync` section
+- Produce the Spec & Doc Sync report — a table where every row (spec compliance, drift
+  repaired, README, project profile, other docs, tests, quality gates) is ✅ or an explicit
+  ⏭️ with a reason (the `/verify-spec-coverage` prompt/command defines the full format)
 
 Only when all four sub-phases pass does the cycle proceed to Phase 7.
 

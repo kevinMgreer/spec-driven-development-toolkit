@@ -116,7 +116,7 @@ Copy into a PR description, issue, or tracking document.
 - [ ] No code added beyond what failing tests required
 - [ ] No test files modified during implementation
 
-## **Intentionally skipped `@wip` scenarios** (list any):
+**Intentionally skipped `@wip` scenarios** (list any):
 
 ---
 

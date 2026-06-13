@@ -28,6 +28,27 @@ Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates �
 **Full procedure: [`docs/atdd/workflow.md`](docs/atdd/workflow.md)** (authoritative).
 Hard rules, command reference, and reference docs: [`AGENTS.md`](AGENTS.md).
 
+---
+
+## Commands & Agents
+
+Slash commands live in `.claude/commands/`; subagents in `.claude/agents/`.
+
+| Trigger                                   | Purpose                                                      |
+| ----------------------------------------- | ------------------------------------------------------------ |
+| `/atdd-cycle`                             | Full supervised cycle: requirements → PR (asks before PR)    |
+| `/full-autonomous-cycle`                  | Hands-off cycle — spec approval is the only human gate       |
+| `/analyze-project`                        | Phase 0 — detect tooling + conventions; write the profile    |
+| `/write-spec` → `/write-acceptance-tests` | Phase 1–2 — spec (user gate), then failing test stubs        |
+| `/implement-from-spec`                    | Phase 3 — minimum code to green, mirroring the profile       |
+| `/run-quality-gates`                      | Phase 4 — lint/format/typecheck/build/test until green       |
+| `/refactor-passing-tests`                 | Phase 5 — safe refactor, tests stay green                    |
+| `/verify-spec-coverage`                   | Phase 6 — hard spec & doc sync gate (repairs drift in-place) |
+| `/create-pull-request`                    | Phase 7 — branch, commit, push, PR                           |
+| `/address-review-comments`                | Handle PR review feedback                                    |
+| `spec-writer` subagent                    | Writes Gherkin + technical specs (never code)                |
+| `spec-reviewer` subagent                  | Read-only spec & doc compliance review                       |
+
 Non-negotiables, in brief:
 
 - Red before green; never modify tests to pass; never add logic not demanded by a failing test

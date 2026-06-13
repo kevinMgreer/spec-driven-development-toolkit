@@ -11,7 +11,7 @@ set -euo pipefail
 #   --vscode       Install VS Code (Copilot) config only
 #   --cursor       Install Cursor config only
 #   --kiro         Install Kiro config only
-#   --claude       Install Claude config only
+#   --claude       Install Claude Code config only (CLAUDE.md + .claude/)
 #   --agents       Install AGENTS.md only
 #   --docs-only    Install only docs/ and specs/ (no platform config)
 #   --no-examples  Skip example specs in specs/
@@ -34,7 +34,7 @@ usage() {
     echo "  --vscode       Install VS Code (Copilot) config"
     echo "  --cursor       Install Cursor config"
     echo "  --kiro         Install Kiro config"
-    echo "  --claude       Install Claude config"
+    echo "  --claude       Install Claude Code config (CLAUDE.md + .claude/)"
     echo "  --agents       Install AGENTS.md"
     echo "  --docs-only    Install only docs/ and specs/"
     echo "  --no-examples  Skip example specs"
@@ -148,8 +148,12 @@ echo ""
 # Always install docs and specs structure
 echo "Core (always installed):"
 copy_dir "$SCRIPT_DIR/docs/atdd" "$TARGET/docs/atdd" "docs/atdd/"
-mkdir -p "$TARGET/specs/features" "$TARGET/specs/technical" 2>/dev/null || true
-echo "  ENSURE specs/features/ and specs/technical/ exist"
+if [[ "$DRY_RUN" == true ]]; then
+    echo "  WOULD ENSURE specs/features/ and specs/technical/ exist"
+else
+    mkdir -p "$TARGET/specs/features" "$TARGET/specs/technical" 2>/dev/null || true
+    echo "  ENSURE specs/features/ and specs/technical/ exist"
+fi
 
 if [[ "$NO_EXAMPLES" != true ]]; then
     copy_dir "$SCRIPT_DIR/specs" "$TARGET/specs" "specs/ (examples)"
@@ -202,8 +206,10 @@ EOF
             copy_dir "$SCRIPT_DIR/.kiro/steering" "$TARGET/.kiro/steering" ".kiro/steering/"
             ;;
         claude)
-            echo "Claude:"
+            echo "Claude Code:"
             copy_file "$SCRIPT_DIR/CLAUDE.md" "$TARGET/CLAUDE.md" "CLAUDE.md"
+            copy_dir "$SCRIPT_DIR/.claude/commands" "$TARGET/.claude/commands" ".claude/commands/"
+            copy_dir "$SCRIPT_DIR/.claude/agents" "$TARGET/.claude/agents" ".claude/agents/"
             ;;
         agents)
             echo "AGENTS.md:"

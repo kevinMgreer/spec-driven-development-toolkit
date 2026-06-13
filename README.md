@@ -54,7 +54,7 @@ through implementation, quality gates, refactoring, review, and pull request is 
 | **VS Code (Copilot)**  | `.github/`, `docs/`, `specs/`                                                 |
 | **Cursor**             | `.cursor/`, `docs/`, `specs/`                                                 |
 | **Kiro**               | `.kiro/`, `docs/`, `specs/`                                                   |
-| **Claude Code**        | `CLAUDE.md`, `docs/`, `specs/`                                                |
+| **Claude Code**        | `CLAUDE.md`, `.claude/`, `docs/`, `specs/`                                    |
 | **Multiple IDEs**      | Everything (see [CONTRIBUTING.md](CONTRIBUTING.md) for full install commands) |
 | **Any AGENTS.md tool** | `AGENTS.md`, `docs/`, `specs/`                                                |
 
@@ -122,7 +122,21 @@ npm install -g spec-mcp-server   # install once globally
 # Run: lefthook install   (install once: npm i -g @evilmartians/lefthook)
 ```
 
-**Cursor / Kiro / Claude** — describe what you want to build. The AI reads the ATDD rules
+**Claude Code** — same two automation levels, as slash commands:
+
+```
+# Supervised — you approve the spec, then decide on each next step
+/atdd-cycle Implement a user login feature with email/password authentication
+
+# Fully autonomous — you approve the spec, then it runs to completion
+/full-autonomous-cycle Implement a user login feature with email/password authentication
+```
+
+Or step by step: the same `/analyze-project` → … → `/address-review-comments` commands listed
+above all exist in `.claude/commands/`, and the `spec-writer` / `spec-reviewer` subagents in
+`.claude/agents/` are invoked automatically during the cycle.
+
+**Cursor / Kiro** — describe what you want to build. The AI reads the ATDD rules
 automatically and follows the spec-first workflow.
 
 ---
@@ -155,30 +169,48 @@ The single source of truth — all platform adapters reference or embed content 
 | `AGENTS.md` | Kiro, GitHub Copilot, and any AGENTS.md-compatible tool |
 | `CLAUDE.md` | Claude Code, Claude Projects                            |
 
+### Claude Code — `.claude/`
+
+| File                                  | Purpose                                                                       |
+| ------------------------------------- | ----------------------------------------------------------------------------- |
+| `commands/atdd-cycle.md`              | `/atdd-cycle` — **supervised** full cycle (asks before PR)                    |
+| `commands/full-autonomous-cycle.md`   | `/full-autonomous-cycle` — **autonomous**: spec approval only, then hands-off |
+| `commands/analyze-project.md`         | `/analyze-project` — detect project stack, write the profile                  |
+| `commands/write-spec.md`              | `/write-spec` — generate spec from requirements                               |
+| `commands/write-acceptance-tests.md`  | `/write-acceptance-tests` — failing test stubs                                |
+| `commands/implement-from-spec.md`     | `/implement-from-spec` — minimum code to pass                                 |
+| `commands/run-quality-gates.md`       | `/run-quality-gates` — lint/format/build/test gates                           |
+| `commands/refactor-passing-tests.md`  | `/refactor-passing-tests` — safe refactor                                     |
+| `commands/verify-spec-coverage.md`    | `/verify-spec-coverage` — hard spec & doc sync gate                           |
+| `commands/create-pull-request.md`     | `/create-pull-request` — branch, commit, push, PR                             |
+| `commands/address-review-comments.md` | `/address-review-comments` — handle PR feedback                               |
+| `agents/spec-writer.md`               | Subagent — writes Gherkin features + technical specs                          |
+| `agents/spec-reviewer.md`             | Subagent — read-only spec & doc compliance review                             |
+
 ### VS Code (Copilot) — `.github/`
 
-| File                                             | Purpose                                                                     |
-| ------------------------------------------------ | --------------------------------------------------------------------------- |
-| `copilot-instructions.md`                        | Project-wide spec-first rules                                               |
-| `agents/atdd-cycle.agent.md`                     | **Supervised**: analyze → spec → tests → implement → PR (asks before PR)    |
-| `agents/full-autonomous-cycle.agent.md`          | **Autonomous**: spec approval only → runs to PR + Copilot review resolution |
-| `agents/spec-writer.agent.md`                    | Writes Gherkin features + technical specs                                   |
-| `agents/spec-reviewer.agent.md`                  | Validates implementation against specs                                      |
-| `instructions/atdd-workflow.instructions.md`     | Red-green-refactor rules                                                    |
-| `instructions/spec-writing.instructions.md`      | Behavior-focused spec writing guide                                         |
-| `instructions/gherkin.instructions.md`           | Auto-applied to `*.feature` files                                           |
-| `instructions/quality-gates.instructions.md`     | Quality gate detection and execution                                        |
-| `instructions/project-detection.instructions.md` | Language/framework detection guide                                          |
-| `prompts/analyze-project.prompt.md`              | `/analyze-project` — detect project stack                                   |
-| `prompts/write-spec.prompt.md`                   | `/write-spec` — generate spec from requirements                             |
-| `prompts/write-acceptance-tests.prompt.md`       | `/write-acceptance-tests` — failing test stubs                              |
-| `prompts/implement-from-spec.prompt.md`          | `/implement-from-spec` — minimum code to pass                               |
-| `prompts/run-quality-gates.prompt.md`            | `/run-quality-gates` — lint/format/build/test gates                         |
-| `prompts/verify-spec-coverage.prompt.md`         | `/verify-spec-coverage` — hard spec & doc sync gate (repairs drift in-place)|
-| `prompts/refactor-passing-tests.prompt.md`       | `/refactor-passing-tests` — safe refactor                                   |
-| `prompts/create-pull-request.prompt.md`          | `/create-pull-request` — branch, commit, push, PR                           |
-| `prompts/address-review-comments.prompt.md`      | `/address-review-comments` — handle PR feedback                             |
-| `skills/atdd/`                                   | On-demand ATDD skill with templates and references                          |
+| File                                             | Purpose                                                                      |
+| ------------------------------------------------ | ---------------------------------------------------------------------------- |
+| `copilot-instructions.md`                        | Project-wide spec-first rules                                                |
+| `agents/atdd-cycle.agent.md`                     | **Supervised**: analyze → spec → tests → implement → PR (asks before PR)     |
+| `agents/full-autonomous-cycle.agent.md`          | **Autonomous**: spec approval only → runs to PR + Copilot review resolution  |
+| `agents/spec-writer.agent.md`                    | Writes Gherkin features + technical specs                                    |
+| `agents/spec-reviewer.agent.md`                  | Validates implementation against specs                                       |
+| `instructions/atdd-workflow.instructions.md`     | Red-green-refactor rules                                                     |
+| `instructions/spec-writing.instructions.md`      | Behavior-focused spec writing guide                                          |
+| `instructions/gherkin.instructions.md`           | Auto-applied to `*.feature` files                                            |
+| `instructions/quality-gates.instructions.md`     | Quality gate detection and execution                                         |
+| `instructions/project-detection.instructions.md` | Language/framework detection guide                                           |
+| `prompts/analyze-project.prompt.md`              | `/analyze-project` — detect project stack                                    |
+| `prompts/write-spec.prompt.md`                   | `/write-spec` — generate spec from requirements                              |
+| `prompts/write-acceptance-tests.prompt.md`       | `/write-acceptance-tests` — failing test stubs                               |
+| `prompts/implement-from-spec.prompt.md`          | `/implement-from-spec` — minimum code to pass                                |
+| `prompts/run-quality-gates.prompt.md`            | `/run-quality-gates` — lint/format/build/test gates                          |
+| `prompts/verify-spec-coverage.prompt.md`         | `/verify-spec-coverage` — hard spec & doc sync gate (repairs drift in-place) |
+| `prompts/refactor-passing-tests.prompt.md`       | `/refactor-passing-tests` — safe refactor                                    |
+| `prompts/create-pull-request.prompt.md`          | `/create-pull-request` — branch, commit, push, PR                            |
+| `prompts/address-review-comments.prompt.md`      | `/address-review-comments` — handle PR feedback                              |
+| `skills/atdd/`                                   | On-demand ATDD skill with templates and references                           |
 
 ### Cursor — `.cursor/rules/`
 
@@ -215,10 +247,10 @@ The single source of truth — all platform adapters reference or embed content 
 
 ```
 docs/atdd/                       ← Single source of truth (Markdown)
-  ┌────────┬────────┬────────┬────────┬──────────┐
-  ▼        ▼        ▼        ▼        ▼          ▼
-.github/ .cursor/ .kiro/  CLAUDE.md AGENTS.md  (future IDEs)
-VS Code  Cursor   Kiro    Claude    Universal
+  ┌────────┬────────┬────────┬──────────┬──────────┬──────────────┐
+  ▼        ▼        ▼        ▼          ▼          ▼              ▼
+.github/ .cursor/ .kiro/  .claude/ + CLAUDE.md  AGENTS.md   (future IDEs)
+VS Code  Cursor   Kiro    Claude Code            Universal
 ```
 
 The real knowledge lives in `docs/atdd/`. Each IDE gets a **thin adapter** that either:

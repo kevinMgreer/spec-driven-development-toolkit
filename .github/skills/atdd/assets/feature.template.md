@@ -1,6 +1,6 @@
 # Gherkin Feature File Template
 
-Copy to `specs/features/<feature-name>.feature` and fill in the placeholders.
+Copy to `specs/features/<feature-name>.feature` and replace all placeholders.
 
 ---
 
@@ -18,7 +18,7 @@ Feature: <Short imperative noun phrase — e.g. "User Registration", "Password R
   # ─── SMOKE ────────────────────────────────────────────────────────────────
   # One scenario — the single most critical path. Run on every build.
   @smoke @happy-path
-  Scenario: <Most critical success path — title is the expected outcome>
+  Scenario: <Most critical success path — title states the expected outcome>
     Given <initial state>
     When <primary action taken by actor>
     Then <primary observable outcome>
@@ -40,23 +40,23 @@ Feature: <Short imperative noun phrase — e.g. "User Registration", "Password R
     When <action>
     Then <expected outcome at boundary>
 
-  # Use Scenario Outline for multiple related variations
+  # Use Scenario Outline for multiple related input variations
   @edge-case
   Scenario Outline: <Shared behavior with varying inputs>
-    Given <state involving <input_variable>>
+    Given <state involving <input>>
     When <action>
-    Then <expected outcome is <expected_variable>>
+    Then <expected outcome is <expected>>
 
     Examples:
-      | input_variable  | expected_variable               |
-      | <value_1>       | <expected_outcome_1>            |
-      | <value_2>       | <expected_outcome_2>            |
-      | <boundary_val>  | <expected_outcome_at_boundary>  |
+      | input         | expected                  |
+      | <value_1>     | <expected_outcome_1>      |
+      | <value_2>     | <expected_outcome_2>      |
+      | <boundary>    | <expected_at_boundary>    |
 
   # ─── ERROR CASES ──────────────────────────────────────────────────────────
   # Invalid inputs, unauthorized access, system failures
   @error
-  Scenario: <Invalid input — describe the specific invalid condition>
+  Scenario: <Invalid input — name the specific invalid condition>
     Given <state>
     When <action with invalid input>
     Then I should see an error "<specific error message>"
@@ -64,12 +64,12 @@ Feature: <Short imperative noun phrase — e.g. "User Registration", "Password R
   @error
   Scenario: <Unauthorized access>
     Given I am not authenticated
-    When <action requiring authentication>
+    When <action that requires authentication>
     Then I should be denied access
-    And I should see "<specific message or be redirected to login>"
+    And I should see "<specific message or redirect>"
 
   @error
-  Scenario: <Dependent system failure — graceful degradation>
+  Scenario: <Dependent system failure>
     Given <external dependency> is unavailable
     When <action that depends on it>
     Then <graceful failure behavior — user-visible error or fallback>
@@ -77,14 +77,14 @@ Feature: <Short imperative noun phrase — e.g. "User Registration", "Password R
 
 ---
 
-## Checklist Before Submitting a Feature File
+## Checklist Before Submitting
 
 - [ ] Feature block has role / goal / benefit
 - [ ] Exactly **1** `@smoke` scenario (the most critical path)
 - [ ] At least **1** `@happy-path` scenario
 - [ ] At least **2** `@edge-case` scenarios (boundaries and unusual inputs)
-- [ ] At least **2** `@error` scenarios (invalid input, auth failure, system failure)
+- [ ] At least **2** `@error` scenarios (invalid, auth failure, system failure)
 - [ ] `Scenario Outline` used where multiple inputs share the same behavior
-- [ ] Step text describes behavior, not implementation
-- [ ] All concrete values in `Then` steps (not "the expected value")
-- [ ] Steps use consistent vocabulary with other feature files
+- [ ] All step text describes behavior, not implementation internals
+- [ ] All `Then` values are concrete (not "the expected value")
+- [ ] Consistent step vocabulary with other feature files in `specs/`

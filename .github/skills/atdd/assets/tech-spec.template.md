@@ -47,9 +47,9 @@ Copy to `specs/technical/<feature-name>-spec.md` and fill in the placeholders.
 
 ## Business Rules
 
-> Numbered rules the implementation MUST enforce. Each rule should have a concrete example.
+> Numbered rules the implementation MUST enforce. Each rule needs a concrete example.
 
-1. **`<Rule Name>`**: `<Description of the rule>`.
+1. **`<Rule Name>`**: `<Description>`.
    - Example: `<Concrete example showing the rule in action>`
 
 2. **`<Rule Name>`**: `<Description>`.
