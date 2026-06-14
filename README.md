@@ -6,8 +6,8 @@ AI-assisted development with automated quality gates throughout.
 
 Works with **VS Code (Copilot) · Cursor · Kiro · Claude Code** — and any tool that reads `AGENTS.md`.
 
-> **Companion:** [spec-mcp-server](https://github.com/kevinMgreer/spec-mcp-server) — an MCP server that exposes your `specs/` directory to AI assistants directly.
-> The VS Code install below configures it automatically. Install it globally once: `npm install -g spec-mcp-server`
+> **Companion:** [spec-mcp-server](https://github.com/kevinMgreer/spec-mcp-server) — an MCP server
+> that exposes your `specs/` directory to AI assistants directly.
 
 ---
 
@@ -20,7 +20,9 @@ Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates �
 ```
 
 Feed requirements to the AI. It writes the spec (you approve). Then everything from test generation
-through implementation, quality gates, refactoring, review, and pull request is handled autonomously.
+through implementation, quality gates, refactoring, doc sync, and pull request is handled autonomously.
+
+Full procedure: [docs/atdd/workflow.md](docs/atdd/workflow.md)
 
 ---
 
@@ -47,19 +49,18 @@ through implementation, quality gates, refactoring, review, and pull request is 
 ./install.sh /path/to/your-project --dry-run
 ```
 
-**Or copy manually** — the files for your IDE(s), plus shared docs and specs:
+**Or copy manually:**
 
-| Your IDE               | Copy these directories/files                                                  |
-| ---------------------- | ----------------------------------------------------------------------------- |
-| **VS Code (Copilot)**  | `.github/`, `docs/`, `specs/`                                                 |
-| **Cursor**             | `.cursor/`, `docs/`, `specs/`                                                 |
-| **Kiro**               | `.kiro/`, `docs/`, `specs/`                                                   |
-| **Claude Code**        | `CLAUDE.md`, `.claude/`, `docs/`, `specs/`                                    |
-| **Multiple IDEs**      | Everything (see [CONTRIBUTING.md](CONTRIBUTING.md) for full install commands) |
-| **Any AGENTS.md tool** | `AGENTS.md`, `docs/`, `specs/`                                                |
+| Your IDE               | Copy these                                          |
+| ---------------------- | --------------------------------------------------- |
+| **VS Code (Copilot)**  | `.github/`, `docs/`, `specs/`                       |
+| **Cursor**             | `.cursor/`, `docs/`, `specs/`                       |
+| **Kiro**               | `.kiro/`, `docs/`, `specs/`                         |
+| **Claude Code**        | `CLAUDE.md`, `.claude/`, `docs/`, `specs/`          |
+| **Multiple IDEs**      | Everything (see [CONTRIBUTING.md](CONTRIBUTING.md)) |
+| **Any AGENTS.md tool** | `AGENTS.md`, `docs/`, `specs/`                      |
 
-**Always include `docs/` and `specs/`** — platform configs reference `docs/` for the full procedures,
-and `specs/` contains working examples.
+Always include `docs/` and `specs/` — platform configs reference `docs/` for the full procedures.
 
 ### 2. Use it
 
@@ -71,11 +72,9 @@ and `specs/` contains working examples.
 | **Fully autonomous** | `@full-autonomous-cycle` | Spec approval only — then hands-off through PR, Copilot review, and comment resolution |
 
 ```
-# Supervised — you approve the spec, then decide on each next step
 @atdd-cycle Implement a user login feature with email/password authentication
 that locks accounts after 5 failed attempts within 15 minutes
 
-# Fully autonomous — you approve the spec, then it runs to completion
 @full-autonomous-cycle Implement a user login feature with email/password authentication
 that locks accounts after 5 failed attempts within 15 minutes
 ```
@@ -89,157 +88,67 @@ Or step by step with slash commands:
 /create-pull-request    → /address-review-comments
 ```
 
-### 3. Enable full autonomy (optional one-time setup)
-
-To unlock hands-off PR creation and Copilot review, set up these three things once per project:
-
-**Spec MCP server** — gives AI assistants direct access to your `specs/` directory (installed automatically by the VS Code install script):
-
-```bash
-npm install -g spec-mcp-server   # install once globally
-# .vscode/mcp.json is written automatically by install.sh / install.ps1
-```
-
-**GitHub MCP** — lets the agent interact with GitHub directly (create PRs, fetch review comments):
+**Claude Code** — same two levels, as slash commands:
 
 ```
-# Merge docs/atdd/templates/mcp-github.json into .vscode/mcp.json
-# Set a GITHUB_TOKEN env var:
-# - classic PAT: repo scope
-# - fine-grained PAT: repository permissions for Pull requests and Contents
-```
-
-**CI quality gates** — enforces gates on every push and auto-requests Copilot review on PRs:
-
-```
-# Copy docs/atdd/templates/atdd-ci.yml to .github/workflows/atdd-ci.yml
-```
-
-**Local git hooks** (optional) — blocks push if quality gates fail locally:
-
-```
-# Copy docs/atdd/templates/lefthook.yml to lefthook.yml
-# Run: lefthook install   (install once: npm i -g @evilmartians/lefthook)
-```
-
-**Claude Code** — same two automation levels, as slash commands:
-
-```
-# Supervised — you approve the spec, then decide on each next step
 /atdd-cycle Implement a user login feature with email/password authentication
-
-# Fully autonomous — you approve the spec, then it runs to completion
 /full-autonomous-cycle Implement a user login feature with email/password authentication
 ```
 
-Or step by step: the same `/analyze-project` → … → `/address-review-comments` commands listed
-above all exist in `.claude/commands/`, and the `spec-writer` / `spec-reviewer` subagents in
-`.claude/agents/` are invoked automatically during the cycle.
+**Cursor / Kiro** — describe what you want to build. The AI reads the ATDD rules automatically.
 
-**Cursor / Kiro** — describe what you want to build. The AI reads the ATDD rules
-automatically and follows the spec-first workflow.
+### 3. Enable full autonomy (optional one-time setup)
+
+For hands-off PR creation and Copilot review, set up these once per project:
+
+- **Spec MCP server** — gives AI assistants direct access to your `specs/` directory.
+  See [spec-mcp-server](https://github.com/kevinMgreer/spec-mcp-server) for setup.
+  The VS Code install script writes `.vscode/mcp.json` automatically.
+
+- **GitHub MCP** — lets the agent create PRs and fetch review comments directly.
+  Merge `docs/atdd/templates/mcp-github.json` into `.vscode/mcp.json` and set a
+  `GITHUB_TOKEN` env var (classic PAT with `repo` scope, or fine-grained with PR + Contents).
+
+- **CI quality gates** — enforces gates on every push and auto-requests Copilot review on PRs.
+  Copy `docs/atdd/templates/atdd-ci.yml` to `.github/workflows/atdd-ci.yml`.
+
+- **Local git hooks** (optional) — blocks push if quality gates fail locally.
+  Copy `docs/atdd/templates/lefthook.yml` to `lefthook.yml`, then run `lefthook install`.
+  Install lefthook once: `npm i -g @evilmartians/lefthook`.
 
 ---
 
 ## What's Included
 
-### Platform-Agnostic Documentation (`docs/atdd/`)
+### Platform-agnostic documentation (`docs/atdd/`)
 
-The single source of truth — all platform adapters reference or embed content from here.
+The single source of truth — all platform adapters reference content from here. Covers the full
+ATDD cycle, quality gate detection, project conventions discovery, legacy integration, spec writing
+guide, Gherkin conventions, per-feature checklist, and spec/feature templates.
 
-| File                              | Contents                                                                            |
-| --------------------------------- | ----------------------------------------------------------------------------------- |
-| `workflow.md`                     | Complete ATDD cycle procedure (all 8 phases)                                        |
-| `quality-gates.md`                | Quality gate definitions, detection, and execution                                  |
-| `project-detection.md`            | Language/framework detection for any project                                        |
-| `legacy-integration.md`           | Integrating into existing projects                                                  |
-| `spec-writing.md`                 | How to write clear, testable, behavior-focused specifications                       |
-| `gherkin.md`                      | Gherkin syntax, formatting, step rules, and anti-patterns                           |
-| `checklist.md`                    | Per-feature progress tracking checklist                                             |
-| `templates/feature.template.md`   | Gherkin feature file template                                                       |
-| `templates/tech-spec.template.md` | Technical spec template                                                             |
-| `templates/atdd-ci.yml`           | GitHub Actions CI — auto-detects stack, runs quality gates, requests Copilot review |
-| `templates/lefthook.yml`          | Git pre-push hooks — enforces quality gates locally                                 |
-| `templates/mcp-github.json`       | GitHub MCP server config — enables agent-driven PR/review                           |
+### Platform adapters
 
-### Universal AI Configuration
+| Platform           | Directory                | What's there                                      |
+| ------------------ | ------------------------ | ------------------------------------------------- |
+| VS Code (Copilot)  | `.github/`               | Agents, instructions, prompts, CI workflow, skill |
+| Cursor             | `.cursor/rules/`         | `.mdc` rules, auto-applied per context            |
+| Kiro               | `.kiro/steering/`        | Steering docs with include-mode metadata          |
+| Claude Code        | `.claude/` + `CLAUDE.md` | Commands and subagents                            |
+| Any AGENTS.md tool | `AGENTS.md`              | Universal rules and command reference             |
 
-| File        | What reads it                                           |
-| ----------- | ------------------------------------------------------- |
-| `AGENTS.md` | Kiro, GitHub Copilot, and any AGENTS.md-compatible tool |
-| `CLAUDE.md` | Claude Code, Claude Projects                            |
+### Templates (`docs/atdd/templates/`)
 
-### Claude Code — `.claude/`
+| File                    | Purpose                                             |
+| ----------------------- | --------------------------------------------------- |
+| `feature.template.md`   | Gherkin feature file template                       |
+| `tech-spec.template.md` | Technical spec template                             |
+| `atdd-ci.yml`           | GitHub Actions CI — quality gates + Copilot review  |
+| `lefthook.yml`          | Git pre-push hooks — local quality gate enforcement |
+| `mcp-github.json`       | GitHub MCP server config for agent-driven PR/review |
 
-| File                                  | Purpose                                                                       |
-| ------------------------------------- | ----------------------------------------------------------------------------- |
-| `commands/atdd-cycle.md`              | `/atdd-cycle` — **supervised** full cycle (asks before PR)                    |
-| `commands/full-autonomous-cycle.md`   | `/full-autonomous-cycle` — **autonomous**: spec approval only, then hands-off |
-| `commands/analyze-project.md`         | `/analyze-project` — detect project stack, write the profile                  |
-| `commands/write-spec.md`              | `/write-spec` — generate spec from requirements                               |
-| `commands/write-acceptance-tests.md`  | `/write-acceptance-tests` — failing test stubs                                |
-| `commands/implement-from-spec.md`     | `/implement-from-spec` — minimum code to pass                                 |
-| `commands/run-quality-gates.md`       | `/run-quality-gates` — lint/format/build/test gates                           |
-| `commands/refactor-passing-tests.md`  | `/refactor-passing-tests` — safe refactor                                     |
-| `commands/verify-spec-coverage.md`    | `/verify-spec-coverage` — hard spec & doc sync gate                           |
-| `commands/create-pull-request.md`     | `/create-pull-request` — branch, commit, push, PR                             |
-| `commands/address-review-comments.md` | `/address-review-comments` — handle PR feedback                               |
-| `agents/spec-writer.md`               | Subagent — writes Gherkin features + technical specs                          |
-| `agents/spec-reviewer.md`             | Subagent — read-only spec & doc compliance review                             |
+### Example specs (`specs/`)
 
-### VS Code (Copilot) — `.github/`
-
-| File                                             | Purpose                                                                      |
-| ------------------------------------------------ | ---------------------------------------------------------------------------- |
-| `copilot-instructions.md`                        | Project-wide spec-first rules                                                |
-| `agents/atdd-cycle.agent.md`                     | **Supervised**: analyze → spec → tests → implement → PR (asks before PR)     |
-| `agents/full-autonomous-cycle.agent.md`          | **Autonomous**: spec approval only → runs to PR + Copilot review resolution  |
-| `agents/spec-writer.agent.md`                    | Writes Gherkin features + technical specs                                    |
-| `agents/spec-reviewer.agent.md`                  | Validates implementation against specs                                       |
-| `instructions/atdd-workflow.instructions.md`     | Red-green-refactor rules                                                     |
-| `instructions/spec-writing.instructions.md`      | Behavior-focused spec writing guide                                          |
-| `instructions/gherkin.instructions.md`           | Auto-applied to `*.feature` files                                            |
-| `instructions/quality-gates.instructions.md`     | Quality gate detection and execution                                         |
-| `instructions/project-detection.instructions.md` | Language/framework detection guide                                           |
-| `prompts/analyze-project.prompt.md`              | `/analyze-project` — detect project stack                                    |
-| `prompts/write-spec.prompt.md`                   | `/write-spec` — generate spec from requirements                              |
-| `prompts/write-acceptance-tests.prompt.md`       | `/write-acceptance-tests` — failing test stubs                               |
-| `prompts/implement-from-spec.prompt.md`          | `/implement-from-spec` — minimum code to pass                                |
-| `prompts/run-quality-gates.prompt.md`            | `/run-quality-gates` — lint/format/build/test gates                          |
-| `prompts/verify-spec-coverage.prompt.md`         | `/verify-spec-coverage` — hard spec & doc sync gate (repairs drift in-place) |
-| `prompts/refactor-passing-tests.prompt.md`       | `/refactor-passing-tests` — safe refactor                                    |
-| `prompts/create-pull-request.prompt.md`          | `/create-pull-request` — branch, commit, push, PR                            |
-| `prompts/address-review-comments.prompt.md`      | `/address-review-comments` — handle PR feedback                              |
-| `skills/atdd/`                                   | On-demand ATDD skill with templates and references                           |
-
-### Cursor — `.cursor/rules/`
-
-| File                    | Behavior                                     |
-| ----------------------- | -------------------------------------------- |
-| `atdd-core.mdc`         | Always applied — core ATDD rules             |
-| `atdd-workflow.mdc`     | Auto-applied when implementing features      |
-| `gherkin.mdc`           | Applied when editing `*.feature` files       |
-| `quality-gates.mdc`     | Applied when running tests or quality checks |
-| `project-detection.mdc` | Applied when starting work in a new project  |
-
-### Kiro — `.kiro/steering/`
-
-| File                    | Inclusion mode                                 |
-| ----------------------- | ---------------------------------------------- |
-| `atdd-core.md`          | Always included                                |
-| `atdd-workflow.md`      | Auto — when ATDD/spec-related work is detected |
-| `gherkin.md`            | File match — when editing `*.feature` files    |
-| `spec-writing.md`       | Manual — invoke with `#spec-writing` in chat   |
-| `quality-gates.md`      | Auto — when running tests or quality checks    |
-| `project-detection.md`  | Auto — when detecting project stack            |
-| `legacy-integration.md` | Manual — invoke with `#legacy-integration`     |
-
-### Example Specs (`specs/`)
-
-| File                                              | Purpose                                     |
-| ------------------------------------------------- | ------------------------------------------- |
-| `specs/features/example-task-management.feature`  | Complete Gherkin example with all tag types |
-| `specs/technical/example-task-management-spec.md` | Complete technical spec example             |
+Working examples of a Gherkin feature file and technical spec you can use as references.
 
 ---
 
@@ -253,72 +162,9 @@ docs/atdd/                       ← Single source of truth (Markdown)
 VS Code  Cursor   Kiro    Claude Code            Universal
 ```
 
-The real knowledge lives in `docs/atdd/`. Each IDE gets a **thin adapter** that either:
-
-- References the source docs directly (Kiro's `#[[file:...]]` directives)
-- Embeds the essential rules with pointers to the full docs
-
-Update content in one place; all platforms stay in sync.
-
----
-
-## The ATDD Cycle
-
-```
-Requirements
-     │
-     ▼
-  0. Analyze Project ────────► detect language, frameworks, tools, conventions
-     │
-     ▼
-  1. Spec Writing ───────────► specs/features/*.feature
-     (Given/When/Then)          specs/technical/*-spec.md
-     │  confirm with requester
-     ▼
-  2. Acceptance Tests ───────► tests/**  (step stubs — RED)
-     │  confirm red
-     ▼
-  3. Implementation ─────────► src/**  (minimum code to pass)
-     │
-     ▼
-  4. Quality Gates ──────────► lint, format, typecheck, build, test
-     │  iterate until all pass
-     ▼
-  5. Refactor  (tests stay green, re-run gates)
-     │
-     ▼
-  6. Spec & Doc Sync  (hard gate — repair spec/README/profile drift in-place)
-     │
-     ▼
-  7. Pull Request  (branch, commit, push, PR)
-```
-
-Full procedure: [docs/atdd/workflow.md](docs/atdd/workflow.md)
-
----
-
-## Tag Convention
-
-| Tag           | Meaning                                        | Count per feature |
-| ------------- | ---------------------------------------------- | ----------------- |
-| `@smoke`      | Single most critical path — run on every build | Exactly 1         |
-| `@happy-path` | Primary success flows                          | 1–2               |
-| `@edge-case`  | Boundary and unusual-but-valid inputs          | 2–4               |
-| `@error`      | Invalid inputs, auth failures, system errors   | 2–3               |
-| `@wip`        | Not yet implemented — intentionally failing    | Temporary         |
-| `@regression` | Added to prevent recurrence of a specific bug  | As needed         |
-
----
-
-## Core Principles
-
-1. **Spec is the source of truth** — change spec first, then tests, then code
-2. **Red before green** — never implement without a confirmed-failing test
-3. **Minimum viable implementation** — only write code a failing test demands
-4. **Behavior, not implementation** — specs describe what users observe, not how code works
-5. **Living documentation** — specs are always accurate because they're executable
-6. **Quality gates are mandatory** — lint, format, typecheck, build, test must all pass before done
-7. **Detect, don't assume** — always analyze the project's stack before generating code
+The real knowledge lives in `docs/atdd/`. Each IDE gets a thin adapter that references or embeds
+the essential rules with pointers to the full docs. Update content in one place; all platforms
+stay in sync.
 
 ---
 

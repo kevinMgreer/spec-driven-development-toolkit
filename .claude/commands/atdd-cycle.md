@@ -20,7 +20,8 @@ Track progress through each phase with the todo/task list.
 - Never proceed past Phase 1 without explicit user approval of the spec
 - Never write Phase 3 production code without re-reading `docs/project-profile.md` and
   stating which conventions you will follow
-- Never declare done while spec, README, or profile drift exists — Phase 6 is blocking
+- Never declare done while spec, README, profile, or any doc listed under `Sources consulted`
+  in `docs/project-profile.md` has drift — Phase 6 is blocking
 - Always detect stack AND conventions before generating code; always read existing project
   docs (README, CONTRIBUTING, ARCHITECTURE, ADRs) — they override inference
 - Always prompt for tooling preferences in greenfield projects before writing specs
@@ -120,27 +121,29 @@ against the spec and produce a drift report.
 **6b. Spec drift repair.** For each flagged item: update the `.feature` or `-spec.md` →
 add/adjust a test → re-run the full suite. Full procedure: `docs/atdd/workflow.md` § Phase 6.
 
-**6c. Documentation sync.** Update in-place:
-
-- `README.md` — if the feature is user-visible
-- `docs/project-profile.md` — if Phase 3 introduced a new convention, dependency, or
-  reference file
-- Any other docs the project maintains
+**6c. Documentation sync.** Walk the `Sources consulted` list in `docs/project-profile.md`.
+For every doc listed there that could describe the changed behavior, update it or mark ⏭️
+with reason. Work through: README → CONTRIBUTING → ARCHITECTURE → ADRs → style guides /
+runbooks → `docs/project-profile.md` → any other consulted doc. Do not skip sources silently.
 
 **6d. Final verification.** Re-run the suite and all quality gates. Produce this report:
 
 ```markdown
 ## Spec & Doc Sync — <feature>
 
-| Item                            | Status                              |
-| ------------------------------- | ----------------------------------- |
-| Spec compliance                 | ✅ Compliant                        |
-| Spec drift repaired             | ✅ N items / ⏭️ none found          |
-| README updated                  | ✅ <section> / ⏭️ not user-visible  |
-| docs/project-profile.md updated | ✅ <new convention> / ⏭️ no changes |
-| Other docs updated              | ✅ <files> / ⏭️ none                |
-| Tests green                     | ✅ N/N                              |
-| Quality gates                   | ✅ all passing                      |
+| Item                            | Status                                    |
+| ------------------------------- | ----------------------------------------- |
+| Spec compliance                 | ✅ Compliant                              |
+| Spec drift repaired             | ✅ N items / ⏭️ none found                |
+| README updated                  | ✅ \<section\> / ⏭️ not user-visible      |
+| CONTRIBUTING updated            | ✅ \<section\> / ⏭️ no contributor impact |
+| ARCHITECTURE updated            | ✅ \<section\> / ⏭️ no structural change  |
+| ADRs updated                    | ✅ ADR-N added / ⏭️ no new decision       |
+| Style guides / runbooks updated | ✅ \<files\> / ⏭️ none                    |
+| docs/project-profile.md updated | ✅ \<new convention\> / ⏭️ no changes     |
+| Other consulted docs updated    | ✅ \<files\> / ⏭️ none                    |
+| Tests green                     | ✅ N/N                                    |
+| Quality gates                   | ✅ all passing                            |
 ```
 
 Do not proceed to Phase 7 unless every row is ✅ or has an explicit ⏭️ with reason.

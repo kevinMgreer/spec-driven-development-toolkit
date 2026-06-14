@@ -62,18 +62,30 @@ After each repair, re-run the affected tests. After all repairs, re-run the full
 
 ### Sub-phase C — Documentation Sync (mandatory)
 
-Update only what already exists in the repo — do not create new doc files unless the user
-explicitly asks. For each item below, either update it or mark it ⏭️ with reason.
+Read `docs/project-profile.md` and walk the **`Sources consulted`** list. For every doc listed
+there that could describe the changed behavior, either update it or mark it ⏭️ with reason.
+Do not create new doc files unless the user explicitly asks.
 
-- **`README.md`** — if the feature is user-visible, confirm the feature list, usage examples,
-  configuration table, environment variables, or CLI flags are accurate. Update them now if not.
-- **`docs/project-profile.md`** — update the `Conventions`, `Reference Files`, or
-  `Anti-patterns to avoid in this repo` sections if Phase 3 introduced anything new.
-- **Any other docs the project maintains** that describe the changed behavior (search for the
-  feature name in `docs/`, `wiki/`, etc.).
+Work through them in this order:
 
-If the feature has no user-visible surface (internal refactor, infra change), README sync is
-⏭️ — note the reason in the report.
+1. **`README.md`** — if the feature is user-visible, confirm the feature list, usage examples,
+   configuration table, environment variables, or CLI flags are accurate. Update them now if not.
+2. **`CONTRIBUTING.md`** — if the change affects how contributors build, test, or submit work
+   (new commands, new gates, changed conventions), update it.
+3. **`ARCHITECTURE.md` / `docs/architecture.md`** — if a new module, layer, or integration
+   pattern was introduced, record it here.
+4. **`docs/adr/` or `docs/decisions/`** — if an architectural decision was made that isn't
+   already captured, add a new ADR. Never silently diverge from an existing ADR.
+5. **Style guides, coding standards, or runbooks** — if a new pattern was established that
+   future contributors should follow, record it in whichever doc the project uses.
+6. **`docs/project-profile.md`** — update the `Conventions`, `Reference Files`, or
+   `Anti-patterns to avoid in this repo` sections if Phase 3 introduced anything new.
+7. **Any other doc in `Sources consulted`** that describes the changed behavior — review it;
+   update if stale.
+
+For each source: confirm it is accurate, update it, or record N/A with a reason. Do not skip
+sources silently. If the feature has no user-visible surface (internal refactor, infra change),
+README sync is ⏭️ — note the reason in the report.
 
 ---
 
@@ -116,11 +128,15 @@ or has an explicit ⏭️ with a reason.
 
 ### Sub-phase C — Documentation Sync
 
-| Doc                             | Status                                  |
-| ------------------------------- | --------------------------------------- |
-| `README.md`                     | ✅ Updated <section> / ⏭️ not user-visible |
-| `docs/project-profile.md`       | ✅ Updated <section> / ⏭️ no changes      |
-| Other docs                      | ✅ <files> / ⏭️ none                     |
+| Doc                       | Status                                          |
+| ------------------------- | ----------------------------------------------- |
+| `README.md`               | ✅ Updated / ⏭️ not user-visible                |
+| `CONTRIBUTING.md`         | ✅ Updated / ⏭️ no contributor impact           |
+| `ARCHITECTURE.md`         | ✅ Updated / ⏭️ no structural change            |
+| ADRs                      | ✅ Added ADR-N / ⏭️ no new decision             |
+| Style guides / runbooks   | ✅ Updated / ⏭️ none                            |
+| `docs/project-profile.md` | ✅ Updated / ⏭️ no changes                     |
+| Other consulted docs      | ✅ \<files\> / ⏭️ none                          |
 
 ### Sub-phase D — Final Verification
 
