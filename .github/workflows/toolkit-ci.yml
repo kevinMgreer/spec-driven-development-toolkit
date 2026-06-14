@@ -1,0 +1,83 @@
+# CI for the toolkit repository itself — guards the "single source of truth" architecture.
+#
+# The `if: github.repository == ...` guard means this workflow is inert if the toolkit's
+# .github/ directory is copied wholesale into a target project.
+
+name: Toolkit CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  skill-sync:
+    name: Skill copies match docs/atdd
+    if: github.repository == 'kevinMgreer/spec-driven-development-toolkit'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify .github/skills/atdd copies are byte-identical to docs/atdd
+        run: |
+          set -u
+          status=0
+          check() {
+            if ! cmp -s "$1" "$2"; then
+              echo "::error::DRIFT: $2 differs from canonical $1 — re-copy it (cp $1 $2)"
+              status=1
+            else
+              echo "OK: $2"
+            fi
+          }
+          check docs/atdd/quality-gates.md            .github/skills/atdd/references/quality-gates.md
+          check docs/atdd/gherkin.md                  .github/skills/atdd/references/gherkin-guide.md
+          check docs/atdd/legacy-integration.md       .github/skills/atdd/references/legacy-integration.md
+          check docs/atdd/project-detection.md        .github/skills/atdd/references/project-detection.md
+          check docs/atdd/checklist.md                .github/skills/atdd/assets/atdd-checklist.md
+          check docs/atdd/templates/feature.template.md   .github/skills/atdd/assets/feature.template.md
+          check docs/atdd/templates/tech-spec.template.md .github/skills/atdd/assets/tech-spec.template.md
+          exit $status
+
+  install-scripts:
+    name: Install scripts work
+    if: github.repository == 'kevinMgreer/spec-driven-development-toolkit'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: bash syntax check
+        run: bash -n install.sh
+      - name: Full install into a temp project
+        run: |
+          set -eu
+          mkdir -p /tmp/target
+          ./install.sh /tmp/target
+          # Every platform adapter must land
+          for path in \
+            docs/atdd/workflow.md \
+            specs/features/example-task-management.feature \
+            .github/copilot-instructions.md \
+            .github/prompts/write-spec.prompt.md \
+            .github/agents/atdd-cycle.agent.md \
+            .github/skills/atdd/SKILL.md \
+            .cursor/rules/atdd-core.mdc \
+            .kiro/steering/atdd-core.md \
+            .claude/commands/atdd-cycle.md \
+            .claude/agents/spec-writer.md \
+            CLAUDE.md \
+            AGENTS.md \
+            .vscode/mcp.json; do
+            if [ ! -f "/tmp/target/$path" ]; then
+              echo "::error::install.sh did not install $path"
+              exit 1
+            fi
+          done
+          echo "All expected files installed."
+      - name: Dry run leaves no trace
+        run: |
+          set -eu
+          mkdir -p /tmp/dry
+          ./install.sh /tmp/dry --dry-run
+          if [ -n "$(ls -A /tmp/dry)" ]; then
+            echo "::error::--dry-run wrote files"
+            exit 1
+          fi

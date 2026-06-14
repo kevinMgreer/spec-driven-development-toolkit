@@ -117,12 +117,16 @@ Write-Host "Core (always installed):" -ForegroundColor White
 Copy-Directory "$ScriptDir\docs\atdd" "$Target\docs\atdd" "docs/atdd/"
 
 # Ensure specs directories exist
-@("$Target\specs\features", "$Target\specs\technical") | ForEach-Object {
-    if (-not (Test-Path $_)) {
-        if (-not $DryRun) { New-Item -ItemType Directory -Path $_ -Force | Out-Null }
+if ($DryRun) {
+    Write-Host "  WOULD ENSURE specs/features/ and specs/technical/ exist" -ForegroundColor Cyan
+} else {
+    @("$Target\specs\features", "$Target\specs\technical") | ForEach-Object {
+        if (-not (Test-Path $_)) {
+            New-Item -ItemType Directory -Path $_ -Force | Out-Null
+        }
     }
+    Write-Host "  ENSURE specs/features/ and specs/technical/ exist" -ForegroundColor Green
 }
-Write-Host "  ENSURE specs/features/ and specs/technical/ exist" -ForegroundColor Green
 
 if (-not $NoExamples) {
     Copy-Directory "$ScriptDir\specs" "$Target\specs" "specs/ (examples)"
@@ -176,8 +180,10 @@ foreach ($platform in $Platforms) {
             Copy-Directory "$ScriptDir\.kiro\steering" "$Target\.kiro\steering" ".kiro/steering/"
         }
         'claude' {
-            Write-Host "Claude:" -ForegroundColor White
+            Write-Host "Claude Code:" -ForegroundColor White
             Copy-SingleFile "$ScriptDir\CLAUDE.md" "$Target\CLAUDE.md" "CLAUDE.md"
+            Copy-Directory "$ScriptDir\.claude\commands" "$Target\.claude\commands" ".claude/commands/"
+            Copy-Directory "$ScriptDir\.claude\agents" "$Target\.claude\agents" ".claude/agents/"
         }
         'agents' {
             Write-Host "AGENTS.md:" -ForegroundColor White

@@ -131,31 +131,185 @@ Read the CI config to understand what checks run on PRs — quality gates should
 - Detect default branch name (`main` vs `master` vs other)
 - Check for conventional commits (`commitlint.config.*`, `.czrc`, `.commitlintrc.*`)
 
+### Step 9 — Conventions Discovery (mandatory for legacy projects)
+
+Tooling alone is not enough — the agent must also understand **how this codebase is written**
+so its output looks like it belongs. Skip this step only for empty greenfield projects.
+
+Sample **2–4 representative source files** (a controller/handler, a service, a repository or
+data-access file, and a test) and record the patterns you observe. Do not enumerate the entire
+codebase — pick examples and extract patterns from them.
+
+| Convention area    | What to look for                                                                                  |
+| ------------------ | ------------------------------------------------------------------------------------------------- |
+| Architecture style | Layered (controller/service/repo), hexagonal, MVC, vertical slice, modular monolith, microservice |
+| Module layout      | Folder-by-feature vs folder-by-layer; barrel files; co-located vs separated tests                 |
+| Dependency wiring  | Constructor DI, DI container, factory functions, plain imports, service locator                   |
+| Error handling     | Exceptions vs Result/Either types; custom error classes; error mapping at boundaries              |
+| Validation         | Where input is validated (controller, service, schema), what library (zod, joi, pydantic, etc.)   |
+| Async patterns     | async/await, Promises, callbacks, channels, futures; cancellation conventions                     |
+| Logging            | Library, log levels, correlation IDs, structured vs unstructured                                  |
+| Configuration      | env vars, config files, secret management, runtime config objects                                 |
+| Naming             | File names (kebab/camel/Pascal/snake), classes, functions, constants, test names                  |
+| Public API style   | REST/GraphQL/gRPC/RPC; URL casing; status code conventions; pagination shape                      |
+| Persistence style  | ORM/active record/data mapper/raw SQL; migration tool; transaction patterns                       |
+| Comment style      | Doc comments (JSDoc/docstrings/XML doc), license headers, TODO/FIXME conventions                  |
+| Commit conventions | Conventional Commits, prefixes (`feat:`/`fix:`/etc.), scopes, sign-off                            |
+| Branch naming      | `feat/`, `feature/`, `fix/`, ticket prefixes (`ABC-123`)                                          |
+
+For each item, record either the observed pattern or **"none detected"**. Do not invent a
+convention that is not actually present in the code.
+
+### Step 10 — Existing Project Documentation
+
+If the project already has docs, **read them before finalizing the profile**. They often carry
+context the code alone cannot reveal — architectural rationale, intentional patterns,
+constraints, and the project's own vocabulary. Use this pass to validate and refine what you
+observed in Step 9, resolve ambiguities, and identify authoritative guidance that should outweigh
+isolated code samples. Complete this review before Step 11.
+
+Look for these files (check if each exists, then read the ones that do):
+
+| File / location                                       | What to extract                                                                         |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `README.md` (or `README.rst`, `README.adoc`)          | Setup commands, scripts, project purpose, domain vocabulary, canonical example snippets |
+| `CONTRIBUTING.md`                                     | Commit conventions, branch naming, PR process, local dev commands, review expectations  |
+| `ARCHITECTURE.md` / `docs/architecture.md`            | Architecture style, module boundaries, dependency direction, intentional constraints    |
+| `docs/adr/` or `docs/decisions/` (ADRs)               | Accepted architectural decisions (use these as authoritative — they beat code samples)  |
+| `docs/` folder (any other top-level docs)             | Dev setup, deployment, domain glossary, runbooks, style guides                          |
+| `.github/PULL_REQUEST_TEMPLATE.md` / `ISSUE_TEMPLATE` | PR/issue hygiene expectations, required checkboxes                                      |
+| `CHANGELOG.md`                                        | Versioning scheme (SemVer? CalVer?), changelog format (Keep-a-Changelog?)               |
+| `STYLE.md` / `STYLEGUIDE.md` / `CODING_STANDARDS.md`  | Explicit coding conventions that override inferred ones                                 |
+| `SECURITY.md`                                         | Security constraints the agent must respect (e.g., no logging PII)                      |
+
+How to use what you find:
+
+1. **Commands in README override guesses.** If the README says `pnpm dev` or `make test`, that
+   is the command — use it exactly, even if you also detected another option.
+2. **ADRs and ARCHITECTURE.md are authoritative for the `Conventions` table.** If an ADR says
+   "we use hexagonal architecture," record that, even if a sample file looks layered. Then flag
+   the mismatch for the user.
+3. **CONTRIBUTING.md beats inference for commit/branch conventions.** Do not guess Conventional
+   Commits from 3 commit messages if CONTRIBUTING.md says otherwise.
+4. **Domain vocabulary from README/docs → spec writing.** The Gherkin feature file and the
+   technical spec must use the project's own terms (e.g., "order" vs "purchase", "customer" vs
+   "client"). Note these terms in the profile so the spec-writer uses them.
+5. **If docs conflict with code**, record both in the profile and note the conflict under
+   `Anti-patterns to avoid in this repo` or a new `Known inconsistencies` subsection — do not
+   silently pick one.
+6. **If no docs exist**, record `none detected` under the `**Documentation:**` subsection of
+   `### Sources consulted` in the output template. Do not invent rationale.
+
+Record in the profile which files you read (see `Sources consulted` in the output template) so
+the user can audit what informed the profile and future sessions know which docs to re-check.
+
+### Step 11 — Finalize
+
+Consolidate findings from Steps 1–10 into `docs/project-profile.md` using the output template
+below. Prefer documentation over inference, code samples over guesses, and explicit user
+statements over both.
+
 ---
 
 ## Detection Output Format
 
-After running detection, produce a summary:
+After running detection, write a complete profile to `docs/project-profile.md`. The profile has
+**three required sections** — `Tooling`, `Conventions`, and `Reference Files`. The conventions
+section is what makes the agent's output blend into the existing codebase; do not skip it.
 
 ```markdown
 ## Project Profile
 
-| Category        | Detected                        |
-| --------------- | ------------------------------- |
-| Language        | TypeScript                      |
-| Package manager | npm                             |
-| Test framework  | Vitest                          |
-| Test command    | `npx vitest run`                |
-| Test directory  | `src/__tests__/`                |
-| Linter          | ESLint                          |
-| Lint command    | `npx eslint .`                  |
-| Formatter       | Prettier                        |
-| Format command  | `npx prettier --check .`        |
-| Type checker    | TypeScript (`npx tsc --noEmit`) |
-| Build command   | `npm run build`                 |
-| CI platform     | GitHub Actions                  |
-| Source dir      | `src/`                          |
-| Specs dir       | `specs/` (created by toolkit)   |
+_Last updated: <YYYY-MM-DD>_
+
+### Tooling
+
+| Category          | Detected                        |
+| ----------------- | ------------------------------- |
+| Language          | TypeScript                      |
+| Package manager   | npm                             |
+| Test framework    | Vitest                          |
+| Test command      | `npx vitest run`                |
+| Test directory    | `src/__tests__/`                |
+| Test file pattern | `*.test.ts`                     |
+| Linter            | ESLint                          |
+| Lint command      | `npx eslint .`                  |
+| Lint fix command  | `npx eslint . --fix`            |
+| Formatter         | Prettier                        |
+| Format command    | `npx prettier --check .`        |
+| Format fix cmd    | `npx prettier --write .`        |
+| Type checker      | TypeScript (`npx tsc --noEmit`) |
+| Build command     | `npm run build`                 |
+| CI platform       | GitHub Actions                  |
+| Source dir        | `src/`                          |
+| Specs dir         | `specs/` (created by toolkit)   |
+
+### Quality Gates Available
+
+- [x] Tests: `<command>`
+- [x] Lint: `<command>`
+- [ ] Format: not detected
+- [x] Type check: `<command>`
+- [x] Build: `<command>`
+
+### Conventions
+
+> Sampled from `<file 1>`, `<file 2>`, `<file 3>`. Update this section if new patterns emerge.
+
+| Convention area    | Pattern in this codebase                                                 |
+| ------------------ | ------------------------------------------------------------------------ |
+| Architecture style | Layered: controller → service → repository                               |
+| Module layout      | Folder-by-feature under `src/features/`; tests co-located                |
+| Dependency wiring  | Constructor DI, manually composed in `src/composition-root.ts`           |
+| Error handling     | Custom `AppError` subclasses; thrown from services; mapped in middleware |
+| Validation         | `zod` schemas at controller boundary                                     |
+| Async patterns     | `async`/`await` everywhere; no top-level `.then` chains                  |
+| Logging            | `pino` structured logger; child loggers per module                       |
+| Configuration      | `env-var` parsed at startup into typed `Config` object                   |
+| Naming             | Files kebab-case; classes PascalCase; functions camelCase                |
+| Public API style   | REST, JSON; kebab-case URLs; RFC 7807 problem+json errors                |
+| Persistence style  | Prisma ORM; transactions via `prisma.$transaction`                       |
+| Comment style      | JSDoc on public exports; no license headers                              |
+| Commit conventions | Conventional Commits (`feat:`, `fix:`, `chore:`)                         |
+| Branch naming      | `feat/<name>`, `fix/<name>`                                              |
+
+### Reference Files
+
+When implementing new code, mirror the patterns in:
+
+- Controller example: `src/features/orders/orders.controller.ts`
+- Service example: `src/features/orders/orders.service.ts`
+- Repository example: `src/features/orders/orders.repository.ts`
+- Test example: `src/features/orders/orders.service.test.ts`
+
+### Anti-patterns to avoid in this repo
+
+- Do not introduce a second DI container — the manual composition root is intentional.
+- Do not use `try/catch` to translate errors inside services — let the middleware map them.
+- Do not add new top-level folders without updating this profile.
+
+### Sources consulted
+
+_What informed this profile. Future sessions should re-check these for drift._
+
+**Documentation:**
+
+- `README.md` — setup commands, domain vocabulary
+- `CONTRIBUTING.md` — Conventional Commits, `feat/<name>` branches
+- `docs/adr/0003-layered-architecture.md` — authoritative for architecture style
+- `ARCHITECTURE.md` — module boundary rules
+
+**Code samples:**
+
+- `src/features/orders/orders.controller.ts`
+- `src/features/orders/orders.service.ts`
+- `src/features/orders/orders.repository.ts`
+- `src/features/orders/orders.service.test.ts`
+
+**Other signals:**
+
+- `.github/workflows/ci.yml` — CI gate commands
+- `package.json` scripts
 ```
 
 ---

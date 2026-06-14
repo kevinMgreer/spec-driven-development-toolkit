@@ -1,171 +1,161 @@
-# Gherkin Reference Guide
+# Gherkin Conventions
 
-## Overview
-
-Gherkin is a plain-language format for writing executable specifications. It bridges business
-requirements and automated tests, making specs readable by both humans and test frameworks.
-
-## Keyword Reference
-
-| Keyword             | Purpose                                                      |
-| ------------------- | ------------------------------------------------------------ |
-| `Feature:`          | Names the capability being specified                         |
-| `Background:`       | Shared preconditions for all scenarios in the file           |
-| `Scenario:`         | A single testable behavior                                   |
-| `Scenario Outline:` | A parameterized scenario, run once per `Examples` row        |
-| `Examples:`         | Data table for `Scenario Outline`                            |
-| `Given`             | Establishes preconditions / initial context                  |
-| `When`              | Describes the event or action under test                     |
-| `Then`              | Describes the expected observable outcome                    |
-| `And`               | Continues the previous keyword (same type)                   |
-| `But`               | Contrast continuation (e.g., `But I should not see "Error"`) |
-| `#`                 | Comment                                                      |
-
-## Step Types In Depth
-
-### Given — Set the Stage
-
-Establish the preconditions. Everything that must be true _before_ the action happens.
-
-```gherkin
-Given I am logged in as an admin
-Given the shopping cart contains 2 items totaling $29.98
-Given the system time is "2026-01-01T00:00:00Z"
-```
-
-**Avoid**: Using `Given` for actions (that's `When`).
-
-### When — The Action
-
-The single event or action that triggers the behavior under test. Ideally one `When` per scenario.
-
-```gherkin
-When I submit the checkout form
-When the payment processor returns a timeout error
-When I request "GET /api/users/999"
-```
-
-**Avoid**: Multiple `When` steps (split into separate scenarios).
-
-### Then — The Observable Outcome
-
-What the user or calling system can observe after the `When`. Never assert internal state.
-
-```gherkin
-Then I should see "Order confirmed — #12345"
-Then the response status should be 201
-Then I should receive a confirmation email at "user@example.com"
-```
-
-**Avoid**: `Then the database should have record with status=1`.
+Reference guide for writing `.feature` files in this project.
 
 ---
 
-## Background
+## File Conventions
 
-Use `Background:` for preconditions that apply to **every** scenario in the file. Executed before
-each scenario as if the steps were part of that scenario's `Given` block.
+- Location: `specs/features/`
+- Naming: `kebab-case.feature` matching the feature name (e.g. `user-registration.feature`)
+- One feature per file
+
+---
+
+## Syntax Reference
+
+### Feature Block
+
+```gherkin
+Feature: Password Reset
+  As a registered user
+  I want to reset my password via email
+  So that I can regain access to my account
+```
+
+The `As a / I want / So that` narrative is required — it provides context for why the feature exists.
+
+### Background
+
+Use `Background:` for preconditions shared by **every** scenario in the file:
 
 ```gherkin
 Background:
-  Given the API server is running
-  And the database is empty
+  Given the application is running
+  And a user account exists for "alice@example.com"
 ```
 
-**When NOT to use Background**:
+Do not use Background for preconditions that apply to only some scenarios — repeat them inline.
+A Background with more than 4–5 steps is a warning sign that the feature file is too broad.
 
-- When only some scenarios need the precondition — put it in those scenarios directly
-- When more than 5–6 steps are needed — consider a higher-level `Given` step instead
+### Scenario
 
----
+```gherkin
+@smoke @happy-path
+Scenario: Successful password reset
+  Given I am on the password reset page
+  When I enter "alice@example.com" and submit the form
+  Then I should receive a password reset email
+  And the email should contain a reset link valid for 1 hour
+```
 
-## Scenario Outline
+### Scenario Outline (data-driven)
 
-Runs the same scenario logic multiple times with different data from an `Examples` table.
+Use when multiple input sets test the same behavior:
 
 ```gherkin
 @edge-case
-Scenario Outline: Transfer fails when amount exceeds balance
-  Given my account balance is $<balance>
-  When I transfer $<amount>
-  Then I should see the error "<error>"
+Scenario Outline: Login fails with invalid credentials
+  Given I am on the login page
+  When I enter email "<email>" and password "<password>"
+  Then I should see the error "<message>"
 
   Examples:
-    | balance | amount  | error                              |
-    | 100.00  | 100.01  | "Insufficient funds"               |
-    | 100.00  | 999.99  | "Insufficient funds"               |
-    | 0.00    | 0.01    | "Insufficient funds"               |
-    | 100.00  | 0.00    | "Amount must be greater than zero" |
+    | email              | password | message                    |
+    | not-an-email       | pass123  | "Invalid email format"     |
+    | alice@example.com  |          | "Password is required"     |
+    |                    | pass123  | "Email is required"        |
 ```
-
-**When to use**: Same behavior tested with multiple input variations.
-**When NOT to use**: Testing genuinely different behaviors (write separate scenarios).
 
 ---
 
-## Step Reuse Best Practices
+## Tags
 
-Steps are matched to step definitions by **exact text**. Maintain a consistent vocabulary.
+Apply tags on the line immediately before `Scenario:` or `Scenario Outline:`:
 
 ```gherkin
-# All of these are DIFFERENT step definitions — avoid this:
-Given I am logged in
-Given the user is authenticated
-Given I have logged in
-Given a logged-in user
-
-# Pick ONE phrasing and use it everywhere:
-Given I am authenticated as "<role>"
+@smoke @happy-path
+Scenario: ...
 ```
 
-Create a shared step vocabulary in your project's documentation and stick to it.
+| Tag           | Meaning                                              | Count per feature |
+| ------------- | ---------------------------------------------------- | ----------------- |
+| `@smoke`      | Single most critical path — run on every build       | Exactly 1         |
+| `@happy-path` | Primary success flows                                | 1–2               |
+| `@edge-case`  | Boundary conditions, unusual-but-valid inputs        | 2–4               |
+| `@error`      | Invalid inputs, unauthorized access, system failures | 2–3               |
+| `@wip`        | Not yet implemented — expected to fail               | Temporary only    |
+| `@regression` | Added to catch a previously found bug                | As needed         |
+
+The smoke scenario often also carries `@happy-path` since it is both.
 
 ---
 
-## Tags Strategy
+## Formatting Rules
 
-Tags serve dual purposes: documentation and test filtering.
+- 2-space indent for all content inside `Feature:`, `Background:`, `Scenario:`
+- Blank line between each scenario
+- Use `And` / `But` for additional steps of the same keyword type — do not repeat `Given`/`When`/`Then`
+- Keep step text under 100 characters
+- Use double quotes for literal string values: `"expected text"`
+- Use angle brackets for Scenario Outline variables: `<variable_name>`
+- Steps are sentence case with no trailing period
 
-### Mandatory Tags (apply to every scenario)
+---
 
-| Tag           | Count per feature | Meaning                                             |
-| ------------- | ----------------- | --------------------------------------------------- |
-| `@smoke`      | Exactly 1         | Most critical path — if this fails, stop everything |
-| `@happy-path` | 1–2               | Primary success scenarios                           |
-| `@edge-case`  | 2–4               | Boundary and unusual-but-valid inputs               |
-| `@error`      | 2–3               | Invalid input, auth failures, system errors         |
+## Step Reuse
 
-### Status Tags (apply temporarily)
+Identical step text across scenarios reuses the same step definition. Even small wording differences create separate definitions. Establish a step vocabulary early and stick to it.
 
-| Tag           | Meaning                                         |
-| ------------- | ----------------------------------------------- |
-| `@wip`        | Not yet implemented — intentionally failing     |
-| `@regression` | Added to prevent reoccurrence of a specific bug |
+**Consistent vocabulary example:**
 
-### Running Subsets
-
-Most test runners support tag filters:
-
-```bash
-# Run only smoke tests
-cucumber --tags @smoke
-
-# Run everything except wip
-cucumber --tags "not @wip"
-
-# Run smoke and happy-path
-cucumber --tags "@smoke or @happy-path"
+```
+# Always use the same form:
+Given I am logged in as "alice@example.com"   ✅
+Given alice is logged in                       ❌ (different step definition)
+Given I'm authenticated as alice               ❌ (different step definition)
 ```
 
 ---
 
-## Common Mistakes
+## Anti-Patterns
 
-| Mistake                                    | Why it's a problem                  | Fix                                         |
-| ------------------------------------------ | ----------------------------------- | ------------------------------------------- |
-| Testing multiple behaviors in one scenario | Hard to diagnose failures           | Split into separate scenarios               |
-| `Then` checks database / internal state    | Tests implementation, not behavior  | Assert via the same interface the user uses |
-| Scenarios that share state                 | Order-dependent, fragile            | Use Background or explicit Given steps      |
-| Step text that mentions code/classes       | Couples spec to implementation      | Use business-language terms                 |
-| Vague outcome: "Then it should work"       | Not testable                        | Specify exact observable output             |
-| Long scenarios (10+ steps)                 | Hard to read, tests too many things | Split into smaller focused scenarios        |
+| Anti-pattern                                        | Problem                            | Fix                                                       |
+| --------------------------------------------------- | ---------------------------------- | --------------------------------------------------------- |
+| Multiple `When` steps in one scenario               | Scenarios should test one action   | Split into separate scenarios                             |
+| `Then` asserts database rows or internal state      | Tests implementation, not behavior | Assert via the same surface the user observes             |
+| One scenario depends on state from another          | Order-dependent, fragile           | Use Background or explicit `Given` setup                  |
+| Vague `Then`: `"Then it works"` or `"Then success"` | Not automatable                    | Specify the exact observable outcome with concrete values |
+| `Background` with 8+ steps                          | Context is overwhelming            | Break into a named `Given` step that encapsulates setup   |
+| `Given` used for an action                          | Misuse of keyword semantics        | Move actions to `When`                                    |
+
+---
+
+## Good vs. Bad Examples
+
+**❌ Tests internal state:**
+
+```gherkin
+Then the users table should have a row where active=true and email_verified=1
+```
+
+**✅ Tests observable behavior:**
+
+```gherkin
+Then I should see a "Welcome! Your account is ready." confirmation message
+```
+
+---
+
+**❌ Vague and untestable:**
+
+```gherkin
+Then the login should succeed
+```
+
+**✅ Specific and testable:**
+
+```gherkin
+Then I should be redirected to the dashboard
+And I should see "Welcome back, Alice"
+```

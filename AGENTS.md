@@ -47,8 +47,9 @@ unless you have it in recent context.
 - Always read existing project docs (README, CONTRIBUTING, ARCHITECTURE, ADRs) during Phase 0
   — they override inference
 - Never proceed past Phase 1 without explicit user approval of the spec
-- Never declare done while spec, README, or `docs/project-profile.md` drift exists
-  (Phase 6 is a blocking gate, not a recommendation)
+- Never declare done while spec, README, `docs/project-profile.md`, or any doc listed under
+  `Sources consulted` in the profile has drift — walk the full list in Phase 6c before
+  committing (Phase 6 is a blocking gate, not a recommendation)
 
 ---
 
@@ -68,8 +69,9 @@ Tag convention: `@smoke` (exactly 1) → `@happy-path` (1–2) → `@edge-case` 
 ## Spec Change Protocol
 
 Spec → tests → code → docs — in that order. Never update implementation to accommodate new
-behavior without updating the spec first. `README.md` and `docs/project-profile.md` updates
-are part of the change, not a follow-up. Full protocol in
+behavior without updating the spec first. All docs listed under `Sources consulted` in
+`docs/project-profile.md` (README, CONTRIBUTING, ARCHITECTURE, ADRs, style guides, etc.) must
+be reviewed and updated as part of the change, not as a follow-up. Full protocol in
 [`docs/atdd/workflow.md`](docs/atdd/workflow.md) § Spec Change Protocol.
 
 ---
