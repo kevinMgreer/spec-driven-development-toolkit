@@ -51,7 +51,7 @@ Requirements
 | Always update spec first when requirements change           | Code must match spec, not the reverse                           |
 | Always confirm tests are red _for the right reason_         | A test that passes due to a broken import is not actually red   |
 | Never proceed past spec without explicit user approval      | The spec gate is the mandatory human checkpoint                 |
-| Never declare done with spec, README, or profile drift      | Phase 6 is a hard gate — fix drift in-phase, do not defer       |
+| Never declare done with spec, README, profile, or any consulted doc drift | Phase 6 is a hard gate — fix drift in-phase, do not defer |
 | Always re-read `docs/project-profile.md` before Phase 3     | New code must mirror existing architecture, not invent new ones |
 
 ---
@@ -346,14 +346,28 @@ Phase 6 complete with known drift.
 
 ### Sub-phase 6c — Documentation Sync
 
-Verify the user-facing documentation reflects what the code now does. Update in this order:
+Verify the user-facing documentation reflects what the code now does. Work through the
+`Sources consulted` list recorded in `docs/project-profile.md` and check every doc that could
+describe the changed behavior. Update in this order:
 
 1. **`README.md`** — if the feature is user-visible, confirm the README's feature list, usage
    examples, configuration table, or CLI flags are accurate. Update them in this phase if not.
-2. **`docs/project-profile.md`** — if Phase 3 introduced new conventions, dependencies, or
+2. **`CONTRIBUTING.md`** — if the change affects how contributors build, test, or submit work
+   (new commands, new gates, changed branch conventions), update it.
+3. **`ARCHITECTURE.md` / `docs/architecture.md`** — if a new module, layer, or integration
+   pattern was introduced, record it here.
+4. **`docs/adr/` or `docs/decisions/`** — if the implementation required an architectural
+   decision that isn't already captured, add a new ADR. Never silently diverge from an existing
+   ADR without recording the override.
+5. **Style guides, coding standards, or runbooks** — if a new pattern was established that
+   future contributors should follow, record it in whichever doc the project uses.
+6. **`docs/project-profile.md`** — if Phase 3 introduced new conventions, dependencies, or
    reference files, update the profile so future runs match.
-3. **Any other docs the project maintains** that describe the changed behavior (only update what
-   exists; do not create new doc files unless the user asks).
+7. **Any other doc listed under `Sources consulted`** that describes the changed behavior —
+   review it; update if stale. Do not create new doc files unless the user asks.
+
+For each doc in `Sources consulted`: either confirm it is still accurate, update it, or record
+it as N/A with a reason. Do not skip sources silently.
 
 If a user-visible behavior change has no doc update, the gate has not passed.
 
@@ -394,8 +408,9 @@ When requirements change _after_ tests have been written:
 4. Confirm new/changed tests are red
 5. Update implementation to pass the new tests
 6. Confirm all tests are green
-7. Update `README.md` and any other user-facing docs that describe the changed behavior — this
-   is part of the change, not a follow-up
+7. Walk the `Sources consulted` list in `docs/project-profile.md` and update every doc that
+   describes the changed behavior (README, CONTRIBUTING, ARCHITECTURE, ADRs, style guides,
+   runbooks) — this is part of the change, not a follow-up
 8. Update `docs/project-profile.md` if the change introduced a new convention or dependency
 
 **Never** update implementation to accommodate new behavior without first updating the spec and
