@@ -29,7 +29,8 @@ Track progress through each phase with the todo/task list.
 - Never proceed past Phase 1 without explicit user approval of the spec
 - Never write Phase 3 production code without re-reading `docs/project-profile.md` and
   stating which conventions you will follow
-- Never open a PR while spec, README, or profile drift exists — Phase 6 is blocking
+- Never open a PR while spec, README, profile, or any doc listed under `Sources consulted`
+  in `docs/project-profile.md` has drift — Phase 6 is blocking
 - Always detect stack AND conventions before generating code; always read existing project
   docs (README, CONTRIBUTING, ARCHITECTURE, ADRs) — they override inference
 - Always run the full test suite after each implementation unit and after every refactor change
@@ -69,9 +70,10 @@ Follow `docs/atdd/workflow.md` § Phases 0–6 in full. Key orchestration remind
 - **Phase 4**: all available gates pass. Max 3 fix attempts per gate; re-run all after each.
 - **Phase 5**: refactor only with tests green; re-run all gates after.
 - **Phase 6 (blocking)**: invoke the **spec-reviewer** subagent for the compliance review,
-  then repair drift → sync docs (README, `docs/project-profile.md`, other project docs) →
-  final verification. Do not open a PR until every row in the Spec & Doc Sync report is ✅
-  or an explicit ⏭️ with reason.
+  then repair drift → walk the `Sources consulted` list in `docs/project-profile.md` and sync
+  every doc that describes changed behavior (README → CONTRIBUTING → ARCHITECTURE → ADRs →
+  style guides / runbooks → profile → other consulted docs) → final verification. Do not open
+  a PR until every row in the Spec & Doc Sync report is ✅ or an explicit ⏭️ with reason.
 
 ## Phase 7 — Create PR (Automatic)
 
@@ -135,6 +137,6 @@ End every run with this table:
 | Tests           | `<test-file-path>`               | ✅ Red → Green (N/N)           |
 | Implementation  | `<src-file-path(s)>`             | ✅ Implemented                 |
 | Quality Gates   | lint/format/typecheck/build/test | ✅ All passed                  |
-| Spec & Doc Sync | Spec / README / Profile          | ✅ In sync (drift repaired)    |
+| Spec & Doc Sync | Spec / all consulted docs        | ✅ In sync (drift repaired)    |
 | PR              | `feat/<name>` #N                 | ✅ Created                     |
 | Review          | Comments addressed               | ✅ Done / ⏳ Awaiting review   |

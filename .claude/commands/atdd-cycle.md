@@ -166,5 +166,5 @@ End with this table:
 | Tests           | `<test-file-path>`               | ✅ Red → Green (N scenarios) |
 | Implementation  | `<src-file-path(s)>`             | ✅ Implemented               |
 | Quality Gates   | lint/format/typecheck/build/test | ✅ All passed                |
-| Spec & Doc Sync | Spec / README / Profile          | ✅ In sync (drift repaired)  |
+| Spec & Doc Sync | Spec / all consulted docs        | ✅ In sync (drift repaired)  |
 | PR              | `feat/<name>`                    | ✅ Created / ⏭️ Skipped      |
