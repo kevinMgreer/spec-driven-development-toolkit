@@ -36,7 +36,10 @@ Requirements
   6. Spec & Doc Sync (hard gate — repair drift in-place)
      │
      ▼
-  7. PR (optional — branch, commit, push, PR)
+  7. PR (branch, commit, push, PR — asks first in mode (b))
+     │
+     ▼
+  8. Review + Address Comments
 ```
 
 ---
@@ -47,6 +50,7 @@ Requirements
 | ----------------------------------------------------------- | --------------------------------------------------------------- |
 | Never write production code before acceptance tests are red | Ensures the test actually validates something                   |
 | Never modify tests to make them pass                        | Fixes the symptom not the cause; the spec becomes meaningless   |
+| Never narrow the spec without confirmation                  | "Match the code" must not silently delete a guarantee the spec made |
 | Never add logic not required by a failing test              | Speculation; increases maintenance burden with no specification |
 | Always update spec first when requirements change           | Code must match spec, not the reverse                           |
 | Always confirm tests are red _for the right reason_         | A test that passes due to a broken import is not actually red   |
@@ -188,15 +192,28 @@ If any of these are unclear, ask before writing (maximum 3 questions):
 
 This is the **mandatory human checkpoint** in the cycle. Everything after this point is autonomous.
 
+It is also where the **autonomy level** is chosen. Do not ask for it earlier as a separate
+question — the user has not seen anything yet, and a second stop before Phase 0 buys nothing.
+Bundling it here keeps the cycle at one mandatory interruption.
+
 1. Present the complete spec (feature file + technical spec) to the user
-2. Ask explicitly: _"Do these specs look correct? Any changes before I proceed?"_
+2. Ask approval and autonomy together, in one message:
+
+   > Do these specs look correct? Any changes before I proceed?
+   >
+   > And after approval, should I:
+   > **[a]** run hands-off through implementation, quality gates, PR and review, or
+   > **[b]** check with you once before opening the PR?
+
 3. **Wait for explicit approval.** Do not proceed to Phase 2 until the user confirms.
 4. If the user requests changes:
    a. Update the spec files
    b. Re-present the updated spec
    c. Ask for approval again
    d. Repeat until the user approves
-5. Only after approval: proceed to Phase 2 (test generation) and the autonomous remainder
+5. If the spec is approved but the mode question goes unanswered, default to **(b)** and say
+   which mode you are using before continuing.
+6. Only after approval: proceed to Phase 2 (test generation) and the autonomous remainder
 
 ---
 
@@ -344,6 +361,44 @@ For each drift item: **update the spec file first** (`.feature` and/or `-spec.md
 adjust a test that would catch a regression, then re-run the full test suite. Do not declare
 Phase 6 complete with known drift.
 
+#### Classify every repair before applying it
+
+"Update the spec to match the code" is safe in one direction and dangerous in the other. A rule
+quietly relaxed during implementation, then written back into the spec, makes the weakening
+invisible and permanently blessed. So every repair is classified first:
+
+| Class          | Meaning                                                          | Authority to apply     |
+| -------------- | ---------------------------------------------------------------- | ---------------------- |
+| **ADDED**      | The spec gains a scenario or rule it did not have                | Apply freely           |
+| **MODIFIED**   | An existing scenario or rule changes shape, keeping every guarantee | Apply freely        |
+| **REMOVED**    | A guarantee the spec made is no longer promised                  | **Confirmation first** |
+
+**The test for REMOVED:** _would a test written against the old spec still pass against the new
+one?_ If no, the repair is a **spec weakening**. This covers a deleted scenario, a deleted `Then`
+step, a widened accepted range, a removed validation, a relaxed limit, an error case that becomes
+a permitted case, or a status code that changes from failure to success.
+
+A **MODIFIED** repair must preserve every `Then` step the current spec has for that scenario.
+Dropping one is a REMOVED, not a MODIFIED, no matter how the rest of the scenario is rewritten.
+
+#### Handling a spec weakening
+
+A weakening is never applied silently under "match the code." How it resolves depends on the
+autonomy mode chosen at the Phase 1 gate:
+
+- **Mode (b) — check first**: stop on that item, show what the spec promises today, what the code
+  actually does, and which of the two you believe is the mistake. Ask whether to narrow the spec
+  or fix the code to honor it. Apply only the answer given. Continue repairing other items
+  meanwhile.
+- **Mode (a) — hands-off**: do not stop. Default to **preserving the spec** — change the
+  implementation to honor what the spec promises, and record the item as
+  _"code corrected to honor spec"_. Hands-off authorizes uninterrupted work; it never authorizes
+  narrowing the spec. Stop only if honoring the spec is genuinely impossible (an external
+  constraint makes it unachievable) — that is a real gate, not a routine interruption.
+
+Every weakening, however resolved, is recorded in the Spec Weakenings table of the Phase 6
+report. The gate does not pass while a row lacks a resolution.
+
 ### Sub-phase 6c — Documentation Sync
 
 Verify the user-facing documentation reflects what the code now does. Work through the
@@ -378,23 +433,37 @@ After every fix above:
 - Re-run the full test suite — must be green
 - Re-run all available quality gates — must pass
 - Produce the Spec & Doc Sync report — a table where every row (spec compliance, drift
-  repaired, README, project profile, other docs, tests, quality gates) is ✅ or an explicit
-  ⏭️ with a reason (the `/verify-spec-coverage` prompt/command defines the full format)
+  repaired, spec weakenings, README, project profile, other docs, tests, quality gates) is ✅ or
+  an explicit ⏭️ with a reason (the `/verify-spec-coverage` prompt/command defines the full format)
+- The **Spec Weakenings** table must be empty, or every row must carry a recorded resolution
 
 Only when all four sub-phases pass does the cycle proceed to Phase 7.
 
 ---
 
-## Phase 7 — PR (Optional)
-
-If the user wants a pull request:
+## Phase 7 — PR
 
 1. Create a feature branch: `feat/<feature-name>`
 2. Commit with a meaningful message referencing the spec
 3. Push and create a PR with the spec as the description
 4. Include quality gate results and scenario summary in the PR body
 
-Ask the user before pushing or creating the PR.
+Whether to ask first depends on the autonomy mode chosen at the Phase 1 gate:
+
+- **Mode (a) — hands-off**: proceed automatically. Do not ask.
+- **Mode (b) — check first**: this is the one additional stop. Show the branch name, commit
+  message, and PR title, ask _"Ready to push and open the PR?"_, then proceed on approval.
+
+## Phase 8 — Review + Address Comments
+
+Runs automatically in **both** modes — mode (b)'s single stop was Phase 7, so do not stop again.
+
+1. Poll for the review (every 60s, up to 5 minutes) if one was requested
+2. Address every comment: style/naming → fix implementation; bug → test first, then fix;
+   behavior change → **spec first**, then test, then implement; question → reply on the PR
+3. Re-run all quality gates, commit, and push to the same branch
+4. If no review arrives within the timeout, do not block — report the PR URL and point the user
+   at `/address-review-comments <PR-number>`
 
 ---
 

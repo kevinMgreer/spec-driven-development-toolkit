@@ -42,12 +42,14 @@ Full procedure: **[`docs/atdd/workflow.md`](../docs/atdd/workflow.md)** (read on
   conclusions — they override inference
 - Phase 6 (Spec & Doc Sync) is a **blocking** gate that repairs drift in-phase —
   includes `README.md` and `docs/project-profile.md` updates
+- Phase 6b classifies every repair ADDED / MODIFIED / REMOVED; a REMOVED narrows the spec and
+  needs confirmation — never apply one under "update the spec to match the code"
 
 ## Commands & Agents
 
 | Trigger                    | Purpose                                                          |
 | -------------------------- | ---------------------------------------------------------------- |
-| `@atdd-cycle`              | Full automated cycle from requirements → PR                      |
+| `@atdd-cycle`              | The full cycle: requirements → PR → review. Start here            |
 | `@spec-writer`             | Write Gherkin + technical spec                                   |
 | `@spec-reviewer`           | Read-only spec & doc compliance review                           |
 | `/analyze-project`         | Detect tooling + conventions; write `docs/project-profile.md`    |

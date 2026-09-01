@@ -32,6 +32,8 @@ Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates �
 - **Phase 1 → 2**: explicit user approval of the spec. Iterate until approved.
 - **Phase 2 → 3**: all tests red for the right reason. Print test runner output.
 - **Phase 6 → done**: repair drift in-phase. Do not defer spec / README / profile updates.
+  Classify each repair ADDED / MODIFIED / REMOVED — a REMOVED narrows the spec and needs
+  confirmation; "update the spec to match the code" never authorizes one.
 
 ## Before Phase 3
 

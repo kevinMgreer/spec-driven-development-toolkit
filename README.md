@@ -64,20 +64,22 @@ Always include `docs/` and `specs/` — platform configs reference `docs/` for t
 
 ### 2. Use it
 
-**VS Code (Copilot)** — choose your automation level:
-
-| Mode                 | Agent                    | What stops for human input                                                             |
-| -------------------- | ------------------------ | -------------------------------------------------------------------------------------- |
-| **Supervised**       | `@atdd-cycle`            | Spec approval + asks before PR                                                         |
-| **Fully autonomous** | `@full-autonomous-cycle` | Spec approval only — then hands-off through PR, Copilot review, and comment resolution |
+**VS Code (Copilot)** — one agent, `@atdd-cycle`:
 
 ```
 @atdd-cycle Implement a user login feature with email/password authentication
 that locks accounts after 5 failed attempts within 15 minutes
-
-@full-autonomous-cycle Implement a user login feature with email/password authentication
-that locks accounts after 5 failed attempts within 15 minutes
 ```
+
+You choose the automation level at the spec approval gate — the one stop that already exists —
+so there is nothing extra to decide up front:
+
+| Mode                | What happens after spec approval                                    |
+| ------------------- | -------------------------------------------------------------------- |
+| **(a) Hands-off**   | Runs through PR creation and review resolution without stopping     |
+| **(b) Check first** | Stops once before opening the PR, then finishes                      |
+
+Pass `--auto` to skip the question and go straight to hands-off.
 
 Or step by step with slash commands:
 
@@ -88,11 +90,11 @@ Or step by step with slash commands:
 /create-pull-request    → /address-review-comments
 ```
 
-**Claude Code** — same two levels, as slash commands:
+**Claude Code** — the same single command:
 
 ```
 /atdd-cycle Implement a user login feature with email/password authentication
-/full-autonomous-cycle Implement a user login feature with email/password authentication
+/atdd-cycle --auto Implement a user login feature with email/password authentication
 ```
 
 **Cursor / Kiro** — describe what you want to build. The AI reads the ATDD rules automatically.

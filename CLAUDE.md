@@ -36,8 +36,7 @@ Slash commands live in `.claude/commands/`; subagents in `.claude/agents/`.
 
 | Trigger                                   | Purpose                                                      |
 | ----------------------------------------- | ------------------------------------------------------------ |
-| `/atdd-cycle`                             | Full supervised cycle: requirements → PR (asks before PR)    |
-| `/full-autonomous-cycle`                  | Hands-off cycle — spec approval is the only human gate       |
+| `/atdd-cycle`                             | The full cycle: requirements → PR → review. Start here       |
 | `/analyze-project`                        | Phase 0 — detect tooling + conventions; write the profile    |
 | `/write-spec` → `/write-acceptance-tests` | Phase 1–2 — spec (user gate), then failing test stubs        |
 | `/implement-from-spec`                    | Phase 3 — minimum code to green, mirroring the profile       |
@@ -52,8 +51,11 @@ Slash commands live in `.claude/commands/`; subagents in `.claude/agents/`.
 Non-negotiables, in brief:
 
 - Red before green; never modify tests to pass; never add logic not demanded by a failing test
-- Phase 1 requires explicit user approval of the spec before Phase 2 runs
+- Phase 1 requires explicit user approval of the spec before Phase 2 runs; the autonomy level
+  is chosen at that same gate, never as a separate up-front question
 - Phase 3 re-reads `docs/project-profile.md` and mirrors its conventions — no inventing
 - Phase 6 (Spec & Doc Sync) is a **blocking** gate; repair drift in-phase
+- Classify every Phase 6b repair ADDED / MODIFIED / REMOVED; a REMOVED narrows the spec and
+  needs confirmation — never apply one under "update the spec to match the code"
 
 Do not skip or reorder phases.

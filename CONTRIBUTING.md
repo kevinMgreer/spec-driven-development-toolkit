@@ -38,7 +38,6 @@ spec-driven-development-toolkit/
 │   ├── copilot-instructions.md
 │   ├── agents/
 │   │   ├── atdd-cycle.agent.md
-│   │   ├── full-autonomous-cycle.agent.md
 │   │   ├── spec-writer.agent.md
 │   │   └── spec-reviewer.agent.md
 │   ├── instructions/

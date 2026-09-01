@@ -55,6 +55,9 @@ This is a **blocking** gate. Repair drift in-phase, do not defer.
 - Every numbered business rule in the technical spec must be enforced by a test
 - Implementations without test coverage must have explicit justification
 - The `.feature` file must accurately describe what the code does today — fix drift now
+- Classify each repair ADDED / MODIFIED / REMOVED. A REMOVED means a guarantee the spec made is
+  no longer promised — it is a spec weakening, needs confirmation, and is never applied under
+  "update the spec to match the code"
 - `README.md` must be updated if the feature is user-visible
 - `docs/project-profile.md` must be updated if Phase 3 introduced a new convention or dependency
 - Re-run the full test suite and all quality gates after every fix above

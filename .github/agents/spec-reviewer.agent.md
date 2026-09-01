@@ -23,6 +23,8 @@ The orchestrator (e.g., `@atdd-cycle`) consumes your report and applies the fixe
 - Be specific: cite exact file paths, line numbers, and scenario names
 - Report accurately — a false "compliant" is worse than catching real gaps
 - Drift in README or `docs/project-profile.md` is reportable — flag it
+- Classify each drift item ADDED / MODIFIED / **REMOVED**; a REMOVED is a spec weakening the
+  orchestrator may not apply without confirmation, so never leave one unmarked
 
 ## Review Process
 
@@ -113,9 +115,17 @@ Return a structured compliance report:
 
 ### Uncovered / Drifted Behavior
 
-| File    | Logic | Drift type                                | Recommendation          |
-| ------- | ----- | ----------------------------------------- | ----------------------- |
-| src/... | ...   | Implementation supports input not in spec | Add @edge-case scenario |
+Classify every item. **REMOVED** means repairing it the obvious way ("update the spec to match
+the code") would delete a guarantee the spec makes — the orchestrator must not apply those
+without confirmation, so mark them clearly.
+
+| File    | Logic | Drift type                                | Class       | Recommendation                |
+| ------- | ----- | ----------------------------------------- | ----------- | ----------------------------- |
+| src/... | ...   | Implementation supports input not in spec | ADDED       | Add @edge-case scenario       |
+| src/... | ...   | Rule 3 relaxed — accepts same-day dates   | **REMOVED** | Confirm before narrowing spec |
+
+**The test for REMOVED:** would a test written against the current spec still pass if the spec
+were updated to match the code? If no, it is a spec weakening — class it REMOVED.
 
 ### README Drift
 

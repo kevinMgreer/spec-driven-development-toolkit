@@ -34,7 +34,7 @@ Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates �
 | `/verify-spec-coverage`    | Hard spec & doc sync gate — repairs spec/README/profile drift in-place          |
 | `/create-pull-request`     | Create branch, commit, push, open PR                                            |
 | `/address-review-comments` | Handle PR review feedback, update spec if needed                                |
-| `@atdd-cycle`              | Full automated cycle (analyze → spec → tests → implement → gates → sync → PR)   |
+| `@atdd-cycle`              | The full cycle (analyze → spec → tests → implement → gates → sync → PR → review) |
 | `@spec-writer`             | Dedicated spec writing agent                                                    |
 | `@spec-reviewer`           | Dedicated spec & doc compliance review agent                                    |
 
