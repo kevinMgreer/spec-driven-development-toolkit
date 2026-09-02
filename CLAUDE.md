@@ -45,7 +45,7 @@ Slash commands live in `.claude/commands/`; subagents in `.claude/agents/`.
 | `/refactor-passing-tests`                 | Phase 5 — safe refactor, tests stay green                    |
 | `/verify-spec-coverage`                   | Phase 6 — hard spec & doc sync gate (repairs drift in-place) |
 | `/archive-change`                         | Phase 7 — merge delta into capability; archive the change    |
-| `/create-pull-request`                    | Phase 7 — branch, commit, push, PR                           |
+| `/create-pull-request`                    | Phase 8 — branch, commit, push, PR                           |
 | `/address-review-comments`                | Handle PR review feedback                                    |
 | `spec-writer` subagent                    | Writes Gherkin + technical specs (never code)                |
 | `spec-reviewer` subagent                  | Read-only spec & doc compliance review                       |

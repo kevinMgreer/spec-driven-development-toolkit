@@ -178,10 +178,28 @@ Copy into a PR description, issue, or tracking document.
 
 ---
 
-### Phase 7 — PR 🚀 (Optional)
+### Phase 7 — Archive & Merge 📦
+
+- [ ] Preflight passed (delta tags resolve, `@modified:` complete, one `@smoke`, destination free)
+- [ ] Delta merged into `specs/capabilities/<domain>/behavior.feature`
+- [ ] Rule deltas merged into `rules.md`, numbering stable (gaps kept after a removal)
+- [ ] **No delta tags remain** in the capability file
+- [ ] Change folder moved to `specs/changes/archive/<YYYY-MM-DD>-<name>/`
+- [ ] Test suite re-run after the merge — still green
+
+---
+
+### Phase 8 — PR 🚀
 
 - [ ] Feature branch created: `feat/<name>`
-- [ ] Changes committed with meaningful message referencing the spec
+- [ ] Changes committed with meaningful message referencing the change
 - [ ] Pushed to remote
-- [ ] PR created with spec, quality gate results, and scenario summary
+- [ ] PR created with proposal, quality gate results, and scenario summary
 - [ ] PR approved
+
+---
+
+### Phase 9 — Review 💬
+
+- [ ] Review comments addressed (behavior changes updated the spec first)
+- [ ] Quality gates re-run and pushed
