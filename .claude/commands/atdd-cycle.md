@@ -202,7 +202,7 @@ runs **before** the PR so the merged capability and the archived change ship tog
 Follow the `/archive-change` command in full. Non-negotiables:
 
 - **Preflight before mutating.** Resolve every delta tag against the capability, check
-  `@modified:` completeness and the merged tag budget, and settle the archive destination first.
+  `@modified:` completeness and the merged `@smoke` count, and settle the archive destination first.
   Any failure leaves the tree untouched.
 - An `@modified:`/`@removed:`/`@renamed:` naming a scenario the capability lacks is an error to
   report — never a name to guess.

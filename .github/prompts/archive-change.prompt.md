@@ -42,8 +42,14 @@ half-merged capability is far worse than a refused archive.
 5. **Check `@modified:` completeness.** Each one must carry every `Then`/`And`-after-`Then` step
    the capability's version has. If any is missing, **stop**: that is a removal of a guarantee
    wearing a `@modified:` tag. Report which steps would be lost.
-6. **Check the merged tag budget.** After merging, the capability must have exactly one `@smoke`,
-   1–2 `@happy-path`, 2–4 `@edge-case`, 2–3 `@error`. Report a violation and stop.
+6. **Check the merged `@smoke` count.** After merging, the capability must have **exactly one**
+   `@smoke` scenario. Report a violation and stop.
+
+   That is the only priority-tag count checked here. The `1–2 @happy-path / 2–4 @edge-case /
+   2–3 @error` budget is authoring guidance for **one change's delta** — the shape of a single
+   feature's worth of behavior. A capability accumulates scenarios across many changes, so those
+   counts only ever grow; enforcing them here would block every archive against any capability
+   that has been through more than a change or two.
 7. **Check tasks.** If `tasks.md` has unchecked `- [ ]` items, report the count and ask whether
    to continue. In autonomy mode (a), report and continue. Never silently ignore them.
 8. **Check for emptying.** If the delta's `@removed:` scenarios would leave the capability with

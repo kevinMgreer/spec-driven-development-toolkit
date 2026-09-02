@@ -75,8 +75,8 @@ Copy into a PR description, issue, or tracking document.
   - [ ] Every scenario carries exactly one delta tag
   - [ ] `@modified:` / `@removed:` / `@renamed:` names match the capability exactly
   - [ ] Every `@modified:` carries all the `Then` steps the capability already had
-  - [ ] Priority tags respect the merged budget (`@smoke` 1 overall, `@happy-path` 1–2,
-        `@edge-case` 2–4, `@error` 2–3)
+  - [ ] Capability still has exactly one `@smoke` after merge
+  - [ ] Delta stays near `@happy-path` 1–2, `@edge-case` 2–4, `@error` 2–3 (guidance, not a gate)
   - [ ] `Scenario Outline` used for data-driven variations
   - [ ] Steps describe behavior, not implementation
   - [ ] All `Then` values are concrete (no vague placeholders)

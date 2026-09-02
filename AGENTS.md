@@ -69,8 +69,9 @@ specs/
     └── archive/    #   merged changes, date-prefixed
 ```
 
-Tag convention: `@smoke` (exactly 1) → `@happy-path` (1–2) → `@edge-case` (2–4) →
-`@error` (2–3).
+Tag convention: `@smoke` exactly 1 per **capability** (enforced at archive). `@happy-path` (1–2),
+`@edge-case` (2–4), `@error` (2–3) describe **one delta** — a capability's counts grow with every
+change and are not capped.
 
 ---
 

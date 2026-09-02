@@ -486,7 +486,7 @@ otherwise archiving needs a pull request of its own.
 Key guarantees, in full in the `/archive-change` command:
 
 - **Preflight before mutating.** Resolve every delta tag against the capability, check
-  `@modified:` completeness and the merged tag budget, and settle the archive destination first.
+  `@modified:` completeness and the merged `@smoke` count, and settle the archive destination first.
   Any failure leaves the tree untouched — a half-merged capability is worse than a refused archive.
 - **No guessing.** An `@modified:`/`@removed:`/`@renamed:` naming a scenario the capability does
   not have is an error to report, not an intent to infer.

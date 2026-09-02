@@ -48,9 +48,9 @@ Phase 7 merges that delta into the capability once the work is done and verified
    | `@removed:"<name>"`     | An existing scenario goes away                    |
    | `@renamed:"<old name>"` | An existing scenario is retitled                  |
 
-   Priority tags count toward the **merged** capability's budget: `@smoke` exactly 1 overall,
-   `@happy-path` 1–2, `@edge-case` 2–4, `@error` 2–3. If the capability already has a `@smoke`,
-   do not add another.
+   `@smoke` is capped at **one per capability** — if the capability already has one, do not add
+   another. The `@happy-path` 1–2, `@edge-case` 2–4, `@error` 2–3 budget describes one change's
+   delta, not the accumulated capability, which grows with every change.
 
    A `@modified:` scenario must carry **every `Then` step the capability already has** for it.
    Dropping one removes a guarantee — that is a `@removed:`, and needs the user's explicit
