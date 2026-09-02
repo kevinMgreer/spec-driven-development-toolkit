@@ -68,6 +68,13 @@ if [[ -z "$TARGET" ]]; then
     usage
 fi
 
+# --docs-only wins regardless of argument order. Clearing PLATFORMS only at parse time let a
+# later --vscode/--claude/--all re-populate it, so `--docs-only --vscode` still installed
+# platform configs.
+if [[ "$DOCS_ONLY" == "true" ]]; then
+    PLATFORMS=()
+fi
+
 # Default to all platforms if none specified and user didn't request docs-only
 if [[ ${#PLATFORMS[@]} -eq 0 && "$DOCS_ONLY" != "true" ]]; then
     PLATFORMS=(vscode claude agents)

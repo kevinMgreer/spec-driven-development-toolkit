@@ -35,12 +35,13 @@ if (-not $Target) {
     $Target = (Resolve-Path $Target).Path
 }
 
-# Expand 'all' to all platforms
-if ($Platforms -contains 'all') {
-    $Platforms = @('vscode', 'claude', 'agents')
-}
+# 'docs-only' wins over every other value, so test it before 'all' expands and overwrites the
+# array — otherwise `-Platforms all,docs-only` loses the docs-only marker and installs platforms.
 if ($Platforms -contains 'docs-only') {
     $Platforms = @()
+}
+elseif ($Platforms -contains 'all') {
+    $Platforms = @('vscode', 'claude', 'agents')
 }
 
 function Copy-Directory {
