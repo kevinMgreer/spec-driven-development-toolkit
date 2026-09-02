@@ -11,7 +11,8 @@ alwaysApply: false
 ## The Cycle
 
 ```
-Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
+Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor →
+Spec & Doc Sync → Archive → PR → Review
 ```
 
 ## Phase Map
@@ -25,7 +26,9 @@ Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates �
 | 4     | Quality Gates          | Lint / format / typecheck / build / test all pass                     |
 | 5     | Refactor               | Structure only, tests stay green, re-run gates                        |
 | 6     | Spec & Doc Sync (Hard) | No drift: spec ↔ code ↔ tests ↔ README ↔ `docs/project-profile.md`    |
-| 7     | PR (optional)          | Feature branch, commit, push; include scenario summary                |
+| 7     | Archive & Merge        | Delta merges into the capability; change folder moves to archive/     |
+| 8     | PR                     | Feature branch, commit, push; include scenario summary                |
+| 9     | Review                 | Address comments; behavior changes update the spec first              |
 
 ## Hard Gates
 

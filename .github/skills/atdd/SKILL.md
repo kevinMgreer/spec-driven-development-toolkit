@@ -18,7 +18,8 @@ argument-hint: "Describe the feature or ATDD task (e.g. 'write spec for user log
 ## Workflow
 
 ```
-Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
+Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor →
+Spec & Doc Sync → Archive → PR → Review
 ```
 
 ## Quick Commands
@@ -32,6 +33,7 @@ Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates �
 | `/run-quality-gates`       | Run lint, format, typecheck, build, test — iterate until green                  |
 | `/refactor-passing-tests`  | Safe refactor after all tests are green                                         |
 | `/verify-spec-coverage`    | Hard spec & doc sync gate — repairs spec/README/profile drift in-place          |
+| `/archive-change`          | Merge the delta into its capability; archive the change folder                  |
 | `/create-pull-request`     | Create branch, commit, push, open PR                                            |
 | `/address-review-comments` | Handle PR review feedback, update spec if needed                                |
 | `@atdd-cycle`              | The full cycle (analyze → spec → tests → implement → gates → sync → PR → review) |
@@ -40,8 +42,12 @@ Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates �
 
 ## Templates & References
 
-- [Gherkin feature template](./assets/feature.template.md)
-- [Technical spec template](./assets/tech-spec.template.md)
+- [Capability behavior template](./assets/feature.template.md)
+- [Capability rules template](./assets/tech-spec.template.md)
+- [Change proposal template](./assets/proposal.template.md)
+- [Delta feature template](./assets/delta.template.feature)
+- [Delta rules template](./assets/delta-rules.template.md)
+- [Change tasks template](./assets/tasks.template.md)
 - [ATDD cycle checklist](./assets/atdd-checklist.md)
 - [Gherkin guide](./references/gherkin-guide.md)
 - [ATDD patterns](./references/atdd-patterns.md)
@@ -69,7 +75,8 @@ have an accurate picture of this codebase's tooling and conventions."_
 ## Cycle — Pointer
 
 ```
-Analyze → Spec → Tests (Red) → Implement (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
+Analyze → Spec → Tests (Red) → Implement (Green) → Quality Gates → Refactor →
+Spec & Doc Sync → Archive → PR → Review
 ```
 
 **Full procedure: [`docs/atdd/workflow.md`](../../../docs/atdd/workflow.md)** (authoritative).
@@ -85,14 +92,17 @@ Per-phase prompt mapping:
 | 4     | `/run-quality-gates`                       | lint / format / typecheck / build / test all pass                      |
 | 5     | `/refactor-passing-tests`                  | Structure only, tests stay green                                       |
 | 6     | `/verify-spec-coverage` / `@spec-reviewer` | No spec/README/profile drift (hard gate)                               |
-| 7     | `/create-pull-request`                     | Branch, commit, push, PR                                               |
+| 7     | `/archive-change`                          | Delta merged into capability; change archived                          |
+| 8     | `/create-pull-request`                     | Branch, commit, push, PR                                               |
+| 9     | `/address-review-comments`                 | Comments addressed; behavior changes update the spec first             |
 
 ## Spec Directory Layout
 
 ```
 specs/
-├── features/          # Gherkin .feature files
-│   └── *.feature
-└── technical/         # Markdown technical specs
-    └── *-spec.md
+├── capabilities/      # Source of truth — what the system does today
+│   └── <domain>/      #   behavior.feature (no delta tags) + rules.md
+└── changes/           # Work in flight — one folder per change
+    ├── <name>/        #   proposal.md, delta.feature, delta-rules.md, tasks.md
+    └── archive/       #   merged changes, date-prefixed
 ```

@@ -36,10 +36,13 @@ Requirements
   6. Spec & Doc Sync (hard gate — repair drift in-place)
      │
      ▼
-  7. PR (branch, commit, push, PR — asks first in mode (b))
+  7. Archive & Merge (delta → capability; change → dated archive)
      │
      ▼
-  8. Review + Address Comments
+  8. PR (branch, commit, push, PR — asks first in mode (b))
+     │
+     ▼
+  9. Review + Address Comments
 ```
 
 ---
@@ -468,12 +471,38 @@ Only when all four sub-phases pass does the cycle proceed to Phase 7.
 
 ---
 
-## Phase 7 — PR
+## Phase 7 — Archive & Merge
+
+**Precondition**: Phase 6 passed with no unresolved rows.
+
+The change has been built and verified; now it becomes part of the truth. Merge
+`specs/changes/<name>/delta.feature` into `specs/capabilities/<domain>/behavior.feature`, merge
+the rule deltas into `rules.md`, then move the change folder to
+`specs/changes/archive/<YYYY-MM-DD>-<name>/`.
+
+This runs **before** the PR so the merged capability and the archived change ship together —
+otherwise archiving needs a pull request of its own.
+
+Key guarantees, in full in the `/archive-change` command:
+
+- **Preflight before mutating.** Resolve every delta tag against the capability, check
+  `@modified:` completeness and the merged tag budget, and settle the archive destination first.
+  Any failure leaves the tree untouched — a half-merged capability is worse than a refused archive.
+- **No guessing.** An `@modified:`/`@removed:`/`@renamed:` naming a scenario the capability does
+  not have is an error to report, not an intent to infer.
+- **No silent narrowing.** A `@modified:` missing a `Then` the capability has is a blocked
+  archive.
+- **No stacked date prefixes** on a change name that already carries one.
+- **No stray delta tags** left in a capability file.
+- **No capability deletion** without `retire_capability: true` in the change's `.atdd.yaml`.
+- **Idempotent.** Running it twice produces an identical tree.
+
+## Phase 8 — PR
 
 1. Create a feature branch: `feat/<feature-name>`
-2. Commit with a meaningful message referencing the spec
-3. Push and create a PR with the spec as the description
-4. Include quality gate results and scenario summary in the PR body
+2. Commit with a meaningful message referencing the change
+3. Push and create a PR with the proposal as the description
+4. Include quality gate results and the archive summary in the PR body
 
 Whether to ask first depends on the autonomy mode chosen at the Phase 1 gate:
 
@@ -481,9 +510,9 @@ Whether to ask first depends on the autonomy mode chosen at the Phase 1 gate:
 - **Mode (b) — check first**: this is the one additional stop. Show the branch name, commit
   message, and PR title, ask _"Ready to push and open the PR?"_, then proceed on approval.
 
-## Phase 8 — Review + Address Comments
+## Phase 9 — Review + Address Comments
 
-Runs automatically in **both** modes — mode (b)'s single stop was Phase 7, so do not stop again.
+Runs automatically in **both** modes — mode (b)'s single stop was Phase 8, so do not stop again.
 
 1. Poll for the review (every 60s, up to 5 minutes) if one was requested
 2. Address every comment: style/naming → fix implementation; bug → test first, then fix;
@@ -531,10 +560,27 @@ specs/
     │   ├── proposal.md              #   why and scope
     │   ├── delta.feature            #   only the scenarios this change touches
     │   ├── delta-rules.md           #   only the rules this change touches
-    │   └── tasks.md                 #   implementation checklist
+    │   ├── tasks.md                 #   implementation checklist
+    │   └── .atdd.yaml               #   optional declarations (see below)
     └── archive/                     # Merged and preserved
         └── <YYYY-MM-DD>-<name>/
 ```
+
+### Change metadata (`.atdd.yaml`)
+
+Optional, and absent for most changes. It exists to make three judgement calls checkable rather
+than leaving them as prose in a report. Template:
+[`templates/atdd-metadata.template.yaml`](./templates/atdd-metadata.template.yaml).
+
+| Key                 | Effect                                                                                          |
+| ------------------- | ----------------------------------------------------------------------------------------------- |
+| `skip_specs`        | Declares the change alters no behavior. Phase 6 accepts an empty delta; Phase 7 merges nothing. Setting it while the delta files carry content is an **error** — the files win |
+| `retire_capability` | Authorizes Phase 7 to delete a capability this change empties. Without it, archive stops         |
+| `spec_weakenings`   | Every guarantee narrowed under Phase 6b, with how it resolved and on whose authority             |
+
+`spec_weakenings` is what gives Phase 6b's confirmations a durable home: it travels with the
+change into the archive, so the reason a guarantee was dropped outlives the conversation that
+agreed to it.
 
 **Why two tiers.** With one file per feature, the second change touching a domain produces a
 second file, and nothing says which is authoritative. Phase 6 can verify a file against the code

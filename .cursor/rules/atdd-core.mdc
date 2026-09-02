@@ -23,7 +23,8 @@ Before writing a spec, tests, code, or running quality gates — including ad-ho
 ## The Cycle
 
 ```
-Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
+Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor →
+Spec & Doc Sync → Archive → PR → Review
 ```
 
 **Full procedure**: `docs/atdd/workflow.md` (read on demand).

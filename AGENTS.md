@@ -28,7 +28,8 @@ Before writing a spec, tests, code, or running quality gates — including ad-ho
 ## The Cycle
 
 ```
-Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
+Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor →
+Spec & Doc Sync → Archive → PR → Review
 ```
 
 Never skip or reorder. **Full procedure for every phase is in
@@ -88,12 +89,13 @@ be reviewed and updated as part of the change, not as a follow-up. Full protocol
 | Command                    | Purpose                                                        |
 | -------------------------- | -------------------------------------------------------------- |
 | `/analyze-project`         | Detect tooling + conventions; write `docs/project-profile.md`  |
-| `/write-spec`              | Generate Gherkin + technical spec from requirements            |
+| `/write-spec`              | Generate a change folder: proposal, delta, rules, tasks        |
 | `/write-acceptance-tests`  | Generate failing test stubs from a spec                        |
 | `/implement-from-spec`     | Implement code to make failing tests pass                      |
 | `/run-quality-gates`       | Run lint, format, typecheck, build, test — iterate until green |
 | `/refactor-passing-tests`  | Safe refactor with all tests green                             |
 | `/verify-spec-coverage`    | Hard spec & doc sync gate — repairs spec/README/profile drift  |
+| `/archive-change`          | Merge the delta into its capability; archive the change        |
 | `/create-pull-request`     | Create branch, commit, push, open PR                           |
 | `/address-review-comments` | Handle PR review feedback                                      |
 | `@atdd-cycle`              | The full cycle: requirements → PR → review. Start here         |
@@ -115,5 +117,4 @@ Canonical sources — read on demand, not upfront:
 | `docs/atdd/spec-writing.md`                 | How to write clear, testable specifications |
 | `docs/atdd/gherkin.md`                      | Gherkin syntax and anti-patterns            |
 | `docs/atdd/checklist.md`                    | Per-feature progress checklist              |
-| `docs/atdd/templates/feature.template.md`   | Gherkin feature file template               |
-| `docs/atdd/templates/tech-spec.template.md` | Technical spec template                     |
+| `docs/atdd/templates/`                      | Capability, delta, proposal, rules, tasks templates |

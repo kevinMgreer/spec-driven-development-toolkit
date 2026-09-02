@@ -55,7 +55,7 @@ test file is not the first Phase 2 artifact, you broke the rule.
 
 ```
 Analyze → Spec → [HUMAN GATE] → Tests (Red) → Implement (Green) →
-Quality Gates → Refactor → Spec & Doc Sync → PR → Review → Address Comments
+Quality Gates → Refactor → Spec & Doc Sync → Archive → PR → Review
 ```
 
 ## Phase 0 — Project Analysis
@@ -191,9 +191,31 @@ runbooks → `docs/project-profile.md` → any other consulted doc. Do not skip 
 | Quality gates                   | ✅ all passing                            |
 ```
 
-Do not proceed to Phase 7 unless every row is ✅ or has an explicit ⏭️ with reason.
+Do not proceed to Phase 7 (Archive) unless every row is ✅ or has an explicit ⏭️ with reason.
 
-## Phase 7 — Create PR
+## Phase 7 — Archive & Merge
+
+The change is built and verified; now it becomes part of the truth. Merge the delta into the
+capability, then move the change folder to `specs/changes/archive/<YYYY-MM-DD>-<name>/`. This
+runs **before** the PR so the merged capability and the archived change ship together.
+
+Follow the `/archive-change` command in full. Non-negotiables:
+
+- **Preflight before mutating.** Resolve every delta tag against the capability, check
+  `@modified:` completeness and the merged tag budget, and settle the archive destination first.
+  Any failure leaves the tree untouched.
+- An `@modified:`/`@removed:`/`@renamed:` naming a scenario the capability lacks is an error to
+  report — never a name to guess.
+- A `@modified:` missing a `Then` the capability has is a blocked archive, not a silent narrowing.
+- Strip every delta tag on merge; a capability file never contains one.
+- Do not renumber rules after a removal — gaps are correct.
+- Do not delete a capability without `retire_capability: true`.
+- Idempotent: a second run finds nothing to do and changes nothing.
+
+Report the archive summary table, then re-run the test suite — spec files changed, not code, so
+it must still be green.
+
+## Phase 8 — Create PR
 
 **Mode (a):** proceed automatically. Do not ask.
 **Mode (b):** this is the one additional stop. Show the branch name, commit message, and PR
@@ -224,14 +246,14 @@ title you intend to use, and ask: _"Ready to push and open the PR?"_ Then procee
    If the project uses an AI reviewer (e.g., Copilot), request it:
    `gh pr edit <number> --add-reviewer Copilot`.
 
-6. Record the PR number and URL for Phase 8.
+6. Record the PR number and URL for Phase 9.
 
 Detailed procedure: the `/create-pull-request` command.
 
-## Phase 8 — Review + Address Comments
+## Phase 9 — Review + Address Comments
 
 **Mode (a):** run automatically.
-**Mode (b):** run automatically as well — the mode (b) stop was Phase 7. Do not stop again.
+**Mode (b):** run automatically as well — the mode (b) stop was Phase 8. Do not stop again.
 
 1. **Wait for the automated review** (if one was requested) — poll every 60 seconds, up to
    5 minutes: `gh pr view <number> --json reviews,comments`.
@@ -264,6 +286,7 @@ End every run with this table:
 | Implementation  | `<src-file-path(s)>`             | ✅ Implemented                 |
 | Quality Gates   | lint/format/typecheck/build/test | ✅ All passed                  |
 | Spec & Doc Sync | Spec / all consulted docs        | ✅ In sync (drift repaired)    |
+| Archive         | `specs/changes/archive/<date>-<name>/` | ✅ Merged into capability      |
 | PR              | `feat/<name>` #N                 | ✅ Created                     |
 | Review          | Comments addressed               | ✅ Done / ⏳ Awaiting review   |
 

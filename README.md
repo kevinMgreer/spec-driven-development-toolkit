@@ -16,7 +16,8 @@ Works with **VS Code (Copilot) · Cursor · Kiro · Claude Code** — and any to
 > Never write production code unless a failing acceptance test requires it.
 
 ```
-Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
+Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor →
+Spec & Doc Sync → Archive → PR → Review
 ```
 
 Feed requirements to the AI. It writes the spec (you approve). Then everything from test generation
@@ -87,7 +88,7 @@ Or step by step with slash commands:
 /analyze-project        → detect project stack
 /write-spec             → /write-acceptance-tests → /implement-from-spec
 /run-quality-gates      → /refactor-passing-tests → /verify-spec-coverage
-/create-pull-request    → /address-review-comments
+/archive-change         → /create-pull-request → /address-review-comments
 ```
 
 **Claude Code** — the same single command:
@@ -148,9 +149,10 @@ guide, Gherkin conventions, per-feature checklist, and spec/feature templates.
 | `delta.template.feature`    | Delta feature — tagged additions, edits, removals   |
 | `delta-rules.template.md`   | Rule deltas — ADDED / MODIFIED / REMOVED            |
 | `tasks.template.md`         | Change task checklist                               |
-| `atdd-ci.yml`           | GitHub Actions CI — quality gates + Copilot review  |
-| `lefthook.yml`          | Git pre-push hooks — local quality gate enforcement |
-| `mcp-github.json`       | GitHub MCP server config for agent-driven PR/review |
+| `atdd-metadata.template.yaml` | Change metadata — skip_specs, retire, weakenings  |
+| `atdd-ci.yml`               | GitHub Actions CI — quality gates + Copilot review  |
+| `lefthook.yml`              | Git pre-push hooks — local quality gate enforcement |
+| `mcp-github.json`           | GitHub MCP server config for agent-driven PR/review |
 
 ### Example specs (`specs/`)
 

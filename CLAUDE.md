@@ -22,7 +22,8 @@ Before writing a spec, tests, code, or running quality gates — including ad-ho
 ## The Cycle
 
 ```
-Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
+Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor →
+Spec & Doc Sync → Archive → PR → Review
 ```
 
 **Full procedure: [`docs/atdd/workflow.md`](docs/atdd/workflow.md)** (authoritative).
@@ -43,6 +44,7 @@ Slash commands live in `.claude/commands/`; subagents in `.claude/agents/`.
 | `/run-quality-gates`                      | Phase 4 — lint/format/typecheck/build/test until green       |
 | `/refactor-passing-tests`                 | Phase 5 — safe refactor, tests stay green                    |
 | `/verify-spec-coverage`                   | Phase 6 — hard spec & doc sync gate (repairs drift in-place) |
+| `/archive-change`                         | Phase 7 — merge delta into capability; archive the change    |
 | `/create-pull-request`                    | Phase 7 — branch, commit, push, PR                           |
 | `/address-review-comments`                | Handle PR review feedback                                    |
 | `spec-writer` subagent                    | Writes Gherkin + technical specs (never code)                |

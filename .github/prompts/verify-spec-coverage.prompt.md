@@ -87,7 +87,12 @@ at the Phase 1 spec approval gate:
   _"code corrected to honor spec"_. Hands-off authorizes uninterrupted work; it never authorizes
   narrowing the spec. Stop only if honoring the spec is genuinely impossible.
 
-Record every weakening in the report, however it resolved.
+Record every weakening twice: in the report below, and in `spec_weakenings` in the change's
+`specs/changes/<name>/.atdd.yaml` (create it from
+`docs/atdd/templates/atdd-metadata.template.yaml` if absent). The report is read once; the
+metadata travels into the archive and outlives the conversation.
+
+A REMOVED repair may not be applied without an entry there.
 
 ---
 
