@@ -5,7 +5,7 @@ This project uses **spec-first Acceptance Test-Driven Development (ATDD)**.
 > **Golden Rule:** Never write production code unless a failing acceptance test requires it.
 
 Language-agnostic, platform-agnostic. Works in any project — greenfield or legacy. Follows
-the [AGENTS.md](https://agents.md/) standard and is read by Kiro, Copilot, Cursor, Claude, and
+the [AGENTS.md](https://agents.md/) standard and is read by Copilot, Claude, and
 any AGENTS.md-aware tool.
 
 ---

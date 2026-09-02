@@ -1,7 +1,7 @@
 # Contributing — Spec-Driven ATDD Toolkit
 
 This toolkit is designed to be dropped into any project to enable spec-first AI-assisted
-development. It supports VS Code (Copilot), Cursor, Kiro, Claude, and any AGENTS.md-compatible tool.
+development. It supports VS Code (Copilot) and Claude Code, plus any AGENTS.md-compatible tool.
 
 ---
 
@@ -11,7 +11,7 @@ development. It supports VS Code (Copilot), Cursor, Kiro, Claude, and any AGENTS
 spec-driven-development-toolkit/
 │
 ├── docs/atdd/                     # 🟢 SINGLE SOURCE OF TRUTH (platform-agnostic)
-│   ├── workflow.md                #    Full ATDD cycle procedure (all 8 phases)
+│   ├── workflow.md                #    Full ATDD cycle procedure (phases 0–9)
 │   ├── quality-gates.md           #    Quality gate definitions, detection, execution
 │   ├── project-detection.md       #    Language/framework detection for any project
 │   ├── legacy-integration.md      #    Integrating into existing projects
@@ -19,8 +19,13 @@ spec-driven-development-toolkit/
 │   ├── gherkin.md                 #    Gherkin syntax, formatting, anti-patterns
 │   ├── checklist.md               #    Per-feature tracking checklist
 │   └── templates/
-│       ├── feature.template.md    #    Gherkin feature file template
-│       ├── tech-spec.template.md  #    Technical spec template
+│       ├── feature.template.md    #    Capability behavior template
+│       ├── delta.template.feature  #    Delta feature (tagged operations)
+│       ├── proposal.template.md    #    Change proposal
+│       ├── delta-rules.template.md #    Rule deltas
+│       ├── tasks.template.md       #    Change task checklist
+│       ├── atdd-metadata.template.yaml #  Change metadata (.atdd.yaml)
+│       ├── tech-spec.template.md  #    Capability rules template
 │       ├── atdd-ci.yml            #    GitHub Actions CI template (quality gates)
 │       ├── lefthook.yml           #    Git pre-push hooks template
 │       └── mcp-github.json        #    GitHub MCP server config template
@@ -55,6 +60,7 @@ spec-driven-development-toolkit/
 │   │   ├── implement-from-spec.prompt.md
 │   │   ├── run-quality-gates.prompt.md
 │   │   ├── verify-spec-coverage.prompt.md
+│   │   ├── archive-change.prompt.md
 │   │   ├── refactor-passing-tests.prompt.md
 │   │   ├── create-pull-request.prompt.md
 │   │   └── address-review-comments.prompt.md
@@ -63,25 +69,9 @@ spec-driven-development-toolkit/
 │       ├── assets/
 │       └── references/
 │
-├── .cursor/rules/                 # 🟡 Cursor configuration
-│   ├── atdd-core.mdc
-│   ├── atdd-workflow.mdc
-│   ├── gherkin.mdc
-│   ├── quality-gates.mdc
-│   └── project-detection.mdc
-│
 ├── .claude/                       # 🟣 Claude Code configuration
 │   ├── commands/                  #    Slash commands (/atdd-cycle, /write-spec, …)
 │   └── agents/                    #    Subagents (spec-writer, spec-reviewer)
-│
-├── .kiro/steering/                # 🟠 Kiro IDE configuration
-│   ├── atdd-core.md
-│   ├── atdd-workflow.md
-│   ├── gherkin.md
-│   ├── spec-writing.md
-│   ├── quality-gates.md
-│   ├── project-detection.md
-│   └── legacy-integration.md
 │
 ├── install.sh                     # 🔧 Install script (macOS / Linux)
 ├── install.ps1                    # 🔧 Install script (Windows PowerShell)
@@ -94,19 +84,23 @@ spec-driven-development-toolkit/
 ## How the Architecture Works
 
 ```
-docs/atdd/                          ← Single source of truth (Markdown)
-  ┌──────────┬──────────┬──────────┬─────────────────────┬──────────┐
-  ▼          ▼          ▼          ▼                     ▼          ▼
-.github/   .cursor/   .kiro/     .claude/ + CLAUDE.md  AGENTS.md
-(VS Code)  (Cursor)   (Kiro)     (Claude Code)         (Universal)
+docs/atdd/                      ← Single source of truth (Markdown)
+  ┌───────────────┬───────────────────────┬──────────────┐
+  ▼               ▼                       ▼              ▼
+.github/     .claude/ + CLAUDE.md     AGENTS.md     (future tools)
+(VS Code)    (Claude Code)            (Universal)
 ```
 
 The real content lives in `docs/atdd/`. Each platform gets a thin adapter that either:
 
-- **References** the source files (Kiro uses `#[[file:...]]` directives, Cursor/VS Code embed key rules and point to docs)
+- **Mirrors** the source files byte-for-byte (`.github/skills/atdd/references/` — CI checks this)
 - **Embeds** the essential rules with a pointer to the full docs for anything beyond the summary
 
-This means you maintain knowledge in **one place** and all platforms stay in sync.
+This means you maintain knowledge in **one place** and both platforms stay in sync.
+
+The `.claude/commands/*.md` and `.github/prompts/*.prompt.md` files are hand-maintained twins:
+same body, different frontmatter. Editing one means editing the other — that pair has drifted
+before, and the drift is invisible until someone runs the weaker side.
 
 ---
 
@@ -119,7 +113,7 @@ This means you maintain knowledge in **one place** and all platforms stay in syn
 ./install.sh /path/to/your-project
 
 # macOS / Linux — specific platforms only
-./install.sh /path/to/your-project --vscode --cursor
+./install.sh /path/to/your-project --vscode --claude
 
 # Dry run — see what would be copied without copying
 ./install.sh /path/to/your-project --dry-run
@@ -130,7 +124,7 @@ This means you maintain knowledge in **one place** and all platforms stay in syn
 .\install.ps1 -Target C:\repos\your-project
 
 # Windows PowerShell — specific platforms
-.\install.ps1 -Target C:\repos\your-project -Platforms vscode,cursor
+.\install.ps1 -Target C:\repos\your-project -Platforms vscode,claude
 
 # Dry run
 .\install.ps1 -Target C:\repos\your-project -DryRun
@@ -146,8 +140,6 @@ Copy everything:
 ```bash
 # macOS / Linux
 cp -r spec-driven-development-toolkit/.github    your-project/.github
-cp -r spec-driven-development-toolkit/.cursor    your-project/.cursor
-cp -r spec-driven-development-toolkit/.kiro      your-project/.kiro
 cp -r spec-driven-development-toolkit/.claude    your-project/.claude
 cp -r spec-driven-development-toolkit/docs       your-project/docs
 cp -r spec-driven-development-toolkit/specs      your-project/specs
@@ -158,8 +150,6 @@ cp    spec-driven-development-toolkit/CLAUDE.md  your-project/CLAUDE.md
 ```powershell
 # Windows (PowerShell)
 Copy-Item -Recurse .\spec-driven-development-toolkit\.github   your-project\.github
-Copy-Item -Recurse .\spec-driven-development-toolkit\.cursor   your-project\.cursor
-Copy-Item -Recurse .\spec-driven-development-toolkit\.kiro     your-project\.kiro
 Copy-Item -Recurse .\spec-driven-development-toolkit\.claude   your-project\.claude
 Copy-Item -Recurse .\spec-driven-development-toolkit\docs      your-project\docs
 Copy-Item -Recurse .\spec-driven-development-toolkit\specs     your-project\specs
@@ -174,11 +164,9 @@ Only copy what you need:
 | Your IDE               | Copy these                                 |
 | ---------------------- | ------------------------------------------ |
 | **VS Code (Copilot)**  | `.github/`, `docs/`, `specs/`              |
-| **Cursor**             | `.cursor/`, `docs/`, `specs/`              |
-| **Kiro**               | `.kiro/`, `docs/`, `specs/`                |
 | **Claude Code**        | `CLAUDE.md`, `.claude/`, `docs/`, `specs/` |
 | **Any AGENTS.md tool** | `AGENTS.md`, `docs/`, `specs/`             |
-| **Multiple IDEs**      | Full install (above)                       |
+| **Both**               | Full install (above)                       |
 
 **Always copy `docs/` and `specs/`** — the platform configs reference `docs/` and `specs/` contains the example features.
 
@@ -195,12 +183,10 @@ Only copy what you need:
      to their `docs/atdd/` counterparts; CI checks this)
    - `.claude/commands/*.md` and `.claude/agents/*.md` (mirror the `.github/prompts/` and
      `.github/agents/` content — keep the pairs aligned when editing either side)
-   - `.cursor/rules/*.mdc`
-   - `.kiro/steering/*.md`
    - `CLAUDE.md`
    - `AGENTS.md`
-3. Platform adapters that use file references (Kiro's `#[[file:...]]`) pick up changes automatically
-4. Platform adapters that embed summaries need manual syncing
+3. Platform adapters that embed summaries need manual syncing
+4. Keep the `.claude/commands/` ↔ `.github/prompts/` twins aligned — same body, different frontmatter
 
 ### I want to change quality gates or project detection
 
@@ -208,10 +194,8 @@ Only copy what you need:
 2. Update the corresponding platform files:
    - `.github/instructions/quality-gates.instructions.md` or `project-detection.instructions.md`
    - `.github/skills/atdd/references/quality-gates.md` or `project-detection.md`
-   - `.cursor/rules/quality-gates.mdc` or `project-detection.mdc`
-   - `.kiro/steering/quality-gates.md` or `project-detection.md`
 
-### I want to add support for a new IDE
+### I want to add support for another tool
 
 1. Research the IDE's convention for AI configuration files
 2. Create a thin adapter that references `docs/atdd/` content
@@ -225,10 +209,8 @@ Only copy what you need:
 | Platform              | Config Location         | Format                                                    | Auto-loading                                                                         |
 | --------------------- | ----------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | **VS Code (Copilot)** | `.github/`              | `.agent.md`, `.prompt.md`, `.instructions.md`, `SKILL.md` | `instructions.md` via `applyTo`; agents/prompts by user invocation; skills on demand |
-| **Cursor**            | `.cursor/rules/`        | `.mdc` with YAML frontmatter                              | `alwaysApply: true` or by `globs` match                                              |
-| **Kiro**              | `.kiro/steering/`       | `.md` with YAML frontmatter                               | `inclusion: always`, `fileMatch`, `auto`, or `manual`                                |
 | **Claude Code**       | `CLAUDE.md` + `.claude/` | `CLAUDE.md` (always loaded); `commands/*.md` (slash commands); `agents/*.md` (subagents) | `CLAUDE.md` always; commands by user invocation; subagents auto-delegated or on request |
-| **AGENTS.md**         | `AGENTS.md` (repo root) | Markdown                                                  | IDE-dependent (Kiro reads it; others vary)                                           |
+| **AGENTS.md**         | `AGENTS.md` (repo root) | Markdown                                                  | Tool-dependent                                                                       |
 
 ---
 

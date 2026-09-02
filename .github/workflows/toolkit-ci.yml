@@ -60,8 +60,7 @@ jobs:
             .github/prompts/write-spec.prompt.md \
             .github/agents/atdd-cycle.agent.md \
             .github/skills/atdd/SKILL.md \
-            .cursor/rules/atdd-core.mdc \
-            .kiro/steering/atdd-core.md \
+            .claude/commands/archive-change.md \
             .claude/commands/atdd-cycle.md \
             .claude/agents/spec-writer.md \
             CLAUDE.md \

@@ -9,8 +9,6 @@ set -euo pipefail
 # Options:
 #   --all          Install all platform configs (default)
 #   --vscode       Install VS Code (Copilot) config only
-#   --cursor       Install Cursor config only
-#   --kiro         Install Kiro config only
 #   --claude       Install Claude Code config only (CLAUDE.md + .claude/)
 #   --agents       Install AGENTS.md only
 #   --docs-only    Install only docs/ and specs/ (no platform config)
@@ -32,8 +30,6 @@ usage() {
     echo "Options:"
     echo "  --all          Install all platform configs (default)"
     echo "  --vscode       Install VS Code (Copilot) config"
-    echo "  --cursor       Install Cursor config"
-    echo "  --kiro         Install Kiro config"
     echo "  --claude       Install Claude Code config (CLAUDE.md + .claude/)"
     echo "  --agents       Install AGENTS.md"
     echo "  --docs-only    Install only docs/ and specs/"
@@ -46,10 +42,8 @@ usage() {
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --all)        PLATFORMS=(vscode cursor kiro claude agents); shift ;;
+        --all)        PLATFORMS=(vscode claude agents); shift ;;
         --vscode)     PLATFORMS+=(vscode); shift ;;
-        --cursor)     PLATFORMS+=(cursor); shift ;;
-        --kiro)       PLATFORMS+=(kiro); shift ;;
         --claude)     PLATFORMS+=(claude); shift ;;
         --agents)     PLATFORMS+=(agents); shift ;;
         --docs-only)  DOCS_ONLY=true; PLATFORMS=(); shift ;;
@@ -76,7 +70,7 @@ fi
 
 # Default to all platforms if none specified and user didn't request docs-only
 if [[ ${#PLATFORMS[@]} -eq 0 && "$DOCS_ONLY" != "true" ]]; then
-    PLATFORMS=(vscode cursor kiro claude agents)
+    PLATFORMS=(vscode claude agents)
 fi
 
 # Resolve target to absolute path
@@ -196,14 +190,6 @@ EOF
             else
                 echo "  EXISTS .vscode/mcp.json (skipped — use --force to overwrite)"
             fi
-            ;;
-        cursor)
-            echo "Cursor:"
-            copy_dir "$SCRIPT_DIR/.cursor/rules" "$TARGET/.cursor/rules" ".cursor/rules/"
-            ;;
-        kiro)
-            echo "Kiro:"
-            copy_dir "$SCRIPT_DIR/.kiro/steering" "$TARGET/.kiro/steering" ".kiro/steering/"
             ;;
         claude)
             echo "Claude Code:"

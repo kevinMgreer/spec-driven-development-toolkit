@@ -1,7 +1,7 @@
 # ATDD Workflow — The Spec-Driven Development Cycle
 
 This document is the **single source of truth** for the Spec-Driven ATDD cycle.
-All platform configurations (VS Code, Cursor, Kiro, Claude) reference or embed this procedure.
+All platform configurations (VS Code Copilot, Claude Code) reference or embed this procedure.
 
 The toolkit is **language-agnostic** and **platform-agnostic** — it works in any project regardless
 of language, framework, or existing setup (greenfield or legacy).
