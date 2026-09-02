@@ -58,6 +58,6 @@ Non-negotiables, in brief:
 - Phase 3 re-reads `docs/project-profile.md` and mirrors its conventions — no inventing
 - Phase 6 (Spec & Doc Sync) is a **blocking** gate; repair drift in-phase
 - Classify every Phase 6b repair ADDED / MODIFIED / REMOVED; a REMOVED narrows the spec and
-  needs confirmation — never apply one under "update the spec to match the code"
+  needs sign-off, not "match the code"
 
 Do not skip or reorder phases.

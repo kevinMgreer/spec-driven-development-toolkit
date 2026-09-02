@@ -32,24 +32,13 @@ exactly one more stop, immediately before the PR. Never introduce a third.
 
 ## Hard Constraints
 
-- Never write production code before tests are red for the right reason
-- Never modify tests to make them pass; never add logic not demanded by a failing test
-- Never proceed past Phase 1 without explicit user approval of the spec
-- Never write Phase 3 production code without re-reading `docs/project-profile.md` and
-  stating which conventions you will follow
-- Never declare done — or open a PR — while spec, README, profile, or any doc listed under
-  `Sources consulted` in `docs/project-profile.md` has drift; Phase 6 is blocking
-- Always detect stack AND conventions before generating code; always read existing project
-  docs (README, CONTRIBUTING, ARCHITECTURE, ADRs) — they override inference
-- Always prompt for tooling preferences in greenfield projects before writing specs
-- Always run the full test suite after each implementation unit and after every refactor change
+The full list is in `CLAUDE.md` / `AGENTS.md`, already in your context. The two the orchestrator
+enforces at a phase boundary:
 
-### The Test-First Rule (non-negotiable)
-
-The **first files you create after spec approval must be test files**. No DTOs, entities,
-interfaces, services, or repositories before a test file exists. If a missing type prevents
-compilation, add the minimum empty shell (no fields, no logic) needed — nothing more. If the
-test file is not the first Phase 2 artifact, you broke the rule.
+- **Test-first**: the first files created after spec approval must be **test files**. No DTOs,
+  entities, interfaces, services, or repositories before a test file exists. If a missing type
+  blocks compilation, add the minimum empty shell — nothing more.
+- **Phase 6 blocks Phase 7**: no archive, no PR while any drift is unresolved.
 
 ## Cycle
 
@@ -170,28 +159,10 @@ For every doc listed there that could describe the changed behavior, update it o
 with reason. Work through: README → CONTRIBUTING → ARCHITECTURE → ADRs → style guides /
 runbooks → `docs/project-profile.md` → any other consulted doc. Do not skip sources silently.
 
-**6d. Final verification.** Re-run the suite and all quality gates. Produce this report:
-
-```markdown
-## Spec & Doc Sync — <feature>
-
-| Item                            | Status                                    |
-| ------------------------------- | ----------------------------------------- |
-| Spec compliance                 | ✅ Compliant                              |
-| Spec drift repaired             | ✅ N items (A:n M:n R:n) / ⏭️ none found  |
-| Spec weakenings                 | ⏭️ none / ✅ N resolved (see table)       |
-| README updated                  | ✅ \<section\> / ⏭️ not user-visible      |
-| CONTRIBUTING updated            | ✅ \<section\> / ⏭️ no contributor impact |
-| ARCHITECTURE updated            | ✅ \<section\> / ⏭️ no structural change  |
-| ADRs updated                    | ✅ ADR-N added / ⏭️ no new decision       |
-| Style guides / runbooks updated | ✅ \<files\> / ⏭️ none                    |
-| docs/project-profile.md updated | ✅ \<new convention\> / ⏭️ no changes     |
-| Other consulted docs updated    | ✅ \<files\> / ⏭️ none                    |
-| Tests green                     | ✅ N/N                                    |
-| Quality gates                   | ✅ all passing                            |
-```
-
-Do not proceed to Phase 7 (Archive) unless every row is ✅ or has an explicit ⏭️ with reason.
+**6d. Final verification.** Re-run the suite and all quality gates, then produce the **Spec & Doc
+Sync report** — the format is defined in `/verify-spec-coverage`, which owns this gate. Every row
+must be ✅ or an explicit ⏭️ with a reason, and the Spec Weakenings table must be empty or fully
+resolved, before Phase 7 runs.
 
 ## Phase 7 — Archive & Merge
 
@@ -199,21 +170,11 @@ The change is built and verified; now it becomes part of the truth. Merge the de
 capability, then move the change folder to `specs/changes/archive/<YYYY-MM-DD>-<name>/`. This
 runs **before** the PR so the merged capability and the archived change ship together.
 
-Follow the `/archive-change` command in full. Non-negotiables:
+**Run `/archive-change` and follow it in full** — it owns the preflight checks, the merge rules,
+and the guardrails. Orchestration note: a preflight failure is a hard stop in both autonomy
+modes; report it and do not proceed to the PR.
 
-- **Preflight before mutating.** Resolve every delta tag against the capability, check
-  `@modified:` completeness and the merged `@smoke` count, and settle the archive destination first.
-  Any failure leaves the tree untouched.
-- An `@modified:`/`@removed:`/`@renamed:` naming a scenario the capability lacks is an error to
-  report — never a name to guess.
-- A `@modified:` missing a `Then` the capability has is a blocked archive, not a silent narrowing.
-- Strip every delta tag on merge; a capability file never contains one.
-- Do not renumber rules after a removal — gaps are correct.
-- Do not delete a capability without `retire_capability: true`.
-- Idempotent: a second run finds nothing to do and changes nothing.
-
-Report the archive summary table, then re-run the test suite — spec files changed, not code, so
-it must still be green.
+Then re-run the test suite — spec files changed, not code, so it must still be green.
 
 ## Phase 8 — Create PR
 
@@ -221,57 +182,23 @@ it must still be green.
 **Mode (b):** this is the one additional stop. Show the branch name, commit message, and PR
 title you intend to use, and ask: _"Ready to push and open the PR?"_ Then proceed on approval.
 
-1. Determine Git state: current branch, default branch (`main`/`master`), remote.
-2. Create feature branch (if not already on one): `git checkout -b feat/<feature-name>`.
-3. Stage and commit:
-
-   ```
-   feat: <short description>
-
-   Implements specs/capabilities/<domain>/behavior.feature
-   Change archived at specs/changes/archive/<YYYY-MM-DD>-<name>/
-
-   - N scenarios (smoke, happy-path, edge-case, error)
-   - All acceptance tests passing
-   - Quality gates: lint ✅ format ✅ typecheck ✅ build ✅ tests ✅
-   ```
-
-4. Push: `git push -u origin feat/<feature-name>`.
-5. Create the PR with the `gh` CLI (or the GitHub MCP server if available):
-
-   ```bash
-   gh pr create --title "feat: <feature description>" \
-     --body "<spec content + quality gate summary>" --base main
-   ```
-
-   If the project uses an AI reviewer (e.g., Copilot), request it:
-   `gh pr edit <number> --add-reviewer Copilot`.
-
-6. Record the PR number and URL for Phase 9.
-
-Detailed procedure: the `/create-pull-request` command.
+**Run `/create-pull-request`** — it owns the branch, commit, push, and PR-body procedure. Record
+the PR number and URL for Phase 9.
 
 ## Phase 9 — Review + Address Comments
 
 **Mode (a):** run automatically.
 **Mode (b):** run automatically as well — the mode (b) stop was Phase 8. Do not stop again.
 
-1. **Wait for the automated review** (if one was requested) — poll every 60 seconds, up to
-   5 minutes: `gh pr view <number> --json reviews,comments`.
+Poll for the review every 60 seconds, up to 5 minutes
+(`gh pr view <number> --json reviews,comments`). If one arrives, **run
+`/address-review-comments`** — it owns the triage rules and the spec-first protocol for behavior
+changes.
 
-2. **If a review arrives within the timeout**, address all comments:
-   - **Style/naming** → fix in implementation
-   - **Bug fix** → verify with test → fix implementation
-   - **Behavior change** → update spec first → update test → implement → green
-   - **Question** → respond via `gh pr comment`
+If no review lands within the timeout, do not block. Report:
 
-   After all changes: run all quality gates, commit
-   `fix: address review feedback`, push to the same branch.
-
-3. **If no review within 5 minutes**, do not block. Report:
-
-   > "PR created at `<URL>`. The review has been requested but has not yet completed.
-   > When the review is ready, run `/address-review-comments <PR-number>`."
+> "PR created at `<URL>`. The review has been requested but has not yet completed.
+> When the review is ready, run `/address-review-comments <PR-number>`."
 
 ## Completion Summary
 

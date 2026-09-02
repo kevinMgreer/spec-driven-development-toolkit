@@ -38,25 +38,16 @@ Phase 7 merges that delta into the capability once the work is done and verified
    **`proposal.md`** — why, what changes, in scope, out of scope, capability impact.
    Template: `docs/atdd/templates/proposal.template.md`.
 
-   **`delta.feature`** — only the scenarios this change touches. Every scenario carries exactly
-   one delta tag plus its priority tag:
+   **`delta.feature`** — only the scenarios this change touches, each carrying exactly one delta
+   tag. Grammar and rules: `docs/atdd/gherkin.md` § Delta Tags. Template:
+   `docs/atdd/templates/delta.template.feature`.
 
-   | Tag                     | Use when                                          |
-   | ----------------------- | ------------------------------------------------- |
-   | `@added`                | The capability has no such scenario yet           |
-   | `@modified:"<name>"`    | An existing scenario changes                      |
-   | `@removed:"<name>"`     | An existing scenario goes away                    |
-   | `@renamed:"<old name>"` | An existing scenario is retitled                  |
-
-   `@smoke` is capped at **one per capability** — if the capability already has one, do not add
-   another. The `@happy-path` 1–2, `@edge-case` 2–4, `@error` 2–3 budget describes one change's
-   delta, not the accumulated capability, which grows with every change.
-
-   A `@modified:` scenario must carry **every `Then` step the capability already has** for it.
-   Dropping one removes a guarantee — that is a `@removed:`, and needs the user's explicit
-   agreement before you propose it.
-
-   Template: `docs/atdd/templates/delta.template.feature`.
+   Two rules that block the archive if broken, so get them right here:
+   - A `@modified:` must carry **every `Then` step the capability already has** for that scenario.
+     Dropping one removes a guarantee — that is a `@removed:`, and needs the user's explicit
+     agreement before you propose it.
+   - `@smoke` is capped at **one per capability**. If the capability already has one, do not add
+     another.
 
    **`delta-rules.md`** — only the rules this change adds, alters, or removes, grouped under
    ADDED / MODIFIED / REMOVED, keeping the capability's existing numbering. A rule that accepts

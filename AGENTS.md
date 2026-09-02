@@ -42,9 +42,8 @@ unless you have it in recent context.
 
 - Never write production code before acceptance tests exist and fail (red for the right reason)
 - Never modify tests to make them pass — fix the implementation
-- Never narrow the spec without confirmation: classify every Phase 6b repair ADDED / MODIFIED /
-  REMOVED, and treat a REMOVED (a guarantee the spec no longer promises) as a spec weakening
-  that "update the spec to match the code" does not authorize
+- Never narrow the spec without confirmation — classify every Phase 6b repair
+  ADDED / MODIFIED / REMOVED; a REMOVED needs sign-off, not "match the code"
 - Never add logic not demanded by a failing test
 - Always update the spec first when requirements change, then tests, then code
 - Always re-read `docs/project-profile.md` before Phase 3 and mirror its conventions
