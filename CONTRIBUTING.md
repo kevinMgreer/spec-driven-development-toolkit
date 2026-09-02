@@ -26,10 +26,12 @@ spec-driven-development-toolkit/
 │       └── mcp-github.json        #    GitHub MCP server config template
 │
 ├── specs/                         # 📋 Example specs (copy into target project)
-│   ├── features/
-│   │   └── example-task-management.feature
-│   └── technical/
-│       └── example-task-management-spec.md
+│   ├── capabilities/              #    Source of truth, one folder per domain
+│   │   └── task-management/
+│   │       ├── behavior.feature
+│   │       └── rules.md
+│   └── changes/                   #    Work in flight; archive/ holds merged changes
+│       └── archive/
 │
 ├── AGENTS.md                      # 🤖 Universal AI instruction file (AGENTS.md standard)
 ├── CLAUDE.md                      # 🟣 Claude Code / Claude Projects root instruction

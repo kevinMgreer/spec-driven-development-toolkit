@@ -119,14 +119,19 @@ Call `list-specs` at the start of Phase 0 to see existing specs and their ATDD p
 
 ## Phase 1 — Spec
 
-1. If `spec-mcp-server` is available, call `list-specs` and check for an existing spec. If
-   found, `get-spec` it and skip to step 5.
-2. Parse requirements. Ask at most 3 questions if actor, acceptance criteria, or critical
+1. Check `specs/changes/` for an in-flight change covering this work (or call `list-specs` if
+   `spec-mcp-server` is available). If found, read it and skip to step 5.
+2. **Identify the target capability.** List `specs/capabilities/` and pick the domain this change
+   modifies, then read its `behavior.feature` and `rules.md` in full. If none fits, this change
+   creates a capability — note that; every delta scenario will be `@added`.
+3. Parse requirements. Ask at most 3 questions if actor, acceptance criteria, or critical
    error/edge cases are unclear.
-3. Invoke the `spec-writer` subagent with the full requirements context. If `spec-mcp-server`
-   is available, have `spec-writer` use `create-spec` to scaffold files.
-4. Spec-writer produces `specs/features/<name>.feature` and `specs/technical/<name>-spec.md`.
-5. Show the user the created specs.
+4. Invoke the `spec-writer` subagent with the full requirements context. If `spec-mcp-server`
+   is available, have `spec-writer` use `create-spec` to scaffold files. Spec-writer produces the
+   change folder `specs/changes/<name>/` — `proposal.md`, `delta.feature`, `delta-rules.md`,
+   and `tasks.md`.
+5. Show the user the delta, grouped by operation (added / modified / removed / renamed) so the
+   shape of the change reads at a glance.
 6. **MANDATORY GATE — ask for approval and autonomy level together**, in one message. If
    `--auto` was passed, ask only the approval half and proceed in mode (a).
 
@@ -150,7 +155,7 @@ Call `list-specs` at the start of Phase 0 to see existing specs and their ATDD p
 the full procedure.
 
 1. Write the test file first, using detected framework and conventions. One test per scenario.
-   Each body throws a "not implemented" error. Header: `// Spec: specs/features/<name>.feature`.
+   Each body throws a "not implemented" error. Header: `// Spec: specs/capabilities/<domain>/behavior.feature`.
 2. Add minimum empty shells only if needed for compilation (no fields, no logic).
 3. Run the **test command** (not the build command). Every test must fail for the right
    reason (not compile/import errors).
@@ -258,7 +263,7 @@ title you intend to use, and ask: _"Ready to push and open the PR?"_ Then procee
    ```
    feat: <short description>
 
-   Implements specs/features/<name>.feature
+   Implements specs/changes/<name>/delta.feature
 
    - N scenarios (smoke, happy-path, edge-case, error)
    - All acceptance tests passing
@@ -320,8 +325,9 @@ End every run with this table:
 | Phase           | Artifact                         | Status                         |
 | --------------- | -------------------------------- | ------------------------------ |
 | Analysis        | Project profile                  | ✅ `<language>`, `<framework>` |
-| Spec            | `specs/features/<name>.feature`  | ✅ N scenarios                 |
-| Spec            | `specs/technical/<name>-spec.md` | ✅ Created                     |
+| Capability      | `specs/capabilities/<domain>/`        | ✅ Targeted / ✨ Created       |
+| Spec            | `specs/changes/<name>/delta.feature`  | ✅ N scenarios (A:n M:n R:n)   |
+| Spec            | `specs/changes/<name>/delta-rules.md` | ✅ Created                     |
 | Tests           | `<test-file-path>`               | ✅ Red → Green (N/N)           |
 | Implementation  | `<src-file-path(s)>`             | ✅ Implemented                 |
 | Quality Gates   | lint/format/typecheck/build/test | ✅ All passed                  |

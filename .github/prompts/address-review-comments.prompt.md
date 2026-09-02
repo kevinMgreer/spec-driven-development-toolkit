@@ -19,8 +19,8 @@ ${input}
    - **Question** — reviewer asks for clarification (answer in PR comment)
 
 2. **Handle behavior changes** (if any) using the Spec Change Protocol:
-   a. Update `specs/features/<name>.feature` first
-   b. Update `specs/technical/<name>-spec.md` if needed
+   a. Update `specs/changes/<name>/delta.feature` first
+   b. Update `specs/changes/<name>/delta-rules.md` if needed
    c. Update or add test stubs — confirm they are red
    d. Update implementation — confirm all tests are green
    e. Run quality gates

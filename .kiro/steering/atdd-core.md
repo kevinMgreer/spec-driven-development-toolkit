@@ -45,8 +45,8 @@ Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates �
 
 ```
 specs/
-├── features/       # Gherkin .feature files
-└── technical/      # Markdown technical specs
+├── capabilities/   # Source of truth — behavior.feature + rules.md per domain
+└── changes/        # Work in flight — proposal, delta.feature, delta-rules, tasks
 ```
 
 ## Reference

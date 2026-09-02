@@ -17,8 +17,8 @@ Requirements
   0. Analyze Project ──────────► Project profile (language, tools, conventions)
      │
      ▼
-  1. Write Spec ──────────────► specs/features/<name>.feature
-                                  specs/technical/<name>-spec.md
+  1. Write Spec ──────────────► specs/changes/<name>/ (proposal, delta.feature,
+                                  delta-rules.md, tasks.md)
      │  (confirm spec is correct)
      ▼
   2. Generate Tests ───────────► tests/ (step stubs — all RED)
@@ -159,7 +159,21 @@ implementation code without first recording the conventions it will follow. See
 ## Phase 1 — Write the Spec
 
 **Input**: requirements, user story, or feature description  
-**Output**: `specs/features/<name>.feature` + `specs/technical/<name>-spec.md`
+**Output**: a change folder — `specs/changes/<name>/` containing `proposal.md`,
+`delta.feature`, `delta-rules.md`, and `tasks.md`
+
+### Identify the capability first
+
+Before writing anything, decide which capability this change belongs to:
+
+- Read `specs/capabilities/` and pick the domain the change modifies
+- If it modifies more than one, that is usually two changes — split unless they genuinely must
+  ship together
+- If no capability fits, this change **creates** one. Say so explicitly in `proposal.md`; the
+  delta's scenarios will all be `@added` and Phase 7 will create the capability file
+
+Then read that capability's `behavior.feature` and `rules.md` in full. You cannot write a correct
+`@modified:` or `@removed:` tag without knowing what is there.
 
 ### What to Clarify Before Writing
 
@@ -172,19 +186,29 @@ If any of these are unclear, ask before writing (maximum 3 questions):
 
 ### What the Spec Contains
 
-**Feature file** (`specs/features/<name>.feature`):
+**Proposal** (`specs/changes/<name>/proposal.md`):
 
-- `@smoke` (1) — single most critical happy path
-- `@happy-path` (1–2) — primary success flows
-- `@edge-case` (2–4) — boundary conditions, unusual-but-valid inputs
-- `@error` (2–3) — invalid inputs, unauthorized access, system failures
+- Why this change exists, and which capability it targets
+- In scope and out of scope
+- Whether it creates a new capability
 
-**Technical spec** (`specs/technical/<name>-spec.md`):
+**Delta feature** (`specs/changes/<name>/delta.feature`):
 
-- Overview and in-scope/out-of-scope
-- Business rules (numbered, each with a concrete example)
-- API contract (request/response shapes, status codes) if applicable
-- Data constraints (types, required/optional, formats, limits)
+- Only the scenarios this change touches, each carrying exactly one delta tag
+  (`@added`, `@modified:"..."`, `@removed:"..."`, `@renamed:"..."`)
+- Priority tags apply to the **merged** capability: `@smoke` (1 total), `@happy-path` (1–2),
+  `@edge-case` (2–4), `@error` (2–3)
+- Grammar and rules: [Gherkin Conventions § Delta Tags](./gherkin.md#delta-tags)
+
+**Delta rules** (`specs/changes/<name>/delta-rules.md`):
+
+- Only the numbered rules this change adds, alters, or removes — mark each ADDED / MODIFIED /
+  REMOVED, keeping the capability's existing numbering
+- API contract and data constraint changes, if applicable
+
+**Tasks** (`specs/changes/<name>/tasks.md`):
+
+- Implementation checklist, grouped, with `- [ ]` checkboxes
 
 **Confirm with the requester before proceeding.** Spec changes after tests exist are expensive.
 
@@ -219,7 +243,7 @@ Bundling it here keeps the cycle at one mandatory interruption.
 
 ## Phase 2 — Generate Acceptance Tests (Red)
 
-**Input**: `specs/features/<name>.feature`  
+**Input**: `specs/changes/<name>/delta.feature`  
 **Output**: test stubs in the project's test directory — every stub must fail
 
 ### Detect the Test Framework
@@ -237,7 +261,10 @@ Bundling it here keeps the cycle at one mandatory interruption.
 
 Every Gherkin scenario must have a corresponding test stub that:
 
-1. Has a header: `// Spec: specs/features/<name>.feature` (adjust comment syntax per language)
+1. Has a header pointing at the **capability**, not the change:
+   `// Spec: specs/capabilities/<domain>/behavior.feature` (adjust comment syntax per language).
+   The change folder is archived once merged; the test outlives it, so it must reference the
+   durable location
 2. Contains a step definition or test case for every Given / When / Then
 3. Throws an explicit "not implemented" error (`throw new Error("not implemented")`, `pytest.fail("not implemented")`, etc.)
 4. Does **not** silently pass or skip
@@ -471,8 +498,9 @@ Runs automatically in **both** modes — mode (b)'s single stop was Phase 7, so 
 
 When requirements change _after_ tests have been written:
 
-1. Update `specs/features/<name>.feature` first
-2. Update `specs/technical/<name>-spec.md` if rules/contracts changed
+1. Update the spec first — `specs/changes/<name>/delta.feature` while the change is in flight,
+   or `specs/capabilities/<domain>/behavior.feature` if it was already archived
+2. Update `delta-rules.md` (or the capability's `rules.md`) if rules/contracts changed
 3. Update or add test stubs to match the new spec
 4. Confirm new/changed tests are red
 5. Update implementation to pass the new tests
@@ -490,13 +518,32 @@ project profile still describe the old behavior.
 
 ## Spec Directory Layout
 
+Specs are two-tier: **capabilities** hold current truth, **changes** hold work in flight.
+
 ```
 specs/
-├── features/           # Gherkin .feature files (behavior, business-facing)
-│   └── *.feature
-└── technical/          # Markdown technical specs (rules, API contracts, constraints)
-    └── *-spec.md
+├── capabilities/                    # Source of truth — what the system does today
+│   └── <domain>/                    #   e.g. task-management, billing, auth
+│       ├── behavior.feature         #   complete current Gherkin, no delta tags
+│       └── rules.md                 #   numbered business rules and contracts
+└── changes/                         # Proposed modifications, one folder each
+    ├── <change-name>/
+    │   ├── proposal.md              #   why and scope
+    │   ├── delta.feature            #   only the scenarios this change touches
+    │   ├── delta-rules.md           #   only the rules this change touches
+    │   └── tasks.md                 #   implementation checklist
+    └── archive/                     # Merged and preserved
+        └── <YYYY-MM-DD>-<name>/
 ```
+
+**Why two tiers.** With one file per feature, the second change touching a domain produces a
+second file, and nothing says which is authoritative. Phase 6 can verify a file against the code
+but never files against each other, so contradictions between them are structurally invisible.
+Capabilities give every domain exactly one current description; changes stay separate until
+Phase 7 merges them in.
+
+A change never edits a capability file directly. It writes a delta, gets approved, gets built,
+and merges at archive time. Delta grammar: [Gherkin Conventions § Delta Tags](./gherkin.md#delta-tags).
 
 ---
 

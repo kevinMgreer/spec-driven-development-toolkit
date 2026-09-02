@@ -1,11 +1,11 @@
-# Task Management — Technical Spec
+# Task Management — Business Rules
 
-| Field            | Value                                    |
-| ---------------- | ---------------------------------------- |
-| **Status**       | Approved                                 |
-| **Version**      | 1.0                                      |
-| **Feature file** | `specs/features/example-task-management.feature` |
-| **Last updated** | 2026-04-13                               |
+| Field             | Value                                                  |
+| ----------------- | ------------------------------------------------------ |
+| **Status**        | Current                                                |
+| **Capability**    | `task-management`                                      |
+| **Behavior file** | `specs/capabilities/task-management/behavior.feature`  |
+| **Last updated**  | 2026-09-01                                             |
 
 ---
 

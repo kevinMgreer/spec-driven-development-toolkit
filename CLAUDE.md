@@ -38,7 +38,7 @@ Slash commands live in `.claude/commands/`; subagents in `.claude/agents/`.
 | ----------------------------------------- | ------------------------------------------------------------ |
 | `/atdd-cycle`                             | The full cycle: requirements → PR → review. Start here       |
 | `/analyze-project`                        | Phase 0 — detect tooling + conventions; write the profile    |
-| `/write-spec` → `/write-acceptance-tests` | Phase 1–2 — spec (user gate), then failing test stubs        |
+| `/write-spec` → `/write-acceptance-tests` | Phase 1–2 — delta spec (user gate), then failing test stubs  |
 | `/implement-from-spec`                    | Phase 3 — minimum code to green, mirroring the profile       |
 | `/run-quality-gates`                      | Phase 4 — lint/format/typecheck/build/test until green       |
 | `/refactor-passing-tests`                 | Phase 5 — safe refactor, tests stay green                    |

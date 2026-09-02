@@ -83,12 +83,17 @@ Quality Gates → Refactor → Spec & Doc Sync → PR → Review → Address Com
 
 ## Phase 1 — Spec
 
-1. Check `specs/` for an existing spec for this feature; if found, read it and skip to step 4.
-2. Parse requirements. Ask at most 3 questions if actor, acceptance criteria, or critical
-   error/edge cases are unclear.
-3. Invoke the **spec-writer** subagent with the full requirements context. It produces
-   `specs/features/<name>.feature` and `specs/technical/<name>-spec.md`.
-4. Show the user the created specs.
+1. Check `specs/changes/` for an in-flight change covering this work; if found, read it and skip
+   to step 4.
+2. **Identify the target capability.** List `specs/capabilities/` and pick the domain this change
+   modifies, then read its `behavior.feature` and `rules.md` in full. If none fits, this change
+   creates a capability — note that; every delta scenario will be `@added`.
+3. Parse requirements. Ask at most 3 questions if actor, acceptance criteria, or critical
+   error/edge cases are unclear. Then invoke the **spec-writer** subagent with the full context.
+   It produces the change folder `specs/changes/<name>/` — `proposal.md`, `delta.feature`,
+   `delta-rules.md`, and `tasks.md`.
+4. Show the user the delta, grouped by operation (added / modified / removed / renamed) so the
+   shape of the change reads at a glance.
 5. **MANDATORY GATE — ask for approval and autonomy level together**, in one message. If
    `--auto` was passed, ask only the approval half and proceed in mode (a).
 
@@ -110,7 +115,7 @@ Quality Gates → Refactor → Spec & Doc Sync → PR → Review → Address Com
 
 1. Write the test file first, using the profile's framework and conventions. One test per
    scenario. Each body throws a "not implemented" error. Header:
-   `// Spec: specs/features/<name>.feature`.
+   `// Spec: specs/capabilities/<domain>/behavior.feature`.
 2. Add minimum empty shells only if needed for compilation (no fields, no logic).
 3. Run the **test command** (not the build command). Every test must fail for the right
    reason (not compile/import errors).
@@ -201,7 +206,7 @@ title you intend to use, and ask: _"Ready to push and open the PR?"_ Then procee
    ```
    feat: <short description>
 
-   Implements specs/features/<name>.feature
+   Implements specs/changes/<name>/delta.feature
 
    - N scenarios (smoke, happy-path, edge-case, error)
    - All acceptance tests passing
@@ -252,8 +257,9 @@ End every run with this table:
 | Phase           | Artifact                         | Status                         |
 | --------------- | -------------------------------- | ------------------------------ |
 | Analysis        | Project profile                  | ✅ <language>, <framework>     |
-| Spec            | `specs/features/<name>.feature`  | ✅ N scenarios                 |
-| Spec            | `specs/technical/<name>-spec.md` | ✅ Created                     |
+| Capability      | `specs/capabilities/<domain>/`        | ✅ Targeted / ✨ Created       |
+| Spec            | `specs/changes/<name>/delta.feature`  | ✅ N scenarios (A:n M:n R:n)   |
+| Spec            | `specs/changes/<name>/delta-rules.md` | ✅ Created                     |
 | Tests           | `<test-file-path>`               | ✅ Red → Green (N scenarios)   |
 | Implementation  | `<src-file-path(s)>`             | ✅ Implemented                 |
 | Quality Gates   | lint/format/typecheck/build/test | ✅ All passed                  |

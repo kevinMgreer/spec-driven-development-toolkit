@@ -149,10 +149,10 @@ echo ""
 echo "Core (always installed):"
 copy_dir "$SCRIPT_DIR/docs/atdd" "$TARGET/docs/atdd" "docs/atdd/"
 if [[ "$DRY_RUN" == true ]]; then
-    echo "  WOULD ENSURE specs/features/ and specs/technical/ exist"
+    echo "  WOULD ENSURE specs/capabilities/ and specs/changes/archive/ exist"
 else
-    mkdir -p "$TARGET/specs/features" "$TARGET/specs/technical" 2>/dev/null || true
-    echo "  ENSURE specs/features/ and specs/technical/ exist"
+    mkdir -p "$TARGET/specs/capabilities" "$TARGET/specs/changes/archive" 2>/dev/null || true
+    echo "  ENSURE specs/capabilities/ and specs/changes/archive/ exist"
 fi
 
 if [[ "$NO_EXAMPLES" != true ]]; then

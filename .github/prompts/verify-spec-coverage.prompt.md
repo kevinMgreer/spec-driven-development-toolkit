@@ -2,7 +2,7 @@
 description: "Hard spec & doc sync gate. Verifies every scenario has a test, every business rule is enforced, and the spec / README / project profile match the implementation. Fixes any drift in-place — does not just report it."
 agent: agent
 tools: [read, edit, search, execute]
-argument-hint: "Feature name or path to .feature file (e.g. specs/features/user-login.feature)"
+argument-hint: "Feature name or path to .feature file (e.g. specs/changes/add-user-login/delta.feature)"
 ---
 
 Run the **Spec & Doc Sync hard gate** for:
@@ -14,10 +14,10 @@ project profile match what the code now does. The cycle is not done until this g
 
 ## Steps
 
-1. Read `specs/features/<name>.feature`.
-2. Read `specs/technical/<name>-spec.md` if it exists.
+1. Read `specs/changes/<name>/delta.feature`.
+2. Read `specs/changes/<name>/delta-rules.md` if it exists.
 3. Find the test file(s) for this feature (search for the header comment
-   `// Spec: specs/features/<name>.feature` or equivalent, or files named after the feature).
+   `// Spec: specs/capabilities/<domain>/behavior.feature` or equivalent, or files named after the feature).
 4. Find the implementation file(s) exercised by those tests.
 
 ---
@@ -153,7 +153,7 @@ or has an explicit ⏭️ with a reason.
 
 | Drift item | Class    | Repair action taken | Files changed               |
 | ---------- | -------- | ------------------- | --------------------------- |
-| ...        | ADDED    | ...                 | `specs/features/...feature` |
+| ...        | ADDED    | ...                 | `specs/changes/.../delta.feature` |
 
 (or "⏭️ no drift found")
 

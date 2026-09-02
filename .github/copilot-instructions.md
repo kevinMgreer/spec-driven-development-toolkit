@@ -19,8 +19,11 @@ Before writing a spec, tests, code, or running quality gates — including ad-ho
 
 ```
 specs/
-├── features/     # Gherkin .feature files (business-facing scenarios)
-└── technical/    # Markdown technical specs (API contracts, business rules)
+├── capabilities/   # Source of truth — what the system does today
+│   └── <domain>/   #   behavior.feature (no delta tags) + rules.md
+└── changes/        # Work in flight — one folder per change
+    ├── <name>/     #   proposal.md, delta.feature, delta-rules.md, tasks.md
+    └── archive/    #   merged changes, date-prefixed
 ```
 
 ## The ATDD Cycle

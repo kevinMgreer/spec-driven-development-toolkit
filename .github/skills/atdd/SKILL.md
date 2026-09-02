@@ -79,7 +79,7 @@ Per-phase prompt mapping:
 | Phase | Trigger                                    | Key output / gate                                                      |
 | ----- | ------------------------------------------ | ---------------------------------------------------------------------- |
 | 0     | `/analyze-project`                         | `docs/project-profile.md` with Tooling, Conventions, Sources consulted |
-| 1     | `/write-spec` / `@spec-writer`             | `specs/features/*.feature` + `specs/technical/*-spec.md` — USER GATE   |
+| 1     | `/write-spec` / `@spec-writer`             | `specs/changes/<name>/` — proposal, delta, rules, tasks — USER GATE    |
 | 2     | `/write-acceptance-tests`                  | All scenarios have failing stubs; "all red ✓" reported                 |
 | 3     | `/implement-from-spec`                     | Minimum code, mirror profile, `@smoke` first                           |
 | 4     | `/run-quality-gates`                       | lint / format / typecheck / build / test all pass                      |

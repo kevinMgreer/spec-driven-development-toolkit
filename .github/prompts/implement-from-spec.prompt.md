@@ -2,7 +2,7 @@
 description: "Implement production code to make failing acceptance tests pass. Works scenario by scenario in priority order. Only adds code that tests require. Never modifies test files."
 agent: agent
 tools: [read, edit, search, execute]
-argument-hint: "Feature name or path to .feature file (e.g. specs/features/user-login.feature)"
+argument-hint: "Feature name or path to .feature file (e.g. specs/changes/add-user-login/delta.feature)"
 ---
 
 Implement the production code needed to make the failing acceptance tests pass for:
@@ -11,7 +11,7 @@ ${input}
 
 ## Steps
 
-1. Read the `.feature` file and `specs/technical/<name>-spec.md`.
+1. Read the `.feature` file and `specs/changes/<name>/delta-rules.md`.
 
 2. **Read `docs/project-profile.md` — mandatory.** Pay particular attention to:
    - `Conventions` — architecture, error handling, validation, naming, etc.
@@ -31,7 +31,7 @@ ${input}
    This statement is required output — do not skip it.
 
 5. **Check whether acceptance tests exist** — search for a test file that references the feature
-   (look for the header comment `// Spec: specs/features/<name>.feature` or equivalent).
+   (look for the header comment `// Spec: specs/capabilities/<domain>/behavior.feature` or equivalent).
 
    **If no test file exists** — stop and run `/write-acceptance-tests` first:
    - Invoke `/write-acceptance-tests ${input}` to generate, run, and confirm red stubs

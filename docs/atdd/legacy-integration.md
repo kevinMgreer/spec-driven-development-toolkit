@@ -110,7 +110,8 @@ Use whatever convention the team prefers — the toolkit adapts.
 1. Use the existing Cucumber setup — don't create a new one
 2. Add new `.feature` files to the project's existing feature directory
 3. Follow the existing step definition patterns and directory structure
-4. Add `specs/technical/` for technical specs (Gherkin projects rarely have this)
+4. Add `specs/capabilities/<domain>/rules.md` for the numbered rules behind those scenarios
+   (Gherkin projects rarely have this)
 
 ### Project with CI/CD
 

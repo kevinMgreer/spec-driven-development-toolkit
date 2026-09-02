@@ -140,17 +140,42 @@ guide, Gherkin conventions, per-feature checklist, and spec/feature templates.
 
 ### Templates (`docs/atdd/templates/`)
 
-| File                    | Purpose                                             |
-| ----------------------- | --------------------------------------------------- |
-| `feature.template.md`   | Gherkin feature file template                       |
-| `tech-spec.template.md` | Technical spec template                             |
+| File                        | Purpose                                             |
+| --------------------------- | --------------------------------------------------- |
+| `feature.template.md`       | Capability behavior template (current truth)        |
+| `tech-spec.template.md`     | Capability rules template                           |
+| `proposal.template.md`      | Change proposal — why, scope, capability impact     |
+| `delta.template.feature`    | Delta feature — tagged additions, edits, removals   |
+| `delta-rules.template.md`   | Rule deltas — ADDED / MODIFIED / REMOVED            |
+| `tasks.template.md`         | Change task checklist                               |
 | `atdd-ci.yml`           | GitHub Actions CI — quality gates + Copilot review  |
 | `lefthook.yml`          | Git pre-push hooks — local quality gate enforcement |
 | `mcp-github.json`       | GitHub MCP server config for agent-driven PR/review |
 
 ### Example specs (`specs/`)
 
-Working examples of a Gherkin feature file and technical spec you can use as references.
+Specs are two-tier. **Capabilities** hold current truth — one folder per domain, each with a
+complete `behavior.feature` and its numbered `rules.md`. **Changes** hold work in flight — each
+a folder with a proposal, a `delta.feature` describing only what that change adds, alters, or
+removes, its rule deltas, and a task list. A change never edits a capability directly; the delta
+merges in when the work is done, and the change folder moves to `changes/archive/`.
+
+```
+specs/
+├── capabilities/task-management/
+│   ├── behavior.feature       ← everything the system does today
+│   └── rules.md
+└── changes/add-due-dates/
+    ├── proposal.md
+    ├── delta.feature          ← @added / @modified: / @removed: only
+    ├── delta-rules.md
+    └── tasks.md
+```
+
+This is what keeps the spec set from fragmenting: with one file per feature, the second change
+touching a domain leaves two files and no way to tell which is authoritative.
+
+A worked example ships in `specs/capabilities/task-management/`.
 
 ---
 

@@ -19,7 +19,7 @@ Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates �
 | Phase | Name                   | Key gate / deliverable                                                |
 | ----- | ---------------------- | --------------------------------------------------------------------- |
 | 0     | Analyze the Project    | `docs/project-profile.md` (Tooling + Conventions + Sources consulted) |
-| 1     | Write the Spec         | `specs/features/*.feature` + `specs/technical/*-spec.md` — USER GATE  |
+| 1     | Write the Spec         | `specs/changes/<name>/` — proposal, delta, rules, tasks — USER GATE   |
 | 2     | Generate Tests (Red)   | Every scenario has a failing stub; failure is "not implemented"       |
 | 3     | Implement (Green)      | Minimum code per scenario, mirroring profile; `@smoke` first          |
 | 4     | Quality Gates          | Lint / format / typecheck / build / test all pass                     |

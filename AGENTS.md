@@ -61,8 +61,11 @@ unless you have it in recent context.
 
 ```
 specs/
-├── features/       # Gherkin .feature files  — behavior, business-facing
-└── technical/      # Markdown technical specs — rules, API contracts, constraints
+├── capabilities/   # Source of truth — what the system does today
+│   └── <domain>/   #   behavior.feature (no delta tags) + rules.md
+└── changes/        # Work in flight — one folder per change
+    ├── <name>/     #   proposal.md, delta.feature, delta-rules.md, tasks.md
+    └── archive/    #   merged changes, date-prefixed
 ```
 
 Tag convention: `@smoke` (exactly 1) → `@happy-path` (1–2) → `@edge-case` (2–4) →

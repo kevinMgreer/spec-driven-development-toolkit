@@ -15,10 +15,10 @@ apply the repairs yourself.
 
 ## Steps
 
-1. Read `specs/features/<name>.feature`.
-2. Read `specs/technical/<name>-spec.md` if it exists.
+1. Read `specs/changes/<name>/delta.feature`.
+2. Read `specs/changes/<name>/delta-rules.md` if it exists.
 3. Find the test file(s) for this feature (search for the header comment
-   `// Spec: specs/features/<name>.feature` or equivalent, or files named after the feature).
+   `// Spec: specs/capabilities/<domain>/behavior.feature` or equivalent, or files named after the feature).
 4. Find the implementation file(s) exercised by those tests.
 
 ---
@@ -83,7 +83,7 @@ at the Phase 1 spec approval gate:
 - **Mode (b) — check first**: stop on that item and ask. Show what the spec promises today, what
   the code actually does, and which of the two you believe is the mistake:
 
-  > `specs/technical/tasks-spec.md` rule 3 says due dates must be future-dated, and the
+  > `specs/capabilities/task-management/rules.md` rule 3 says due dates must be future-dated, and the
   > implementation accepts same-day dates. Should I narrow the spec to allow same-day, or fix
   > the implementation to reject it?
 
@@ -160,7 +160,7 @@ or has an explicit ⏭️ with a reason.
 
 | Drift item | Class    | Repair action taken | Files changed               |
 | ---------- | -------- | ------------------- | --------------------------- |
-| ...        | ADDED    | ...                 | `specs/features/...feature` |
+| ...        | ADDED    | ...                 | `specs/changes/.../delta.feature` |
 
 (or "⏭️ no drift found")
 

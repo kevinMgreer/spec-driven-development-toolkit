@@ -21,14 +21,18 @@ The orchestrator consumes your report and applies the fixes.
 
 ### 1. Locate Specs
 
-Search `specs/features/` for `.feature` files. If a specific feature is mentioned, review that one.
-Otherwise review the most recently modified feature file.
+Find the change under review in `specs/changes/` — the named one, or the most recently modified.
+Read its `delta.feature`, `delta-rules.md`, and `proposal.md`.
 
-Read the paired technical spec in `specs/technical/` if one exists.
+Then read the capability it targets: `specs/capabilities/<domain>/behavior.feature` and
+`rules.md`. You need both. A `@modified:` scenario is only correct if it carries every `Then`
+the capability already had, and you cannot check that from the delta alone.
+
+If the work has already been archived, review the capability files directly.
 
 ### 2. Locate Tests and Implementation
 
-- Search for test files that reference `// Spec: specs/features/<name>.feature`
+- Search for test files that reference `// Spec: specs/capabilities/<domain>/behavior.feature`
 - Alternatively, search for test files named after the feature
 - Find the implementation file(s) that the tests exercise
 

@@ -15,8 +15,9 @@ Requirements → Spec → Acceptance Tests → Red → Green → Refactor → Re
 ### Spec Phase
 
 - Every feature starts with a spec in `specs/`
-- Gherkin feature files: `specs/features/<name>.feature`
-- Technical specs: `specs/technical/<name>-spec.md`
+- Current truth: `specs/capabilities/<domain>/behavior.feature` + `rules.md`
+- Work in flight: `specs/changes/<name>/` — `proposal.md`, `delta.feature`, `delta-rules.md`,
+  `tasks.md`. A change never edits a capability directly; the delta merges in at Phase 7
 - Specs define **behavior** (what), not implementation (how)
 - Spec is the source of truth; code must match the spec, not the reverse
 
@@ -68,8 +69,9 @@ This is a **blocking** gate. Repair drift in-phase, do not defer.
 
 When requirements change:
 
-1. Update `specs/features/*.feature` first
-2. Update `specs/technical/*-spec.md` if needed
+1. Update the spec first — `specs/changes/<name>/delta.feature` while in flight, or the
+   capability's `behavior.feature` if already archived
+2. Update `delta-rules.md` (or the capability's `rules.md`) if needed
 3. Update or add tests to match the new spec
 4. Confirm new/changed tests are red
 5. Update implementation to pass the new tests

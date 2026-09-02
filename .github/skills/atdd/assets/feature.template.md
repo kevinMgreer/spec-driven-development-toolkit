@@ -1,6 +1,10 @@
-# Gherkin Feature File Template
+# Capability Behavior Template
 
-Copy to `specs/features/<feature-name>.feature` and replace all placeholders.
+Copy to `specs/capabilities/<domain>/behavior.feature` and replace all placeholders.
+
+This is the **source of truth** for a domain — it describes everything the system does there
+today. It never carries delta tags. Changes are written as a delta
+(`delta.template.feature`) and merged in at Phase 7.
 
 ---
 
