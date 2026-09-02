@@ -193,6 +193,6 @@ etc. This gives you a working (partial) implementation at every step.
 
 When opening a pull request, reference the feature file as the description of what was built:
 
-> Implements `specs/changes/add-user-registration/delta.feature`. All 8 scenarios pass.
+> Implements `specs/capabilities/user-registration/behavior.feature`. All 8 scenarios pass.
 
 This makes the spec the review artifact, not the code diff alone.

@@ -228,7 +228,8 @@ title you intend to use, and ask: _"Ready to push and open the PR?"_ Then procee
    ```
    feat: <short description>
 
-   Implements specs/changes/<name>/delta.feature
+   Implements specs/capabilities/<domain>/behavior.feature
+   Change archived at specs/changes/archive/<YYYY-MM-DD>-<name>/
 
    - N scenarios (smoke, happy-path, edge-case, error)
    - All acceptance tests passing
@@ -280,8 +281,7 @@ End every run with this table:
 | --------------- | -------------------------------- | ------------------------------ |
 | Analysis        | Project profile                  | ✅ <language>, <framework>     |
 | Capability      | `specs/capabilities/<domain>/`        | ✅ Targeted / ✨ Created       |
-| Spec            | `specs/changes/<name>/delta.feature`  | ✅ N scenarios (A:n M:n R:n)   |
-| Spec            | `specs/changes/<name>/delta-rules.md` | ✅ Created                     |
+| Spec            | delta merged into the capability      | ✅ N scenarios (A:n M:n R:n)   |
 | Tests           | `<test-file-path>`               | ✅ Red → Green (N scenarios)   |
 | Implementation  | `<src-file-path(s)>`             | ✅ Implemented                 |
 | Quality Gates   | lint/format/typecheck/build/test | ✅ All passed                  |

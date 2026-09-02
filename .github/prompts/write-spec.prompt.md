@@ -7,7 +7,7 @@ argument-hint: "Describe the feature or paste requirements / user story"
 
 Write a complete change spec for the following feature or requirement:
 
-$ARGUMENTS
+${input}
 
 Use the **spec-writer** subagent if available; otherwise follow the steps below directly.
 

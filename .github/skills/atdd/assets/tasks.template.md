@@ -2,7 +2,9 @@
 
 Copy to `specs/changes/<change-name>/tasks.md` and fill in the placeholders.
 
-Phase 7 (Archive) blocks on unchecked boxes, so keep this current as you work.
+Phase 7 (Archive) checks these: in mode (b) it stops and asks before archiving with boxes left
+unchecked, and in mode (a) it reports the count and continues. Either way the count is reported,
+so keep this current as you work.
 
 ---
 

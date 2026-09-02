@@ -35,7 +35,8 @@ ${input}
    ```
    feat: <short description of the feature>
 
-   Implements specs/changes/<name>/delta.feature
+   Implements specs/capabilities/<domain>/behavior.feature
+   Change archived at specs/changes/archive/<YYYY-MM-DD>-<name>/
 
    - N scenarios (smoke, happy-path, edge-case, error)
    - All acceptance tests passing
@@ -61,14 +62,15 @@ ${input}
 ```markdown
 ## Feature: <name>
 
-Implements `specs/changes/<name>/delta.feature`.
+Implements `specs/capabilities/<domain>/behavior.feature`.
 
 ### Artifacts
 
 | Item           | Path                             |
 | -------------- | -------------------------------- |
-| Feature spec   | `specs/changes/<name>/delta.feature`  |
-| Technical spec | `specs/changes/<name>/delta-rules.md` |
+| Capability      | `specs/capabilities/<domain>/behavior.feature` |
+| Rules           | `specs/capabilities/<domain>/rules.md`         |
+| Archived change | `specs/changes/archive/<YYYY-MM-DD>-<name>/`   |
 | Tests          | `<test-file-path>`               |
 | Implementation | `<src-file-path(s)>`             |
 
