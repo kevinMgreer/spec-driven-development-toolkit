@@ -6,9 +6,72 @@ Reference guide for writing `.feature` files in this project.
 
 ## File Conventions
 
-- Location: `specs/features/`
-- Naming: `kebab-case.feature` matching the feature name (e.g. `user-registration.feature`)
-- One feature per file
+`.feature` files live in one of two places, and which one you are editing changes the rules:
+
+| File                                            | Holds                                        | Delta tags |
+| ----------------------------------------------- | -------------------------------------------- | ---------- |
+| `specs/capabilities/<domain>/behavior.feature`  | Current behavior — the source of truth       | Never      |
+| `specs/changes/<name>/delta.feature`            | What one change adds, alters, or removes     | Required   |
+
+- Naming: `kebab-case` domains (e.g. `task-management`) and change names (e.g. `add-due-dates`)
+- One capability per domain folder; one delta per change folder
+- A capability file is complete: it describes everything the system does in that domain today
+- A delta file is partial: it contains only the scenarios the change touches
+
+---
+
+## Delta Tags
+
+A change never edits a capability file directly. It writes a `delta.feature` describing what
+changes, and Phase 7 merges that into the capability. Gherkin has no delta syntax of its own, so
+the operation is carried in tags — which keeps the file valid Gherkin, parseable by ordinary
+Cucumber tooling, and reviewable on its own.
+
+| Tag                       | Meaning                                          | On merge                                    |
+| ------------------------- | ------------------------------------------------ | ------------------------------------------- |
+| `@added`                  | A scenario the capability does not have yet      | Appended to the capability                  |
+| `@modified:"<name>"`      | Replaces the named scenario in the capability    | Replaces that block                         |
+| `@removed:"<name>"`       | Deletes the named scenario from the capability   | Block deleted                               |
+| `@renamed:"<old name>"`   | The named scenario is retitled to this one       | Retitled in place, not reordered            |
+
+```gherkin
+Feature: Task Management
+  # delta for change: add-due-dates
+
+  @added @edge-case
+  Scenario: Task with a past due date is rejected
+    Given I am authenticated as a registered user
+    When I create a task "Buy groceries" due yesterday
+    Then the task should not be created
+    And I should see the error "Due date must be in the future"
+
+  @modified:"Create a new task"
+  @smoke @happy-path
+  Scenario: Create a new task
+    When I create a task with title "Buy groceries" due tomorrow
+    Then the task "Buy groceries" should appear in my task list
+    And the task should be marked as incomplete
+    And the task should show a due date of tomorrow
+
+  @removed:"Delete a task"
+  Scenario: Delete a task
+
+  @renamed:"Complete a task"
+  Scenario: Mark a task complete
+```
+
+### Rules
+
+- Every scenario in a delta carries **exactly one** delta tag, plus its usual priority tag
+- The name in `@modified:`, `@removed:`, and `@renamed:` must match a scenario in the capability
+  **exactly** — a mismatch is an error, not a new scenario
+- A `@modified:` scenario must carry **every `Then` step the capability already has** for it.
+  Dropping one is a removal of a guarantee, and belongs in a `@removed:` with confirmation —
+  see [workflow.md § Phase 6b](./workflow.md#sub-phase-6b--spec-drift-repair-mandatory-if-drift-found)
+- A `@removed:` scenario needs only its `Scenario:` line; steps are optional and ignored
+- Delta tags never appear in a capability file. Phase 7 strips them on merge
+- `@added` scenarios still obey the tag budget of the **merged** capability — adding a second
+  `@smoke` is an error
 
 ---
 

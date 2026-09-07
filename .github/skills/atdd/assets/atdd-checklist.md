@@ -7,12 +7,14 @@ Copy into a PR description, issue, or tracking document.
 
 ## Feature: `<feature name>`
 
-| Item           | Path                             |
-| -------------- | -------------------------------- |
-| Spec file      | `specs/features/<name>.feature`  |
-| Tech spec      | `specs/technical/<name>-spec.md` |
-| Test file      | `<test-file-path>`               |
-| Implementation | `<src-file-path(s)>`             |
+| Item           | Path                                                  |
+| -------------- | ----------------------------------------------------- |
+| Capability     | `specs/capabilities/<domain>/`                        |
+| Change folder  | `specs/changes/<name>/`                               |
+| Delta feature  | `specs/changes/<name>/delta.feature`                  |
+| Delta rules    | `specs/changes/<name>/delta-rules.md`                 |
+| Test file      | `<test-file-path>`                                    |
+| Implementation | `<src-file-path(s)>`                                  |
 
 ---
 
@@ -67,21 +69,25 @@ Copy into a PR description, issue, or tracking document.
 ### Phase 1 — Spec ✍️
 
 - [ ] Actor, goal, and success criteria are clear
-- [ ] `specs/features/<name>.feature` created
-  - [ ] Feature block: `As a / I want / So that`
-  - [ ] 1× `@smoke` scenario (most critical path)
-  - [ ] 1–2× `@happy-path` scenarios
-  - [ ] 2–4× `@edge-case` scenarios
-  - [ ] 2–3× `@error` scenarios
+- [ ] Target capability identified; `behavior.feature` and `rules.md` read in full
+- [ ] `specs/changes/<name>/proposal.md` created (why, scope, capability impact)
+- [ ] `specs/changes/<name>/delta.feature` created
+  - [ ] Every scenario carries exactly one delta tag
+  - [ ] `@modified:` / `@removed:` / `@renamed:` names match the capability exactly
+  - [ ] Every `@modified:` carries all the `Then` steps the capability already had
+  - [ ] Priority tags respect the merged budget (`@smoke` 1 overall, `@happy-path` 1–2,
+        `@edge-case` 2–4, `@error` 2–3)
   - [ ] `Scenario Outline` used for data-driven variations
   - [ ] Steps describe behavior, not implementation
   - [ ] All `Then` values are concrete (no vague placeholders)
-- [ ] `specs/technical/<name>-spec.md` created
-  - [ ] Business rules numbered with examples
+- [ ] `specs/changes/<name>/delta-rules.md` created
+  - [ ] Rules grouped ADDED / MODIFIED / REMOVED, numbering kept stable
+  - [ ] Any relaxation filed under REMOVED, not MODIFIED
   - [ ] API contract documented (if applicable)
   - [ ] Data constraints table filled in
-  - [ ] Out-of-scope explicitly listed
-- [ ] Spec reviewed and confirmed before tests are written
+  - [ ] Out-of-scope explicitly listed in the proposal
+- [ ] `specs/changes/<name>/tasks.md` created
+- [ ] Delta reviewed and approved before tests are written
 
 ---
 
@@ -89,7 +95,7 @@ Copy into a PR description, issue, or tracking document.
 
 - [ ] Test framework identified
 - [ ] Test file created at `<path>`
-  - [ ] Header comment: `// Spec: specs/features/<name>.feature`
+  - [ ] Header comment: `// Spec: specs/capabilities/<domain>/behavior.feature`
   - [ ] Stub for every Given / When / Then in every scenario
   - [ ] Each stub throws a clear "not implemented" error (not silent skip)
 - [ ] Tests executed

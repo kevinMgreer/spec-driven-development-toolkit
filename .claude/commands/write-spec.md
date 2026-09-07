@@ -1,44 +1,81 @@
 ---
-description: Generate a Gherkin feature file and paired technical spec from requirements or a user story. Creates specs/features/<name>.feature and specs/technical/<name>-spec.md, then waits for explicit user approval.
+description: Generate a change folder — proposal, delta feature, delta rules, and tasks — from requirements or a user story. Creates specs/changes/<name>/ describing what changes relative to the capability, then waits for explicit user approval.
 argument-hint: "<feature description, requirements, or user story>"
 ---
 
-Write a complete spec for the following feature or requirement:
+Write a complete change spec for the following feature or requirement:
 
 $ARGUMENTS
 
 Use the **spec-writer** subagent if available; otherwise follow the steps below directly.
+
+A change never edits a capability file directly. It writes a **delta** describing what changes;
+Phase 7 merges that delta into the capability once the work is done and verified.
 
 ## Steps
 
 1. **Read `docs/project-profile.md` — mandatory.** Note the public API style, error format,
    naming conventions, and domain vocabulary. If the profile does not exist, **stop** and run
    `/analyze-project` first — specs that don't match repo vocabulary cause drift.
-2. Search `specs/` for any related existing specs (context and step vocabulary reuse)
-3. Search the codebase for relevant domain terms, existing entities, and naming conventions
-4. Create `specs/features/<kebab-case-name>.feature` with:
-   - Feature block: `As a / I want / So that`
-   - Background block for shared preconditions (only if they apply to all scenarios)
-   - Scenario coverage:
-     - **1** `@smoke` scenario (single most critical happy path)
-     - **1–2** `@happy-path` scenarios (primary success flows)
-     - **2–4** `@edge-case` scenarios (boundaries, unusual-but-valid inputs)
-     - **2–3** `@error` scenarios (invalid input, unauthorized, system failure)
-   - Use `Scenario Outline` for data-driven variations
-5. Create `specs/technical/<kebab-case-name>-spec.md` with:
-   - Overview and scope (in-scope / out-of-scope)
-   - Business rules (numbered, each with an example)
-   - API contract (if applicable)
-   - Data constraints table
-   - Dependencies
 
-Follow `docs/atdd/gherkin.md` and `docs/atdd/spec-writing.md`. Templates:
-`docs/atdd/templates/feature.template.md` and `docs/atdd/templates/tech-spec.template.md`.
+2. **Identify the capability.** List `specs/capabilities/` and pick the domain this change
+   modifies.
+   - If it modifies more than one, that is usually two changes — split them unless they
+     genuinely must ship together.
+   - If none fits, this change **creates** a capability. Say so in `proposal.md`; every delta
+     scenario will be `@added`.
 
-After creating the spec files, present them to the user and ask:
-_"Do these specs look correct? Any changes before I proceed?"_
+3. **Read the capability in full** — `specs/capabilities/<domain>/behavior.feature` and
+   `rules.md`. You cannot write a correct `@modified:` or `@removed:` tag without knowing the
+   exact scenario names that exist. Skip only when creating a new capability.
 
-**Do not generate tests or implementation code.** The spec must be explicitly approved by the user
-before the next phase begins. If the user requests changes, update and re-present until approved.
+4. Search the codebase for relevant domain terms, existing entities, and naming conventions.
 
-Report: paths created, scenario count by tag, any assumptions made.
+5. **Create the change folder** `specs/changes/<kebab-case-name>/` containing:
+
+   **`proposal.md`** — why, what changes, in scope, out of scope, capability impact.
+   Template: `docs/atdd/templates/proposal.template.md`.
+
+   **`delta.feature`** — only the scenarios this change touches. Every scenario carries exactly
+   one delta tag plus its priority tag:
+
+   | Tag                     | Use when                                          |
+   | ----------------------- | ------------------------------------------------- |
+   | `@added`                | The capability has no such scenario yet           |
+   | `@modified:"<name>"`    | An existing scenario changes                      |
+   | `@removed:"<name>"`     | An existing scenario goes away                    |
+   | `@renamed:"<old name>"` | An existing scenario is retitled                  |
+
+   Priority tags count toward the **merged** capability's budget: `@smoke` exactly 1 overall,
+   `@happy-path` 1–2, `@edge-case` 2–4, `@error` 2–3. If the capability already has a `@smoke`,
+   do not add another.
+
+   A `@modified:` scenario must carry **every `Then` step the capability already has** for it.
+   Dropping one removes a guarantee — that is a `@removed:`, and needs the user's explicit
+   agreement before you propose it.
+
+   Template: `docs/atdd/templates/delta.template.feature`.
+
+   **`delta-rules.md`** — only the rules this change adds, alters, or removes, grouped under
+   ADDED / MODIFIED / REMOVED, keeping the capability's existing numbering. A rule that accepts
+   more than before is a relaxation: put it under REMOVED, not MODIFIED.
+   Template: `docs/atdd/templates/delta-rules.template.md`.
+
+   **`tasks.md`** — the implementation checklist.
+   Template: `docs/atdd/templates/tasks.template.md`.
+
+Follow `docs/atdd/gherkin.md` § Delta Tags and `docs/atdd/spec-writing.md`.
+
+## Approval
+
+After creating the change folder, present it to the user and ask:
+_"Does this delta look correct? Any changes before I proceed?"_
+
+Show the delta scenarios grouped by operation so the reviewer sees the shape of the change at a
+glance — what is being added, what is being altered, and anything being removed.
+
+**Do not generate tests or implementation code.** The delta must be explicitly approved before
+the next phase begins. If the user requests changes, update and re-present until approved.
+
+Report: change folder path, capability targeted (or "new capability"), scenario count by delta
+operation and by priority tag, rule deltas by operation, and any assumptions made.

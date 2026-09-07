@@ -14,19 +14,25 @@ The orchestrator consumes your report and applies the fixes.
 - Be specific: cite exact file paths, line numbers, and scenario names
 - Report accurately — a false "compliant" is worse than catching real gaps
 - Drift in README or `docs/project-profile.md` is reportable — flag it
+- Classify each drift item ADDED / MODIFIED / **REMOVED**; a REMOVED is a spec weakening the
+  orchestrator may not apply without confirmation, so never leave one unmarked
 
 ## Review Process
 
 ### 1. Locate Specs
 
-Search `specs/features/` for `.feature` files. If a specific feature is mentioned, review that one.
-Otherwise review the most recently modified feature file.
+Find the change under review in `specs/changes/` — the named one, or the most recently modified.
+Read its `delta.feature`, `delta-rules.md`, and `proposal.md`.
 
-Read the paired technical spec in `specs/technical/` if one exists.
+Then read the capability it targets: `specs/capabilities/<domain>/behavior.feature` and
+`rules.md`. You need both. A `@modified:` scenario is only correct if it carries every `Then`
+the capability already had, and you cannot check that from the delta alone.
+
+If the work has already been archived, review the capability files directly.
 
 ### 2. Locate Tests and Implementation
 
-- Search for test files that reference `// Spec: specs/features/<name>.feature`
+- Search for test files that reference `// Spec: specs/capabilities/<domain>/behavior.feature`
 - Alternatively, search for test files named after the feature
 - Find the implementation file(s) that the tests exercise
 
@@ -104,9 +110,17 @@ Return a structured compliance report:
 
 ### Uncovered / Drifted Behavior
 
-| File    | Logic | Drift type                                | Recommendation          |
-| ------- | ----- | ----------------------------------------- | ----------------------- |
-| src/... | ...   | Implementation supports input not in spec | Add @edge-case scenario |
+Classify every item. **REMOVED** means repairing it the obvious way ("update the spec to match
+the code") would delete a guarantee the spec makes — the orchestrator must not apply those
+without confirmation, so mark them clearly.
+
+| File    | Logic | Drift type                                | Class       | Recommendation          |
+| ------- | ----- | ----------------------------------------- | ----------- | ----------------------- |
+| src/... | ...   | Implementation supports input not in spec | ADDED       | Add @edge-case scenario |
+| src/... | ...   | Rule 3 relaxed — accepts same-day dates   | **REMOVED** | Confirm before narrowing spec |
+
+**The test for REMOVED:** would a test written against the current spec still pass if the spec
+were updated to match the code? If no, it is a spec weakening — class it REMOVED.
 
 ### README Drift
 

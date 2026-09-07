@@ -22,7 +22,8 @@ Before writing a spec, tests, code, or running quality gates — including ad-ho
 ## The Cycle
 
 ```
-Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
+Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor →
+Spec & Doc Sync → Archive → PR → Review
 ```
 
 **Full procedure**: `docs/atdd/workflow.md` (read on demand).
@@ -45,8 +46,8 @@ Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates �
 
 ```
 specs/
-├── features/       # Gherkin .feature files
-└── technical/      # Markdown technical specs
+├── capabilities/   # Source of truth — behavior.feature + rules.md per domain
+└── changes/        # Work in flight — proposal, delta.feature, delta-rules, tasks
 ```
 
 ## Reference

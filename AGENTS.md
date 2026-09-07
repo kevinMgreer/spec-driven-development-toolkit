@@ -28,7 +28,8 @@ Before writing a spec, tests, code, or running quality gates — including ad-ho
 ## The Cycle
 
 ```
-Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
+Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor →
+Spec & Doc Sync → Archive → PR → Review
 ```
 
 Never skip or reorder. **Full procedure for every phase is in
@@ -41,12 +42,16 @@ unless you have it in recent context.
 
 - Never write production code before acceptance tests exist and fail (red for the right reason)
 - Never modify tests to make them pass — fix the implementation
+- Never narrow the spec without confirmation: classify every Phase 6b repair ADDED / MODIFIED /
+  REMOVED, and treat a REMOVED (a guarantee the spec no longer promises) as a spec weakening
+  that "update the spec to match the code" does not authorize
 - Never add logic not demanded by a failing test
 - Always update the spec first when requirements change, then tests, then code
 - Always re-read `docs/project-profile.md` before Phase 3 and mirror its conventions
 - Always read existing project docs (README, CONTRIBUTING, ARCHITECTURE, ADRs) during Phase 0
   — they override inference
-- Never proceed past Phase 1 without explicit user approval of the spec
+- Never proceed past Phase 1 without explicit user approval of the spec — and ask for the
+  autonomy level at that same gate, never as a separate question before it
 - Never declare done while spec, README, `docs/project-profile.md`, or any doc listed under
   `Sources consulted` in the profile has drift — walk the full list in Phase 6c before
   committing (Phase 6 is a blocking gate, not a recommendation)
@@ -57,8 +62,11 @@ unless you have it in recent context.
 
 ```
 specs/
-├── features/       # Gherkin .feature files  — behavior, business-facing
-└── technical/      # Markdown technical specs — rules, API contracts, constraints
+├── capabilities/   # Source of truth — what the system does today
+│   └── <domain>/   #   behavior.feature (no delta tags) + rules.md
+└── changes/        # Work in flight — one folder per change
+    ├── <name>/     #   proposal.md, delta.feature, delta-rules.md, tasks.md
+    └── archive/    #   merged changes, date-prefixed
 ```
 
 Tag convention: `@smoke` (exactly 1) → `@happy-path` (1–2) → `@edge-case` (2–4) →
@@ -81,15 +89,16 @@ be reviewed and updated as part of the change, not as a follow-up. Full protocol
 | Command                    | Purpose                                                        |
 | -------------------------- | -------------------------------------------------------------- |
 | `/analyze-project`         | Detect tooling + conventions; write `docs/project-profile.md`  |
-| `/write-spec`              | Generate Gherkin + technical spec from requirements            |
+| `/write-spec`              | Generate a change folder: proposal, delta, rules, tasks        |
 | `/write-acceptance-tests`  | Generate failing test stubs from a spec                        |
 | `/implement-from-spec`     | Implement code to make failing tests pass                      |
 | `/run-quality-gates`       | Run lint, format, typecheck, build, test — iterate until green |
 | `/refactor-passing-tests`  | Safe refactor with all tests green                             |
 | `/verify-spec-coverage`    | Hard spec & doc sync gate — repairs spec/README/profile drift  |
+| `/archive-change`          | Merge the delta into its capability; archive the change        |
 | `/create-pull-request`     | Create branch, commit, push, open PR                           |
 | `/address-review-comments` | Handle PR review feedback                                      |
-| `@atdd-cycle`              | Full automated cycle from requirements → PR                    |
+| `@atdd-cycle`              | The full cycle: requirements → PR → review. Start here         |
 | `@spec-writer`             | Dedicated spec writing subagent                                |
 | `@spec-reviewer`           | Read-only spec & doc compliance review                         |
 
@@ -108,5 +117,4 @@ Canonical sources — read on demand, not upfront:
 | `docs/atdd/spec-writing.md`                 | How to write clear, testable specifications |
 | `docs/atdd/gherkin.md`                      | Gherkin syntax and anti-patterns            |
 | `docs/atdd/checklist.md`                    | Per-feature progress checklist              |
-| `docs/atdd/templates/feature.template.md`   | Gherkin feature file template               |
-| `docs/atdd/templates/tech-spec.template.md` | Technical spec template                     |
+| `docs/atdd/templates/`                      | Capability, delta, proposal, rules, tasks templates |

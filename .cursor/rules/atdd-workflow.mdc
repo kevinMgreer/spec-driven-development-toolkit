@@ -11,7 +11,8 @@ alwaysApply: false
 ## The Cycle
 
 ```
-Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
+Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor →
+Spec & Doc Sync → Archive → PR → Review
 ```
 
 ## Phase Map
@@ -19,19 +20,23 @@ Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates �
 | Phase | Name                   | Key gate / deliverable                                                |
 | ----- | ---------------------- | --------------------------------------------------------------------- |
 | 0     | Analyze the Project    | `docs/project-profile.md` (Tooling + Conventions + Sources consulted) |
-| 1     | Write the Spec         | `specs/features/*.feature` + `specs/technical/*-spec.md` — USER GATE  |
+| 1     | Write the Spec         | `specs/changes/<name>/` — proposal, delta, rules, tasks — USER GATE   |
 | 2     | Generate Tests (Red)   | Every scenario has a failing stub; failure is "not implemented"       |
 | 3     | Implement (Green)      | Minimum code per scenario, mirroring profile; `@smoke` first          |
 | 4     | Quality Gates          | Lint / format / typecheck / build / test all pass                     |
 | 5     | Refactor               | Structure only, tests stay green, re-run gates                        |
 | 6     | Spec & Doc Sync (Hard) | No drift: spec ↔ code ↔ tests ↔ README ↔ `docs/project-profile.md`    |
-| 7     | PR (optional)          | Feature branch, commit, push; include scenario summary                |
+| 7     | Archive & Merge        | Delta merges into the capability; change folder moves to archive/     |
+| 8     | PR                     | Feature branch, commit, push; include scenario summary                |
+| 9     | Review                 | Address comments; behavior changes update the spec first              |
 
 ## Hard Gates
 
 - **Phase 1 → 2**: explicit user approval of the spec. Iterate until approved.
 - **Phase 2 → 3**: all tests red for the right reason. Print test runner output.
 - **Phase 6 → done**: repair drift in-phase. Do not defer spec / README / profile updates.
+  Classify each repair ADDED / MODIFIED / REMOVED — a REMOVED narrows the spec and needs
+  confirmation; "update the spec to match the code" never authorizes one.
 
 ## Before Phase 3
 

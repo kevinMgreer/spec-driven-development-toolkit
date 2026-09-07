@@ -33,12 +33,17 @@ $ARGUMENTS
    ```
    feat: <short description of the feature>
 
-   Implements specs/features/<name>.feature
+   Implements specs/capabilities/<domain>/behavior.feature
+   Change archived at specs/changes/archive/<YYYY-MM-DD>-<name>/
 
    - N scenarios (smoke, happy-path, edge-case, error)
    - All acceptance tests passing
    - Quality gates: lint ✅ format ✅ typecheck ✅ build ✅ tests ✅
    ```
+
+   Reference the **capability**, not the change folder: Phase 7 archived the change before this
+   phase ran, so `specs/changes/<name>/` no longer exists. The capability is where the behavior
+   now lives; the archive path is the audit trail.
 
 5. **Push** the branch:
 
@@ -59,16 +64,17 @@ $ARGUMENTS
 ```markdown
 ## Feature: <name>
 
-Implements `specs/features/<name>.feature`.
+Implements `specs/capabilities/<domain>/behavior.feature`.
 
 ### Artifacts
 
-| Item           | Path                             |
-| -------------- | -------------------------------- |
-| Feature spec   | `specs/features/<name>.feature`  |
-| Technical spec | `specs/technical/<name>-spec.md` |
-| Tests          | `<test-file-path>`               |
-| Implementation | `<src-file-path(s)>`             |
+| Item           | Path                                                  |
+| -------------- | ----------------------------------------------------- |
+| Capability     | `specs/capabilities/<domain>/behavior.feature`        |
+| Rules          | `specs/capabilities/<domain>/rules.md`                |
+| Archived change| `specs/changes/archive/<YYYY-MM-DD>-<name>/`          |
+| Tests          | `<test-file-path>`                                    |
+| Implementation | `<src-file-path(s)>`                                  |
 
 ### Scenario Summary
 

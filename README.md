@@ -16,7 +16,8 @@ Works with **VS Code (Copilot) · Cursor · Kiro · Claude Code** — and any to
 > Never write production code unless a failing acceptance test requires it.
 
 ```
-Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
+Analyze → Spec → Tests (Red) → Implementation (Green) → Quality Gates → Refactor →
+Spec & Doc Sync → Archive → PR → Review
 ```
 
 Feed requirements to the AI. It writes the spec (you approve). Then everything from test generation
@@ -64,20 +65,22 @@ Always include `docs/` and `specs/` — platform configs reference `docs/` for t
 
 ### 2. Use it
 
-**VS Code (Copilot)** — choose your automation level:
-
-| Mode                 | Agent                    | What stops for human input                                                             |
-| -------------------- | ------------------------ | -------------------------------------------------------------------------------------- |
-| **Supervised**       | `@atdd-cycle`            | Spec approval + asks before PR                                                         |
-| **Fully autonomous** | `@full-autonomous-cycle` | Spec approval only — then hands-off through PR, Copilot review, and comment resolution |
+**VS Code (Copilot)** — one agent, `@atdd-cycle`:
 
 ```
 @atdd-cycle Implement a user login feature with email/password authentication
 that locks accounts after 5 failed attempts within 15 minutes
-
-@full-autonomous-cycle Implement a user login feature with email/password authentication
-that locks accounts after 5 failed attempts within 15 minutes
 ```
+
+You choose the automation level at the spec approval gate — the one stop that already exists —
+so there is nothing extra to decide up front:
+
+| Mode                | What happens after spec approval                                    |
+| ------------------- | -------------------------------------------------------------------- |
+| **(a) Hands-off**   | Runs through PR creation and review resolution without stopping     |
+| **(b) Check first** | Stops once before opening the PR, then finishes                      |
+
+Pass `--auto` to skip the question and go straight to hands-off.
 
 Or step by step with slash commands:
 
@@ -85,14 +88,14 @@ Or step by step with slash commands:
 /analyze-project        → detect project stack
 /write-spec             → /write-acceptance-tests → /implement-from-spec
 /run-quality-gates      → /refactor-passing-tests → /verify-spec-coverage
-/create-pull-request    → /address-review-comments
+/archive-change         → /create-pull-request → /address-review-comments
 ```
 
-**Claude Code** — same two levels, as slash commands:
+**Claude Code** — the same single command:
 
 ```
 /atdd-cycle Implement a user login feature with email/password authentication
-/full-autonomous-cycle Implement a user login feature with email/password authentication
+/atdd-cycle --auto Implement a user login feature with email/password authentication
 ```
 
 **Cursor / Kiro** — describe what you want to build. The AI reads the ATDD rules automatically.
@@ -138,17 +141,43 @@ guide, Gherkin conventions, per-feature checklist, and spec/feature templates.
 
 ### Templates (`docs/atdd/templates/`)
 
-| File                    | Purpose                                             |
-| ----------------------- | --------------------------------------------------- |
-| `feature.template.md`   | Gherkin feature file template                       |
-| `tech-spec.template.md` | Technical spec template                             |
-| `atdd-ci.yml`           | GitHub Actions CI — quality gates + Copilot review  |
-| `lefthook.yml`          | Git pre-push hooks — local quality gate enforcement |
-| `mcp-github.json`       | GitHub MCP server config for agent-driven PR/review |
+| File                        | Purpose                                             |
+| --------------------------- | --------------------------------------------------- |
+| `feature.template.md`       | Capability behavior template (current truth)        |
+| `tech-spec.template.md`     | Capability rules template                           |
+| `proposal.template.md`      | Change proposal — why, scope, capability impact     |
+| `delta.template.feature`    | Delta feature — tagged additions, edits, removals   |
+| `delta-rules.template.md`   | Rule deltas — ADDED / MODIFIED / REMOVED            |
+| `tasks.template.md`         | Change task checklist                               |
+| `atdd-metadata.template.yaml` | Change metadata — skip_specs, retire, weakenings  |
+| `atdd-ci.yml`               | GitHub Actions CI — quality gates + Copilot review  |
+| `lefthook.yml`              | Git pre-push hooks — local quality gate enforcement |
+| `mcp-github.json`           | GitHub MCP server config for agent-driven PR/review |
 
 ### Example specs (`specs/`)
 
-Working examples of a Gherkin feature file and technical spec you can use as references.
+Specs are two-tier. **Capabilities** hold current truth — one folder per domain, each with a
+complete `behavior.feature` and its numbered `rules.md`. **Changes** hold work in flight — each
+a folder with a proposal, a `delta.feature` describing only what that change adds, alters, or
+removes, its rule deltas, and a task list. A change never edits a capability directly; the delta
+merges in when the work is done, and the change folder moves to `changes/archive/`.
+
+```
+specs/
+├── capabilities/task-management/
+│   ├── behavior.feature       ← everything the system does today
+│   └── rules.md
+└── changes/add-due-dates/
+    ├── proposal.md
+    ├── delta.feature          ← @added / @modified: / @removed: only
+    ├── delta-rules.md
+    └── tasks.md
+```
+
+This is what keeps the spec set from fragmenting: with one file per feature, the second change
+touching a domain leaves two files and no way to tell which is authoritative.
+
+A worked example ships in `specs/capabilities/task-management/`.
 
 ---
 

@@ -19,14 +19,18 @@ Before writing a spec, tests, code, or running quality gates — including ad-ho
 
 ```
 specs/
-├── features/     # Gherkin .feature files (business-facing scenarios)
-└── technical/    # Markdown technical specs (API contracts, business rules)
+├── capabilities/   # Source of truth — what the system does today
+│   └── <domain>/   #   behavior.feature (no delta tags) + rules.md
+└── changes/        # Work in flight — one folder per change
+    ├── <name>/     #   proposal.md, delta.feature, delta-rules.md, tasks.md
+    └── archive/    #   merged changes, date-prefixed
 ```
 
 ## The ATDD Cycle
 
 ```
-Analyze → Spec → Tests (Red) → Implement (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
+Analyze → Spec → Tests (Red) → Implement (Green) → Quality Gates → Refactor →
+Spec & Doc Sync → Archive → PR → Review
 ```
 
 Full procedure: **[`docs/atdd/workflow.md`](../docs/atdd/workflow.md)** (read on demand).
@@ -42,12 +46,14 @@ Full procedure: **[`docs/atdd/workflow.md`](../docs/atdd/workflow.md)** (read on
   conclusions — they override inference
 - Phase 6 (Spec & Doc Sync) is a **blocking** gate that repairs drift in-phase —
   includes `README.md` and `docs/project-profile.md` updates
+- Phase 6b classifies every repair ADDED / MODIFIED / REMOVED; a REMOVED narrows the spec and
+  needs confirmation — never apply one under "update the spec to match the code"
 
 ## Commands & Agents
 
 | Trigger                    | Purpose                                                          |
 | -------------------------- | ---------------------------------------------------------------- |
-| `@atdd-cycle`              | Full automated cycle from requirements → PR                      |
+| `@atdd-cycle`              | The full cycle: requirements → PR → review. Start here            |
 | `@spec-writer`             | Write Gherkin + technical spec                                   |
 | `@spec-reviewer`           | Read-only spec & doc compliance review                           |
 | `/analyze-project`         | Detect tooling + conventions; write `docs/project-profile.md`    |
@@ -57,6 +63,7 @@ Full procedure: **[`docs/atdd/workflow.md`](../docs/atdd/workflow.md)** (read on
 | `/run-quality-gates`       | Run lint/format/typecheck/build/test until green                 |
 | `/refactor-passing-tests`  | Safe refactor after green                                        |
 | `/verify-spec-coverage`    | Hard spec & doc sync gate (repairs drift in-place)               |
+| `/archive-change`          | Merge the delta into its capability; archive the change         |
 | `/create-pull-request`     | Create branch, commit, push, open PR                             |
 | `/address-review-comments` | Handle PR review feedback                                        |
 

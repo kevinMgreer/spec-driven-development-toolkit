@@ -118,14 +118,14 @@ Copy-Directory "$ScriptDir\docs\atdd" "$Target\docs\atdd" "docs/atdd/"
 
 # Ensure specs directories exist
 if ($DryRun) {
-    Write-Host "  WOULD ENSURE specs/features/ and specs/technical/ exist" -ForegroundColor Cyan
+    Write-Host "  WOULD ENSURE specs/capabilities/ and specs/changes/archive/ exist" -ForegroundColor Cyan
 } else {
-    @("$Target\specs\features", "$Target\specs\technical") | ForEach-Object {
+    @("$Target\specs\capabilities", "$Target\specs\changes\archive") | ForEach-Object {
         if (-not (Test-Path $_)) {
             New-Item -ItemType Directory -Path $_ -Force | Out-Null
         }
     }
-    Write-Host "  ENSURE specs/features/ and specs/technical/ exist" -ForegroundColor Green
+    Write-Host "  ENSURE specs/capabilities/ and specs/changes/archive/ exist" -ForegroundColor Green
 }
 
 if (-not $NoExamples) {
