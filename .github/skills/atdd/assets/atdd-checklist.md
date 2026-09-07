@@ -75,8 +75,8 @@ Copy into a PR description, issue, or tracking document.
   - [ ] Every scenario carries exactly one delta tag
   - [ ] `@modified:` / `@removed:` / `@renamed:` names match the capability exactly
   - [ ] Every `@modified:` carries all the `Then` steps the capability already had
-  - [ ] Priority tags respect the merged budget (`@smoke` 1 overall, `@happy-path` 1–2,
-        `@edge-case` 2–4, `@error` 2–3)
+  - [ ] Capability still has exactly one `@smoke` after merge
+  - [ ] Delta stays near `@happy-path` 1–2, `@edge-case` 2–4, `@error` 2–3 (guidance, not a gate)
   - [ ] `Scenario Outline` used for data-driven variations
   - [ ] Steps describe behavior, not implementation
   - [ ] All `Then` values are concrete (no vague placeholders)
@@ -178,10 +178,28 @@ Copy into a PR description, issue, or tracking document.
 
 ---
 
-### Phase 7 — PR 🚀 (Optional)
+### Phase 7 — Archive & Merge 📦
+
+- [ ] Preflight passed (delta tags resolve, `@modified:` complete, one `@smoke`, destination free)
+- [ ] Delta merged into `specs/capabilities/<domain>/behavior.feature`
+- [ ] Rule deltas merged into `rules.md`, numbering stable (gaps kept after a removal)
+- [ ] **No delta tags remain** in the capability file
+- [ ] Change folder moved to `specs/changes/archive/<YYYY-MM-DD>-<name>/`
+- [ ] Test suite re-run after the merge — still green
+
+---
+
+### Phase 8 — PR 🚀
 
 - [ ] Feature branch created: `feat/<name>`
-- [ ] Changes committed with meaningful message referencing the spec
+- [ ] Changes committed with meaningful message referencing the change
 - [ ] Pushed to remote
-- [ ] PR created with spec, quality gate results, and scenario summary
+- [ ] PR created with proposal, quality gate results, and scenario summary
 - [ ] PR approved
+
+---
+
+### Phase 9 — Review 💬
+
+- [ ] Review comments addressed (behavior changes updated the spec first)
+- [ ] Quality gates re-run and pushed

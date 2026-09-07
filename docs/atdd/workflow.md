@@ -1,7 +1,7 @@
 # ATDD Workflow — The Spec-Driven Development Cycle
 
 This document is the **single source of truth** for the Spec-Driven ATDD cycle.
-All platform configurations (VS Code, Cursor, Kiro, Claude) reference or embed this procedure.
+All platform configurations (VS Code Copilot, Claude Code) reference or embed this procedure.
 
 The toolkit is **language-agnostic** and **platform-agnostic** — it works in any project regardless
 of language, framework, or existing setup (greenfield or legacy).
@@ -483,19 +483,9 @@ the rule deltas into `rules.md`, then move the change folder to
 This runs **before** the PR so the merged capability and the archived change ship together —
 otherwise archiving needs a pull request of its own.
 
-Key guarantees, in full in the `/archive-change` command:
-
-- **Preflight before mutating.** Resolve every delta tag against the capability, check
-  `@modified:` completeness and the merged tag budget, and settle the archive destination first.
-  Any failure leaves the tree untouched — a half-merged capability is worse than a refused archive.
-- **No guessing.** An `@modified:`/`@removed:`/`@renamed:` naming a scenario the capability does
-  not have is an error to report, not an intent to infer.
-- **No silent narrowing.** A `@modified:` missing a `Then` the capability has is a blocked
-  archive.
-- **No stacked date prefixes** on a change name that already carries one.
-- **No stray delta tags** left in a capability file.
-- **No capability deletion** without `retire_capability: true` in the change's `.atdd.yaml`.
-- **Idempotent.** Running it twice produces an identical tree.
+The `/archive-change` command owns this phase — its preflight checks, merge rules, and
+guardrails. The governing principle: **preflight fully before mutating anything**, because a
+half-merged capability is worse than a refused archive.
 
 ## Phase 8 — PR
 

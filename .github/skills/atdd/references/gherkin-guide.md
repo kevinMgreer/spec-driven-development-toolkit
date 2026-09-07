@@ -70,8 +70,9 @@ Feature: Task Management
   see [workflow.md § Phase 6b](./workflow.md#sub-phase-6b--spec-drift-repair-mandatory-if-drift-found)
 - A `@removed:` scenario needs only its `Scenario:` line; steps are optional and ignored
 - Delta tags never appear in a capability file. Phase 7 strips them on merge
-- `@added` scenarios still obey the tag budget of the **merged** capability — adding a second
-  `@smoke` is an error
+- A capability has **exactly one** `@smoke`. Adding a second is an error the archive blocks.
+  The `@happy-path` 1–2, `@edge-case` 2–4, `@error` 2–3 budget describes **one delta** — a
+  capability accumulates scenarios across many changes, so those counts grow and are not capped
 
 ---
 

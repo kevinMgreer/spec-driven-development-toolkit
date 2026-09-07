@@ -4,7 +4,7 @@ A **language-agnostic, IDE-agnostic** toolkit for spec-first **Acceptance Test-D
 Drop it into any project — greenfield or legacy, any language, any framework — to enable structured
 AI-assisted development with automated quality gates throughout.
 
-Works with **VS Code (Copilot) · Cursor · Kiro · Claude Code** — and any tool that reads `AGENTS.md`.
+Works with **VS Code (Copilot)** and **Claude Code** — and any tool that reads `AGENTS.md`.
 
 > **Companion:** [spec-mcp-server](https://github.com/kevinMgreer/spec-mcp-server) — an MCP server
 > that exposes your `specs/` directory to AI assistants directly.
@@ -38,13 +38,13 @@ Full procedure: [docs/atdd/workflow.md](docs/atdd/workflow.md)
 ./install.sh /path/to/your-project
 
 # macOS / Linux — specific platforms
-./install.sh /path/to/your-project --vscode --cursor
+./install.sh /path/to/your-project --vscode --claude
 
 # Windows PowerShell — all platforms
 .\install.ps1 -Target C:\repos\your-project
 
 # Windows PowerShell — specific platforms
-.\install.ps1 -Target C:\repos\your-project -Platforms vscode,cursor
+.\install.ps1 -Target C:\repos\your-project -Platforms vscode,claude
 
 # Dry run — see what would be copied
 ./install.sh /path/to/your-project --dry-run
@@ -55,10 +55,8 @@ Full procedure: [docs/atdd/workflow.md](docs/atdd/workflow.md)
 | Your IDE               | Copy these                                          |
 | ---------------------- | --------------------------------------------------- |
 | **VS Code (Copilot)**  | `.github/`, `docs/`, `specs/`                       |
-| **Cursor**             | `.cursor/`, `docs/`, `specs/`                       |
-| **Kiro**               | `.kiro/`, `docs/`, `specs/`                         |
 | **Claude Code**        | `CLAUDE.md`, `.claude/`, `docs/`, `specs/`          |
-| **Multiple IDEs**      | Everything (see [CONTRIBUTING.md](CONTRIBUTING.md)) |
+| **Both**               | Everything (see [CONTRIBUTING.md](CONTRIBUTING.md)) |
 | **Any AGENTS.md tool** | `AGENTS.md`, `docs/`, `specs/`                      |
 
 Always include `docs/` and `specs/` — platform configs reference `docs/` for the full procedures.
@@ -98,8 +96,6 @@ Or step by step with slash commands:
 /atdd-cycle --auto Implement a user login feature with email/password authentication
 ```
 
-**Cursor / Kiro** — describe what you want to build. The AI reads the ATDD rules automatically.
-
 ### 3. Enable full autonomy (optional one-time setup)
 
 For hands-off PR creation and Copilot review, set up these once per project:
@@ -134,8 +130,6 @@ guide, Gherkin conventions, per-feature checklist, and spec/feature templates.
 | Platform           | Directory                | What's there                                      |
 | ------------------ | ------------------------ | ------------------------------------------------- |
 | VS Code (Copilot)  | `.github/`               | Agents, instructions, prompts, CI workflow, skill |
-| Cursor             | `.cursor/rules/`         | `.mdc` rules, auto-applied per context            |
-| Kiro               | `.kiro/steering/`        | Steering docs with include-mode metadata          |
 | Claude Code        | `.claude/` + `CLAUDE.md` | Commands and subagents                            |
 | Any AGENTS.md tool | `AGENTS.md`              | Universal rules and command reference             |
 
@@ -184,20 +178,20 @@ A worked example ships in `specs/capabilities/task-management/`.
 ## How the Architecture Works
 
 ```
-docs/atdd/                       ← Single source of truth (Markdown)
-  ┌────────┬────────┬────────┬──────────┬──────────┬──────────────┐
-  ▼        ▼        ▼        ▼          ▼          ▼              ▼
-.github/ .cursor/ .kiro/  .claude/ + CLAUDE.md  AGENTS.md   (future IDEs)
-VS Code  Cursor   Kiro    Claude Code            Universal
+docs/atdd/                    ← Single source of truth (Markdown)
+  ┌───────────────┬───────────────────────┬──────────────┐
+  ▼               ▼                       ▼              ▼
+.github/     .claude/ + CLAUDE.md     AGENTS.md     (future tools)
+VS Code      Claude Code              Universal
 ```
 
-The real knowledge lives in `docs/atdd/`. Each IDE gets a thin adapter that references or embeds
-the essential rules with pointers to the full docs. Update content in one place; all platforms
+The real knowledge lives in `docs/atdd/`. Each tool gets a thin adapter that references or embeds
+the essential rules with pointers to the full docs. Update content in one place; both platforms
 stay in sync.
 
 ---
 
 ## Requirements
 
-- Any AI-powered IDE: VS Code + Copilot, Cursor, Kiro, Claude Code, or similar
+- VS Code with Copilot, or Claude Code (or any tool that reads `AGENTS.md`)
 - The AI must have file read/write access (agent or agentic mode)

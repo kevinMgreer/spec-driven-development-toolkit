@@ -80,10 +80,10 @@ A `@modified:` scenario must carry **every `Then` step the capability already ha
 Dropping one removes a guarantee — that is a `@removed:`, and you must flag it for confirmation
 rather than proposing it silently.
 
-Priority tags count toward the **merged** capability's budget, not the delta's:
+`@smoke` is capped at **one per capability** — if the capability already has one, do not add
+another. The rest of the budget describes this delta, not the accumulated capability:
 
-- **1** `@smoke` overall — if the capability already has one, do not add another
-- **1–2** `@happy-path`, **2–4** `@edge-case`, **2–3** `@error`
+- **1–2** `@happy-path`, **2–4** `@edge-case`, **2–3** `@error` for this change
 - Use `Scenario Outline` for data-driven tests (multiple input variations)
 
 ### 5. Write the Delta Rules and Tasks
@@ -95,21 +95,14 @@ Only the rules this change touches, grouped ADDED / MODIFIED / REMOVED, keeping 
 existing numbering. A rule that accepts more than before is a relaxation: file it under REMOVED,
 not MODIFIED, and flag it for confirmation.
 
-Then write `specs/changes/<kebab-case-name>/tasks.md` from
-`docs/atdd/templates/tasks.template.md`.
+Include API contract and data constraint changes. Then write
+`specs/changes/<kebab-case-name>/tasks.md` from `docs/atdd/templates/tasks.template.md`.
 
-Include:
-
-- Overview and scope (in-scope / out-of-scope)
-- Business rules (numbered, each with an example)
-- API contract (request/response shapes, status codes) if applicable
-- Data constraints (types, required/optional, formats, limits)
-- Dependencies
-
-### 5. Output
+### 6. Output
 
 Report what was created:
 
-- Path to `.feature` file with scenario count (breakdown by tag)
-- Path to technical spec
+- Change folder path, and the capability targeted (or "new capability")
+- Scenario count by delta operation (added / modified / removed / renamed) and by priority tag
+- Rule deltas by operation
 - Any assumptions made or open questions remaining

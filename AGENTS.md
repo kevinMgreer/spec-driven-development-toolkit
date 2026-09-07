@@ -5,7 +5,7 @@ This project uses **spec-first Acceptance Test-Driven Development (ATDD)**.
 > **Golden Rule:** Never write production code unless a failing acceptance test requires it.
 
 Language-agnostic, platform-agnostic. Works in any project — greenfield or legacy. Follows
-the [AGENTS.md](https://agents.md/) standard and is read by Kiro, Copilot, Cursor, Claude, and
+the [AGENTS.md](https://agents.md/) standard and is read by Copilot, Claude, and
 any AGENTS.md-aware tool.
 
 ---
@@ -42,9 +42,8 @@ unless you have it in recent context.
 
 - Never write production code before acceptance tests exist and fail (red for the right reason)
 - Never modify tests to make them pass — fix the implementation
-- Never narrow the spec without confirmation: classify every Phase 6b repair ADDED / MODIFIED /
-  REMOVED, and treat a REMOVED (a guarantee the spec no longer promises) as a spec weakening
-  that "update the spec to match the code" does not authorize
+- Never narrow the spec without confirmation — classify every Phase 6b repair
+  ADDED / MODIFIED / REMOVED; a REMOVED needs sign-off, not "match the code"
 - Never add logic not demanded by a failing test
 - Always update the spec first when requirements change, then tests, then code
 - Always re-read `docs/project-profile.md` before Phase 3 and mirror its conventions
@@ -69,8 +68,9 @@ specs/
     └── archive/    #   merged changes, date-prefixed
 ```
 
-Tag convention: `@smoke` (exactly 1) → `@happy-path` (1–2) → `@edge-case` (2–4) →
-`@error` (2–3).
+Tag convention: `@smoke` exactly 1 per **capability** (enforced at archive). `@happy-path` (1–2),
+`@edge-case` (2–4), `@error` (2–3) describe **one delta** — a capability's counts grow with every
+change and are not capped.
 
 ---
 

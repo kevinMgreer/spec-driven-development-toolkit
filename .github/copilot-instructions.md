@@ -47,7 +47,7 @@ Full procedure: **[`docs/atdd/workflow.md`](../docs/atdd/workflow.md)** (read on
 - Phase 6 (Spec & Doc Sync) is a **blocking** gate that repairs drift in-phase —
   includes `README.md` and `docs/project-profile.md` updates
 - Phase 6b classifies every repair ADDED / MODIFIED / REMOVED; a REMOVED narrows the spec and
-  needs confirmation — never apply one under "update the spec to match the code"
+  needs sign-off, not "match the code"
 
 ## Commands & Agents
 

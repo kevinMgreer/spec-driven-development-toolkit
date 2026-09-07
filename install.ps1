@@ -6,7 +6,7 @@
 # Examples:
 #   .\install.ps1 -Target C:\repos\my-project
 #   .\install.ps1 -Target ..\my-project -Platforms vscode
-#   .\install.ps1 -Target ..\my-project -Platforms vscode,cursor -NoExamples
+#   .\install.ps1 -Target ..\my-project -Platforms vscode,claude -NoExamples
 #   .\install.ps1 -Target ..\my-project -DryRun
 
 [CmdletBinding()]
@@ -14,7 +14,7 @@ param(
     [Parameter(Mandatory = $true, Position = 0)]
     [string]$Target,
 
-    [ValidateSet('all', 'vscode', 'cursor', 'kiro', 'claude', 'agents', 'docs-only')]
+    [ValidateSet('all', 'vscode', 'claude', 'agents', 'docs-only')]
     [string[]]$Platforms = @('all'),
 
     [switch]$NoExamples,
@@ -35,12 +35,13 @@ if (-not $Target) {
     $Target = (Resolve-Path $Target).Path
 }
 
-# Expand 'all' to all platforms
-if ($Platforms -contains 'all') {
-    $Platforms = @('vscode', 'cursor', 'kiro', 'claude', 'agents')
-}
+# 'docs-only' wins over every other value, so test it before 'all' expands and overwrites the
+# array — otherwise `-Platforms all,docs-only` loses the docs-only marker and installs platforms.
 if ($Platforms -contains 'docs-only') {
     $Platforms = @()
+}
+elseif ($Platforms -contains 'all') {
+    $Platforms = @('vscode', 'claude', 'agents')
 }
 
 function Copy-Directory {
@@ -170,14 +171,6 @@ foreach ($platform in $Platforms) {
             } else {
                 Write-Host "  EXISTS .vscode/mcp.json (skipped - use -Force to overwrite)" -ForegroundColor Yellow
             }
-        }
-        'cursor' {
-            Write-Host "Cursor:" -ForegroundColor White
-            Copy-Directory "$ScriptDir\.cursor\rules" "$Target\.cursor\rules" ".cursor/rules/"
-        }
-        'kiro' {
-            Write-Host "Kiro:" -ForegroundColor White
-            Copy-Directory "$ScriptDir\.kiro\steering" "$Target\.kiro\steering" ".kiro/steering/"
         }
         'claude' {
             Write-Host "Claude Code:" -ForegroundColor White

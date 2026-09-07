@@ -45,7 +45,7 @@ Slash commands live in `.claude/commands/`; subagents in `.claude/agents/`.
 | `/refactor-passing-tests`                 | Phase 5 — safe refactor, tests stay green                    |
 | `/verify-spec-coverage`                   | Phase 6 — hard spec & doc sync gate (repairs drift in-place) |
 | `/archive-change`                         | Phase 7 — merge delta into capability; archive the change    |
-| `/create-pull-request`                    | Phase 7 — branch, commit, push, PR                           |
+| `/create-pull-request`                    | Phase 8 — branch, commit, push, PR                           |
 | `/address-review-comments`                | Handle PR review feedback                                    |
 | `spec-writer` subagent                    | Writes Gherkin + technical specs (never code)                |
 | `spec-reviewer` subagent                  | Read-only spec & doc compliance review                       |
@@ -58,6 +58,6 @@ Non-negotiables, in brief:
 - Phase 3 re-reads `docs/project-profile.md` and mirrors its conventions — no inventing
 - Phase 6 (Spec & Doc Sync) is a **blocking** gate; repair drift in-phase
 - Classify every Phase 6b repair ADDED / MODIFIED / REMOVED; a REMOVED narrows the spec and
-  needs confirmation — never apply one under "update the spec to match the code"
+  needs sign-off, not "match the code"
 
 Do not skip or reorder phases.
