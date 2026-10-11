@@ -80,6 +80,53 @@ if [[ ${#PLATFORMS[@]} -eq 0 && "$DOCS_ONLY" != "true" ]]; then
     PLATFORMS=(vscode claude agents)
 fi
 
+# Paths this toolkit has shipped in a past release and since retired. cp never deletes a
+# destination file that's absent from the source, so without this list a re-install leaves stale
+# files behind that contradict the current version. Append to this list whenever a file is removed.
+RETIRED_PATHS=(
+    ".claude/commands/full-autonomous-cycle.md"
+    ".cursor/rules/atdd-core.mdc"
+    ".cursor/rules/atdd-workflow.mdc"
+    ".cursor/rules/gherkin.mdc"
+    ".cursor/rules/project-detection.mdc"
+    ".cursor/rules/quality-gates.mdc"
+    ".github/agents/full-autonomous-cycle.agent.md"
+    ".kiro/steering/atdd-core.md"
+    ".kiro/steering/atdd-workflow.md"
+    ".kiro/steering/gherkin.md"
+    ".kiro/steering/legacy-integration.md"
+    ".kiro/steering/project-detection.md"
+    ".kiro/steering/quality-gates.md"
+    ".kiro/steering/spec-writing.md"
+)
+
+remove_retired_paths() {
+    for rel in "${RETIRED_PATHS[@]}"; do
+        local path="$TARGET/$rel"
+        [[ -e "$path" ]] || continue
+
+        if [[ "$DRY_RUN" == true ]]; then
+            echo "  WOULD REMOVE (retired) $rel"
+            continue
+        fi
+
+        rm -f "$path"
+        echo "  REMOVE (retired) $rel"
+
+        # Prune now-empty parent directories (e.g. .cursor/rules, .kiro/steering)
+        local parent
+        parent="$(dirname "$path")"
+        while [[ "$parent" != "$TARGET" && -d "$parent" ]]; do
+            if [[ -z "$(ls -A "$parent" 2>/dev/null)" ]]; then
+                rmdir "$parent"
+                parent="$(dirname "$parent")"
+            else
+                break
+            fi
+        done
+    done
+}
+
 # Resolve target to absolute path
 TARGET="$(cd "$TARGET" 2>/dev/null && pwd || echo "$TARGET")"
 
@@ -211,5 +258,9 @@ EOF
     esac
     echo ""
 done
+
+echo "Retired files:"
+remove_retired_paths
+echo ""
 
 echo "Done. Run '/analyze-project' in your IDE to detect the project's stack."
