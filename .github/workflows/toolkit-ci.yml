@@ -54,13 +54,13 @@ jobs:
           # Every platform adapter must land
           for path in \
             docs/atdd/workflow.md \
-            specs/features/example-task-management.feature \
+            specs/capabilities/task-management/behavior.feature \
+            specs/capabilities/task-management/rules.md \
             .github/copilot-instructions.md \
             .github/prompts/write-spec.prompt.md \
             .github/agents/atdd-cycle.agent.md \
             .github/skills/atdd/SKILL.md \
-            .cursor/rules/atdd-core.mdc \
-            .kiro/steering/atdd-core.md \
+            .claude/commands/archive-change.md \
             .claude/commands/atdd-cycle.md \
             .claude/agents/spec-writer.md \
             CLAUDE.md \

@@ -77,9 +77,12 @@ Use `Scenario Outline` when multiple inputs share the same behavior — avoid du
 
 ---
 
-## Technical Spec
+## Business Rules
 
-The technical spec (`specs/technical/<name>-spec.md`) captures the rules and contracts that the feature file scenarios enforce. It bridges business requirements and implementation.
+Rules and contracts live alongside the behavior they govern: `specs/capabilities/<domain>/rules.md`
+holds the current numbered set, and a change proposes edits to it in
+`specs/changes/<name>/delta-rules.md`. They bridge business requirements and implementation, and
+each one should be enforced by at least one scenario.
 
 ### Required Sections
 

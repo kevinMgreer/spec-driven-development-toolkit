@@ -1,18 +1,20 @@
-# Technical Spec Template
+# Capability Rules Template
 
-Copy to `specs/technical/<feature-name>-spec.md` and fill in the placeholders.
+Copy to `specs/capabilities/<domain>/rules.md` and fill in the placeholders.
+
+Numbered rules accumulate here across changes. A change proposes edits to them in its
+`delta-rules.md`; Phase 7 merges those in, keeping the numbering stable.
 
 ---
 
-# `<Feature Name>` — Technical Spec
+# `<Domain>` — Business Rules
 
-| Field            | Value                                   |
-| ---------------- | --------------------------------------- |
-| **Status**       | Draft \| In Review \| Approved          |
-| **Version**      | 1.0                                     |
-| **Feature file** | `specs/features/<feature-name>.feature` |
-| **Author**       |                                         |
-| **Last updated** | YYYY-MM-DD                              |
+| Field             | Value                                                 |
+| ----------------- | ----------------------------------------------------- |
+| **Status**        | Current                                               |
+| **Capability**    | `<domain>`                                            |
+| **Behavior file** | `specs/capabilities/<domain>/behavior.feature`        |
+| **Last updated**  | YYYY-MM-DD                                            |
 
 ---
 

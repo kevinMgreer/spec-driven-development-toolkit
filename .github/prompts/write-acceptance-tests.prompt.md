@@ -2,16 +2,18 @@
 description: "Generate acceptance test stubs from a Gherkin feature file. Creates step definitions for every scenario that fail with 'not implemented' — ready for the green phase. Output will be red (failing tests)."
 agent: agent
 tools: [read, edit, search, execute]
-argument-hint: "Path to .feature file (e.g. specs/features/user-login.feature) or feature name"
+argument-hint: "Path to .feature file (e.g. specs/changes/add-user-login/delta.feature) or feature name"
 ---
 
 Generate acceptance test stubs for:
 
-${input:specs/features/}
+${input:specs/changes/}
 
 ## Steps
 
-1. Read the specified `.feature` file (or find the most recently modified in `specs/features/`)
+1. Read the specified `delta.feature` (or the most recently modified `specs/changes/*/delta.feature`).
+   Also read the capability it targets — `specs/capabilities/<domain>/behavior.feature` — so
+   `@modified:` scenarios are tested in full, not just the steps the delta restates
 
 2. **Read `docs/project-profile.md` — mandatory.** Use the test framework, test command, test
    directory, and test file pattern from the `Tooling` section, and the test-related entries in
@@ -23,7 +25,7 @@ ${input:specs/features/}
    the test stubs match this codebase's conventions."_
 
 3. Generate a test file with:
-   - **Header comment**: `// Spec: specs/features/<name>.feature` (or language equivalent)
+   - **Header comment**: `// Spec: specs/capabilities/<domain>/behavior.feature` (or language equivalent)
    - Step definitions for **every** Given/When/Then step in the feature file
    - Each stub must **fail** with a clear "not implemented" error — not be empty or skipped
    - Import and setup boilerplate matching project conventions

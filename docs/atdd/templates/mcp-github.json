@@ -1,5 +1,5 @@
 {
-  "_comment": "GitHub MCP server configuration for VS Code — enables the full-autonomous-cycle agent to create PRs, request reviews, and fetch review comments via the GitHub API.",
+  "_comment": "GitHub MCP server configuration for VS Code — enables the atdd-cycle agent to create PRs, request reviews, and fetch review comments via the GitHub API.",
   "_setup": [
     "1. Copy this file to .vscode/mcp.json in your project (or merge into existing)",
     "2. Set a GITHUB_TOKEN environment variable (classic token with repo scope, or fine-grained token with repository access and Pull requests read/write permission)",

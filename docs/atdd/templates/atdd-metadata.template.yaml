@@ -1,0 +1,43 @@
+# Change metadata — copy to specs/changes/<change-name>/.atdd.yaml
+#
+# Optional. A change with no .atdd.yaml is treated as having no declarations,
+# which is the common case. The file exists to make three judgement calls
+# checkable instead of leaving them as prose in a report.
+
+# When the change folder was created.
+created: YYYY-MM-DD
+
+# The capability this change targets. Use a list only when the change genuinely
+# spans domains — that is usually a sign it should be two changes.
+capabilities:
+  - <domain>
+
+# Declares that this change makes no behavior change at all: a pure refactor,
+# tooling, or docs change.
+#
+# With it true, Phase 6 accepts an empty delta and Phase 7 archives without
+# merging anything. Setting it true while delta.feature or delta-rules.md carry
+# any content is an ERROR — the declaration and the files disagree, and the
+# files win. This is the machine-checkable form of a "not user-visible" row.
+skip_specs: false
+
+# Authorizes Phase 7 to delete the capability when this change's @removed:
+# scenarios take away its last one.
+#
+# Without it, archive stops rather than emptying a capability. Deleting a spec
+# is only recoverable from git, so it stays an explicit decision by the author.
+retire_capability: false
+
+# Every guarantee this change narrows, and how it was resolved. Populated by
+# Phase 6b — a REMOVED repair may not be applied without an entry here.
+#
+# This travels with the change into the archive, so the reason a guarantee was
+# dropped survives long after the conversation that agreed to it. Leave the list
+# empty when nothing was narrowed.
+spec_weakenings: []
+# spec_weakenings:
+#   - guarantee: "Rule 3 — due dates must be future-dated"
+#     was: "rejects same-day dates"
+#     now: "accepts same-day dates"
+#     resolution: "Spec narrowed"        # or "Code corrected to honor spec"
+#     authority: "user, 2026-09-01"      # or "mode (a) default"

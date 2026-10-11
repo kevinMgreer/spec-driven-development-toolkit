@@ -7,9 +7,22 @@ applyTo: "**/*.feature"
 
 ## File Location & Naming
 
-- Location: `specs/features/`
-- File names: `kebab-case.feature` matching the feature name
-- One feature per file
+- `specs/capabilities/<domain>/behavior.feature` — current truth. Never carries delta tags
+- `specs/changes/<name>/delta.feature` — one change's additions, edits, removals. Always tagged
+- Domains and change names use `kebab-case`
+
+## Delta Tags (in `delta.feature` only)
+
+| Tag                     | Meaning                                |
+| ----------------------- | -------------------------------------- |
+| `@added`                | New scenario, appended on merge        |
+| `@modified:"<name>"`    | Replaces the named capability scenario |
+| `@removed:"<name>"`     | Deletes the named capability scenario  |
+| `@renamed:"<old name>"` | Retitles the named capability scenario |
+
+Every delta scenario carries exactly one. Quoted names must match the capability exactly. A
+`@modified:` must keep every `Then` the capability already has — dropping one is a removal, and
+needs confirmation. Full reference: `docs/atdd/gherkin.md` § Delta Tags.
 
 ## Feature Block
 

@@ -1,6 +1,6 @@
 ---
-description: Run the complete supervised ATDD cycle from requirements to verified, spec-compliant, quality-gated implementation — optionally through to PR creation. Stops for spec approval and asks before creating the PR.
-argument-hint: "<feature or user story to implement>"
+description: Run the complete ATDD cycle from requirements to a verified, spec-compliant, quality-gated implementation — through to PR and review resolution. Spec approval is the only mandatory stop; autonomy after that is chosen at the approval gate.
+argument-hint: "<feature or user story to implement> [--auto]"
 ---
 
 Run the complete ATDD cycle for:
@@ -13,31 +13,38 @@ only** — subagent choices, gates, and reporting.
 
 Track progress through each phase with the todo/task list.
 
+## Autonomy Mode
+
+This command runs at one of two autonomy levels. **Do not ask which one up front** — the user
+has not seen anything yet, and an extra question before Phase 0 is an interruption for nothing.
+The choice is made at the spec approval gate, which is the one stop that already exists (Phase 1).
+
+| Mode                | After spec approval                                            |
+| ------------------- | -------------------------------------------------------------- |
+| **(a) Hands-off**   | Runs through PR creation and review resolution without stopping |
+| **(b) Check first** | Stops once before opening the PR, then finishes                  |
+
+If `--auto` appears anywhere in the arguments above, skip the mode question entirely and use
+mode (a). Otherwise ask for it as part of spec approval — see Phase 1, step 5.
+
+Whichever mode is chosen, **spec approval is the only mandatory human gate**. Mode (b) adds
+exactly one more stop, immediately before the PR. Never introduce a third.
+
 ## Hard Constraints
 
-- Never write production code before tests are red for the right reason
-- Never modify tests to make them pass; never add logic not demanded by a failing test
-- Never proceed past Phase 1 without explicit user approval of the spec
-- Never write Phase 3 production code without re-reading `docs/project-profile.md` and
-  stating which conventions you will follow
-- Never declare done while spec, README, profile, or any doc listed under `Sources consulted`
-  in `docs/project-profile.md` has drift — Phase 6 is blocking
-- Always detect stack AND conventions before generating code; always read existing project
-  docs (README, CONTRIBUTING, ARCHITECTURE, ADRs) — they override inference
-- Always prompt for tooling preferences in greenfield projects before writing specs
-- Always run the full test suite after each implementation unit and after every refactor change
+The full list is in `CLAUDE.md` / `AGENTS.md`, already in your context. The two the orchestrator
+enforces at a phase boundary:
 
-### The Test-First Rule (non-negotiable)
-
-The **first files you create after spec approval must be test files**. No DTOs, entities,
-interfaces, services, or repositories before a test file exists. If a missing type prevents
-compilation, add the minimum empty shell (no fields, no logic) needed — nothing more. If the
-test file is not the first Phase 2 artifact, you broke the rule.
+- **Test-first**: the first files created after spec approval must be **test files**. No DTOs,
+  entities, interfaces, services, or repositories before a test file exists. If a missing type
+  blocks compilation, add the minimum empty shell — nothing more.
+- **Phase 6 blocks Phase 7**: no archive, no PR while any drift is unresolved.
 
 ## Cycle
 
 ```
-Analyze → Spec → Tests (Red) → Implement (Green) → Quality Gates → Refactor → Spec & Doc Sync → PR
+Analyze → Spec → [HUMAN GATE] → Tests (Red) → Implement (Green) →
+Quality Gates → Refactor → Spec & Doc Sync → Archive → PR → Review
 ```
 
 ## Phase 0 — Project Analysis
@@ -65,15 +72,31 @@ Analyze → Spec → Tests (Red) → Implement (Green) → Quality Gates → Ref
 
 ## Phase 1 — Spec
 
-1. Check `specs/` for an existing spec for this feature; if found, read it and skip to step 4.
-2. Parse requirements. Ask at most 3 questions if actor, acceptance criteria, or critical
-   error/edge cases are unclear.
-3. Invoke the **spec-writer** subagent with the full requirements context. It produces
-   `specs/features/<name>.feature` and `specs/technical/<name>-spec.md`.
-4. Show the user the created specs. Ask: _"Do these specs look correct? Any adjustments before
-   I generate tests?"_
-5. **MANDATORY GATE — Wait for explicit user approval.** Iterate until approved. Everything
-   after this gate is autonomous; this is the user's last mandatory checkpoint.
+1. Check `specs/changes/` for an in-flight change covering this work; if found, read it and skip
+   to step 4.
+2. **Identify the target capability.** List `specs/capabilities/` and pick the domain this change
+   modifies, then read its `behavior.feature` and `rules.md` in full. If none fits, this change
+   creates a capability — note that; every delta scenario will be `@added`.
+3. Parse requirements. Ask at most 3 questions if actor, acceptance criteria, or critical
+   error/edge cases are unclear. Then invoke the **spec-writer** subagent with the full context.
+   It produces the change folder `specs/changes/<name>/` — `proposal.md`, `delta.feature`,
+   `delta-rules.md`, and `tasks.md`.
+4. Show the user the delta, grouped by operation (added / modified / removed / renamed) so the
+   shape of the change reads at a glance.
+5. **MANDATORY GATE — ask for approval and autonomy level together**, in one message. If
+   `--auto` was passed, ask only the approval half and proceed in mode (a).
+
+   > Do these specs look correct? Any adjustments before I generate tests?
+   >
+   > And after approval, should I:
+   > **[a]** run hands-off through implementation, quality gates, PR and review, or
+   > **[b]** check with you once before opening the PR?
+
+6. **Wait for explicit approval.** Iterate on the spec until approved. If the user approves the
+   spec without answering the mode question, default to **(b)** — the more cautious reading of
+   an ambiguous answer — and say which mode you are using before continuing.
+7. Record the chosen mode. Everything from here runs uninterrupted until the mode's stopping
+   point (mode (a): none; mode (b): before the PR).
 
 ## Phase 2 — Acceptance Tests (Red)
 
@@ -81,7 +104,7 @@ Analyze → Spec → Tests (Red) → Implement (Green) → Quality Gates → Ref
 
 1. Write the test file first, using the profile's framework and conventions. One test per
    scenario. Each body throws a "not implemented" error. Header:
-   `// Spec: specs/features/<name>.feature`.
+   `// Spec: specs/capabilities/<domain>/behavior.feature`.
 2. Add minimum empty shells only if needed for compilation (no fields, no logic).
 3. Run the **test command** (not the build command). Every test must fail for the right
    reason (not compile/import errors).
@@ -113,58 +136,86 @@ no speculative abstractions. **Quality gate**: re-run all gates after refactorin
 
 ## Phase 6 — Spec & Doc Sync (Hard Gate)
 
-**Blocking.** Do not proceed with any unresolved drift — repair in-phase.
+**Blocking.** Do not proceed with any unresolved drift — repair in-phase. This gate blocks the
+PR in both modes.
 
 **6a. Spec compliance.** Invoke the **spec-reviewer** subagent to validate implementation
 against the spec and produce a drift report.
 
-**6b. Spec drift repair.** For each flagged item: update the `.feature` or `-spec.md` →
-add/adjust a test → re-run the full suite. Full procedure: `docs/atdd/workflow.md` § Phase 6.
+**6b. Spec drift repair.** Classify each flagged item **ADDED / MODIFIED / REMOVED** before
+touching a file. ADDED and MODIFIED: update the `.feature` or `-spec.md` → add/adjust a test →
+re-run the full suite. A **REMOVED** item is a spec weakening — never apply it under "match the
+code":
+
+- **Mode (b)**: stop on that item, show what the spec promises versus what the code does, and ask
+  whether to narrow the spec or fix the code. Keep repairing other items meanwhile.
+- **Mode (a)**: do not stop. Preserve the spec — correct the implementation to honor it. Stop
+  only if honoring it is genuinely impossible. Hands-off never authorizes narrowing the spec.
+
+Full procedure: `docs/atdd/workflow.md` § Phase 6b.
 
 **6c. Documentation sync.** Walk the `Sources consulted` list in `docs/project-profile.md`.
 For every doc listed there that could describe the changed behavior, update it or mark ⏭️
 with reason. Work through: README → CONTRIBUTING → ARCHITECTURE → ADRs → style guides /
 runbooks → `docs/project-profile.md` → any other consulted doc. Do not skip sources silently.
 
-**6d. Final verification.** Re-run the suite and all quality gates. Produce this report:
+**6d. Final verification.** Re-run the suite and all quality gates, then produce the **Spec & Doc
+Sync report** — the format is defined in `/verify-spec-coverage`, which owns this gate. Every row
+must be ✅ or an explicit ⏭️ with a reason, and the Spec Weakenings table must be empty or fully
+resolved, before Phase 7 runs.
 
-```markdown
-## Spec & Doc Sync — <feature>
+## Phase 7 — Archive & Merge
 
-| Item                            | Status                                    |
-| ------------------------------- | ----------------------------------------- |
-| Spec compliance                 | ✅ Compliant                              |
-| Spec drift repaired             | ✅ N items / ⏭️ none found                |
-| README updated                  | ✅ \<section\> / ⏭️ not user-visible      |
-| CONTRIBUTING updated            | ✅ \<section\> / ⏭️ no contributor impact |
-| ARCHITECTURE updated            | ✅ \<section\> / ⏭️ no structural change  |
-| ADRs updated                    | ✅ ADR-N added / ⏭️ no new decision       |
-| Style guides / runbooks updated | ✅ \<files\> / ⏭️ none                    |
-| docs/project-profile.md updated | ✅ \<new convention\> / ⏭️ no changes     |
-| Other consulted docs updated    | ✅ \<files\> / ⏭️ none                    |
-| Tests green                     | ✅ N/N                                    |
-| Quality gates                   | ✅ all passing                            |
-```
+The change is built and verified; now it becomes part of the truth. Merge the delta into the
+capability, then move the change folder to `specs/changes/archive/<YYYY-MM-DD>-<name>/`. This
+runs **before** the PR so the merged capability and the archived change ship together.
 
-Do not proceed to Phase 7 unless every row is ✅ or has an explicit ⏭️ with reason.
+**Run `/archive-change` and follow it in full** — it owns the preflight checks, the merge rules,
+and the guardrails. Orchestration note: a preflight failure is a hard stop in both autonomy
+modes; report it and do not proceed to the PR.
 
-## Phase 7 — PR (Optional)
+Then re-run the test suite — spec files changed, not code, so it must still be green.
 
-Ask the user before pushing. Branch: `feat/<feature-name>`. Commit referencing the spec. PR
-body includes quality gate results and scenario summary. Detailed procedure: the
-`/create-pull-request` command.
+## Phase 8 — Create PR
+
+**Mode (a):** proceed automatically. Do not ask.
+**Mode (b):** this is the one additional stop. Show the branch name, commit message, and PR
+title you intend to use, and ask: _"Ready to push and open the PR?"_ Then proceed on approval.
+
+**Run `/create-pull-request`** — it owns the branch, commit, push, and PR-body procedure. Record
+the PR number and URL for Phase 9.
+
+## Phase 9 — Review + Address Comments
+
+**Mode (a):** run automatically.
+**Mode (b):** run automatically as well — the mode (b) stop was Phase 8. Do not stop again.
+
+Poll for the review every 60 seconds, up to 5 minutes
+(`gh pr view <number> --json reviews,comments`). If one arrives, **run
+`/address-review-comments`** — it owns the triage rules and the spec-first protocol for behavior
+changes.
+
+If no review lands within the timeout, do not block. Report:
+
+> "PR created at `<URL>`. The review has been requested but has not yet completed.
+> When the review is ready, run `/address-review-comments <PR-number>`."
 
 ## Completion Summary
 
-End with this table:
+End every run with this table:
 
-| Phase           | Artifact                         | Status                       |
-| --------------- | -------------------------------- | ---------------------------- |
-| Analysis        | Project profile                  | ✅ <language>, <framework>   |
-| Spec            | `specs/features/<name>.feature`  | ✅ N scenarios               |
-| Spec            | `specs/technical/<name>-spec.md` | ✅ Created                   |
-| Tests           | `<test-file-path>`               | ✅ Red → Green (N scenarios) |
-| Implementation  | `<src-file-path(s)>`             | ✅ Implemented               |
-| Quality Gates   | lint/format/typecheck/build/test | ✅ All passed                |
-| Spec & Doc Sync | Spec / all consulted docs        | ✅ In sync (drift repaired)  |
-| PR              | `feat/<name>`                    | ✅ Created / ⏭️ Skipped      |
+| Phase           | Artifact                         | Status                         |
+| --------------- | -------------------------------- | ------------------------------ |
+| Analysis        | Project profile                  | ✅ <language>, <framework>     |
+| Capability      | `specs/capabilities/<domain>/`        | ✅ Targeted / ✨ Created       |
+| Spec            | delta merged into the capability      | ✅ N scenarios (A:n M:n R:n)   |
+| Tests           | `<test-file-path>`               | ✅ Red → Green (N scenarios)   |
+| Implementation  | `<src-file-path(s)>`             | ✅ Implemented                 |
+| Quality Gates   | lint/format/typecheck/build/test | ✅ All passed                  |
+| Spec & Doc Sync | Spec / all consulted docs        | ✅ In sync (drift repaired)    |
+| Archive         | `specs/changes/archive/<date>-<name>/` | ✅ Merged into capability      |
+| PR              | `feat/<name>` #N                 | ✅ Created                     |
+| Review          | Comments addressed               | ✅ Done / ⏳ Awaiting review   |
+
+Name the autonomy mode used in the line above the table, e.g.
+_"Ran in mode (a) — hands-off after spec approval."_

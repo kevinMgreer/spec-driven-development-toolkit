@@ -28,13 +28,11 @@ Copy only the platform-specific config you need, plus `docs/atdd/` and `specs/`:
 ```
 your-project/
 ├── .github/            ← VS Code config (merge with existing .github/)
-├── .cursor/            ← Cursor config (if using Cursor)
-├── .kiro/              ← Kiro config (if using Kiro)
 ├── .claude/            ← Claude Code commands + agents (if using Claude Code)
 ├── docs/atdd/          ← ATDD knowledge base (NEW)
 ├── specs/              ← Spec files (NEW)
-│   ├── features/
-│   └── technical/
+│   ├── capabilities/   ← current truth, one folder per domain
+│   └── changes/        ← work in flight + archive/
 ├── AGENTS.md           ← Add or merge (if already exists)
 ├── CLAUDE.md           ← Add or merge (if already exists)
 ├── src/                ← EXISTING — do not touch
@@ -110,7 +108,8 @@ Use whatever convention the team prefers — the toolkit adapts.
 1. Use the existing Cucumber setup — don't create a new one
 2. Add new `.feature` files to the project's existing feature directory
 3. Follow the existing step definition patterns and directory structure
-4. Add `specs/technical/` for technical specs (Gherkin projects rarely have this)
+4. Add `specs/capabilities/<domain>/rules.md` for the numbered rules behind those scenarios
+   (Gherkin projects rarely have this)
 
 ### Project with CI/CD
 
@@ -119,11 +118,11 @@ Use whatever convention the team prefers — the toolkit adapts.
 3. New tests should run in the same CI pipeline — add test paths if needed
 4. The toolkit does not create or modify CI configuration
 
-### Project using different AI tools (Copilot, Cursor, etc.)
+### Project with existing AI instructions
 
 1. Merge carefully — don't overwrite existing AI instructions
 2. If the project already has `copilot-instructions.md`, append the ATDD rules
-3. If the project already has Cursor rules, add ATDD rules as new `.mdc` files
+3. If the project already has a `CLAUDE.md` or `AGENTS.md`, append rather than replace
 4. The toolkit's ATDD rules coexist with existing AI instructions
 
 ### Monorepo

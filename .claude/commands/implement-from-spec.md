@@ -9,7 +9,7 @@ $ARGUMENTS
 
 ## Steps
 
-1. Read the `.feature` file and `specs/technical/<name>-spec.md`.
+1. Read the `.feature` file and `specs/changes/<name>/delta-rules.md`.
 
 2. **Read `docs/project-profile.md` — mandatory.** Pay particular attention to:
    - `Conventions` — architecture, error handling, validation, naming, etc.
@@ -29,7 +29,7 @@ $ARGUMENTS
    This statement is required output — do not skip it.
 
 5. **Check whether acceptance tests exist** — search for a test file that references the feature
-   (look for the header comment `// Spec: specs/features/<name>.feature` or equivalent).
+   (look for the header comment `// Spec: specs/capabilities/<domain>/behavior.feature` or equivalent).
 
    **If no test file exists** — stop and run `/write-acceptance-tests` first:
    - Generate, run, and confirm red stubs

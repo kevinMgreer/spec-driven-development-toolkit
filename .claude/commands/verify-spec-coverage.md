@@ -15,10 +15,10 @@ apply the repairs yourself.
 
 ## Steps
 
-1. Read `specs/features/<name>.feature`.
-2. Read `specs/technical/<name>-spec.md` if it exists.
+1. Read `specs/changes/<name>/delta.feature`.
+2. Read `specs/changes/<name>/delta-rules.md` if it exists.
 3. Find the test file(s) for this feature (search for the header comment
-   `// Spec: specs/features/<name>.feature` or equivalent, or files named after the feature).
+   `// Spec: specs/capabilities/<domain>/behavior.feature` or equivalent, or files named after the feature).
 4. Find the implementation file(s) exercised by those tests.
 
 ---
@@ -45,18 +45,61 @@ For non-trivial logic in the production code:
 
 ### Sub-phase B — Spec Drift Repair (mandatory if A fails)
 
-For each gap or drift item found in sub-phase A, **fix it now**:
+**Classify each item before you touch a file.** "Update the spec to match the code" is safe in
+one direction and dangerous in the other: a rule quietly relaxed during implementation, then
+written back into the spec, makes the weakening invisible and permanently blessed.
 
-| Drift type                                                  | Repair action                                                                                                     |
-| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Implementation supports inputs/outputs not in any scenario  | Add an `@edge-case` or `@happy-path` scenario describing the behavior, add a test, confirm it passes              |
-| A business rule was relaxed/tightened during implementation | Update the rule in `specs/technical/<name>-spec.md`, add or adjust the scenario, confirm test catches regression  |
-| Validation messages, status codes, error shapes differ      | Update the spec to match the code (or update the code to match the spec — ask the user only if ambiguous)         |
-| New edge case handled but no `@edge-case` scenario          | Add the scenario and test                                                                                          |
-| Scenario exists but no test                                 | Add the test, confirm it passes                                                                                    |
-| Test exists but is shallow (passes against a no-op)         | Strengthen the assertion so it would catch a regression                                                            |
+| Class        | Meaning                                                             | Authority              |
+| ------------ | ------------------------------------------------------------------- | ---------------------- |
+| **ADDED**    | The spec gains a scenario or rule it did not have                   | Apply freely           |
+| **MODIFIED** | An existing scenario or rule changes shape, keeping every guarantee | Apply freely           |
+| **REMOVED**  | A guarantee the spec made is no longer promised                     | **Confirmation first** |
+
+**The test for REMOVED:** _would a test written against the old spec still pass against the new
+one?_ If no, it is a **spec weakening** — handle it under "Spec weakenings" below.
+
+A **MODIFIED** repair must preserve every `Then` step the current spec has for that scenario.
+Dropping one is a REMOVED, however the rest of the scenario is rewritten.
+
+| Drift type                                                       | Class        | Repair action                                                                     |
+| ---------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------- |
+| Implementation supports inputs/outputs not in any scenario       | ADDED        | Add an `@edge-case` or `@happy-path` scenario, add a test, confirm it passes       |
+| New edge case handled but no `@edge-case` scenario               | ADDED        | Add the scenario and test                                                          |
+| Scenario exists but no test                                      | ADDED        | Add the test, confirm it passes                                                    |
+| A business rule was **tightened** during implementation          | MODIFIED     | Update the rule, adjust the scenario, confirm the test catches a regression        |
+| Validation message, status code, or error shape differs — same strictness | MODIFIED | Update the spec to match the code                                            |
+| Test exists but is shallow (passes against a no-op)              | MODIFIED     | Strengthen the assertion so it would catch a regression                            |
+| A business rule was **relaxed** during implementation            | **REMOVED**  | **Stop** — resolve as a spec weakening                                             |
+| A validation was dropped, or an error case now succeeds          | **REMOVED**  | **Stop** — resolve as a spec weakening                                             |
+| A scenario matches no current behavior and looks obsolete        | **REMOVED**  | **Stop** — resolve as a spec weakening                                             |
 
 After each repair, re-run the affected tests. After all repairs, re-run the full test suite.
+
+#### Spec weakenings
+
+Never apply one silently under "match the code." Resolution depends on the autonomy mode chosen
+at the Phase 1 spec approval gate:
+
+- **Mode (b) — check first**: stop on that item and ask. Show what the spec promises today, what
+  the code actually does, and which of the two you believe is the mistake:
+
+  > `specs/capabilities/task-management/rules.md` rule 3 says due dates must be future-dated, and the
+  > implementation accepts same-day dates. Should I narrow the spec to allow same-day, or fix
+  > the implementation to reject it?
+
+  Apply only the answer given. Keep repairing other items while you wait.
+
+- **Mode (a) — hands-off**: do not stop. Default to **preserving the spec** — change the
+  implementation to honor what the spec promises, and record the item as
+  _"code corrected to honor spec"_. Hands-off authorizes uninterrupted work; it never authorizes
+  narrowing the spec. Stop only if honoring the spec is genuinely impossible.
+
+Record every weakening twice: in the report below, and in `spec_weakenings` in the change's
+`specs/changes/<name>/.atdd.yaml` (create it from
+`docs/atdd/templates/atdd-metadata.template.yaml` if absent). The report is read once; the
+metadata travels into the archive and outlives the conversation.
+
+A REMOVED repair may not be applied without an entry there.
 
 ---
 
@@ -120,11 +163,21 @@ or has an explicit ⏭️ with a reason.
 
 ### Sub-phase B — Spec Drift Repaired
 
-| Drift item | Repair action taken | Files changed                |
-| ---------- | ------------------- | ---------------------------- |
-| ...        | ...                 | `specs/features/...feature`  |
+| Drift item | Class    | Repair action taken | Files changed               |
+| ---------- | -------- | ------------------- | --------------------------- |
+| ...        | ADDED    | ...                 | `specs/changes/.../delta.feature` |
 
 (or "⏭️ no drift found")
+
+### Spec Weakenings
+
+| Guarantee at risk | Spec promised | Code does | Resolution | Authority |
+| ----------------- | ------------- | --------- | ---------- | --------- |
+| Rule 3 — due dates future-dated | rejects same-day | accepts same-day | Code corrected to honor spec | mode (a) default |
+
+(or "⏭️ none — no repair removed a guarantee")
+
+**The gate does not pass while any row here lacks a resolution.**
 
 ### Sub-phase C — Documentation Sync
 
@@ -153,8 +206,10 @@ or has an explicit ⏭️ with a reason.
 ## Rules
 
 - **Repair, don't just report.** If you find drift, fix it before producing the report.
-- **Update the spec to match the code** unless the spec was clearly correct and the
-  implementation is wrong. If ambiguous, ask the user one focused question.
+- **Classify before repairing.** ADDED and MODIFIED apply freely; REMOVED never does.
+- **Update the spec to match the code** only when doing so keeps every guarantee the spec made.
+  The moment a repair would remove one, it is a spec weakening — resolve it under the rules
+  above, never under "match the code."
 - **Never modify tests** to mask drift — adjust the spec and the implementation, then add a
   test that would catch a regression.
 - **Don't create new doc files** unless explicitly asked — only update what exists.
