@@ -131,9 +131,12 @@ before, and the drift is invisible until someone runs the weaker side.
 ```
 
 The install scripts merge into existing projects without overwriting — they skip files that already
-exist unless `--force` (bash) or `-Force` (PowerShell) is specified. Every run also removes any file
-listed in `RETIRED_PATHS` / `$RetiredPaths` (and prunes the directory if it's left empty), so
-re-installing an older checkout cleans up files the toolkit no longer ships.
+exist unless `--force` (bash) or `-Force` (PowerShell) is specified. Re-running the current
+installer on a project previously installed from an older release also removes retired paths listed
+in `RETIRED_PATHS` / `$RetiredPaths` and prunes empty parent directories. Full installs clean up all
+listed paths; platform-scoped installs clean up only paths for selected platforms, and docs-only
+installs leave platform configuration untouched. Dry runs report planned retired-path removals
+without deleting files or directories.
 
 ### Manual Install
 

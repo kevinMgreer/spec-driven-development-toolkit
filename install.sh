@@ -20,6 +20,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET=""
 PLATFORMS=()
 DOCS_ONLY=false
+ALL_PLATFORMS=false
 NO_EXAMPLES=false
 FORCE=false
 DRY_RUN=false
@@ -42,7 +43,7 @@ usage() {
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --all)        PLATFORMS=(vscode claude agents); shift ;;
+        --all)        ALL_PLATFORMS=true; PLATFORMS=(vscode claude agents); shift ;;
         --vscode)     PLATFORMS+=(vscode); shift ;;
         --claude)     PLATFORMS+=(claude); shift ;;
         --agents)     PLATFORMS+=(agents); shift ;;
@@ -73,10 +74,12 @@ fi
 # platform configs.
 if [[ "$DOCS_ONLY" == "true" ]]; then
     PLATFORMS=()
+    ALL_PLATFORMS=false
 fi
 
 # Default to all platforms if none specified and user didn't request docs-only
 if [[ ${#PLATFORMS[@]} -eq 0 && "$DOCS_ONLY" != "true" ]]; then
+    ALL_PLATFORMS=true
     PLATFORMS=(vscode claude agents)
 fi
 
@@ -101,8 +104,27 @@ RETIRED_PATHS=(
 )
 
 remove_retired_paths() {
+    local selected_platform selected platform path
+
     for rel in "${RETIRED_PATHS[@]}"; do
-        local path="$TARGET/$rel"
+        if [[ "$ALL_PLATFORMS" != true ]]; then
+            case "$rel" in
+                .github/*) selected_platform=vscode ;;
+                .claude/*) selected_platform=claude ;;
+                *) continue ;;
+            esac
+
+            selected=false
+            for platform in "${PLATFORMS[@]}"; do
+                if [[ "$platform" == "$selected_platform" ]]; then
+                    selected=true
+                    break
+                fi
+            done
+            [[ "$selected" == true ]] || continue
+        fi
+
+        path="$TARGET/$rel"
         [[ -e "$path" ]] || continue
 
         if [[ "$DRY_RUN" == true ]]; then

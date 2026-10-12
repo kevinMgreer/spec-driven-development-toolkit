@@ -37,8 +37,10 @@ if (-not $Target) {
 
 # 'docs-only' wins over every other value, so test it before 'all' expands and overwrites the
 # array — otherwise `-Platforms all,docs-only` loses the docs-only marker and installs platforms.
+$AllPlatformsSelected = $Platforms -contains 'all'
 if ($Platforms -contains 'docs-only') {
     $Platforms = @()
+    $AllPlatformsSelected = $false
 }
 elseif ($Platforms -contains 'all') {
     $Platforms = @('vscode', 'claude', 'agents')
@@ -65,9 +67,27 @@ $RetiredPaths = @(
 )
 
 function Remove-RetiredPaths {
-    param([string]$Target)
+    param(
+        [string]$Target,
+        [string[]]$Platforms,
+        [switch]$AllPlatforms
+    )
 
     foreach ($relative in $RetiredPaths) {
+        if (-not $AllPlatforms) {
+            if ($relative -like '.github\*') {
+                $requiredPlatform = 'vscode'
+            }
+            elseif ($relative -like '.claude\*') {
+                $requiredPlatform = 'claude'
+            }
+            else {
+                continue
+            }
+
+            if ($Platforms -notcontains $requiredPlatform) { continue }
+        }
+
         $path = Join-Path $Target $relative
         if (-not (Test-Path $path)) { continue }
 
@@ -235,7 +255,7 @@ foreach ($platform in $Platforms) {
 }
 
 Write-Host "Retired files:" -ForegroundColor White
-Remove-RetiredPaths -Target $Target
+Remove-RetiredPaths -Target $Target -Platforms $Platforms -AllPlatforms:$AllPlatformsSelected
 Write-Host ""
 
 Write-Host "Done. Run '/analyze-project' in your IDE to detect the project's stack." -ForegroundColor Green
