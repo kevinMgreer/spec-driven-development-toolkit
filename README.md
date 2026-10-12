@@ -46,7 +46,7 @@ Full procedure: [docs/atdd/workflow.md](docs/atdd/workflow.md)
 # Windows PowerShell — specific platforms
 .\install.ps1 -Target C:\repos\your-project -Platforms vscode,claude
 
-# Dry run — see what would be copied
+# Dry run — report copies, writes, and retired-file removals without changing the target
 ./install.sh /path/to/your-project --dry-run
 ```
 
@@ -60,6 +60,12 @@ Full procedure: [docs/atdd/workflow.md](docs/atdd/workflow.md)
 | **Any AGENTS.md tool** | `AGENTS.md`, `docs/`, `specs/`                      |
 
 Always include `docs/` and `specs/` — platform configs reference `docs/` for the full procedures.
+
+An all-platform install also removes toolkit paths that have been retired in newer releases and
+prunes their empty parent directories. A platform-scoped install only removes retired paths for
+the selected platform; a docs-only install leaves platform configuration untouched. Use `--dry-run`
+(`-DryRun` in PowerShell) to see planned copies, writes, and retired-file removals without changing
+the target.
 
 ### 2. Use it
 

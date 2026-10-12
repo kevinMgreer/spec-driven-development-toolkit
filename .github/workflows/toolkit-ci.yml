@@ -46,6 +46,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: bash syntax check
         run: bash -n install.sh
+      - name: Retired-path installation regression checks
+        run: bash tests/install-retired-paths.sh
       - name: Full install into a temp project
         run: |
           set -eu
@@ -81,3 +83,13 @@ jobs:
             echo "::error::--dry-run wrote files"
             exit 1
           fi
+
+  install-scripts-windows:
+    name: PowerShell installer regression checks
+    if: github.repository == 'kevinMgreer/spec-driven-development-toolkit'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retired-path installation regression checks
+        shell: pwsh
+        run: ./tests/install-retired-paths.ps1

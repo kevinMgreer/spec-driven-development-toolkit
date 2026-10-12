@@ -37,11 +37,79 @@ if (-not $Target) {
 
 # 'docs-only' wins over every other value, so test it before 'all' expands and overwrites the
 # array — otherwise `-Platforms all,docs-only` loses the docs-only marker and installs platforms.
+$AllPlatformsSelected = $Platforms -contains 'all'
 if ($Platforms -contains 'docs-only') {
     $Platforms = @()
+    $AllPlatformsSelected = $false
 }
 elseif ($Platforms -contains 'all') {
     $Platforms = @('vscode', 'claude', 'agents')
+}
+
+# Paths this toolkit has shipped in a past release and since retired. Copy-Item never deletes a
+# destination file that's absent from the source, so without this list a re-install leaves stale
+# files behind that contradict the current version. Append to this list whenever a file is removed.
+$RetiredPaths = @(
+    '.claude\commands\full-autonomous-cycle.md'
+    '.cursor\rules\atdd-core.mdc'
+    '.cursor\rules\atdd-workflow.mdc'
+    '.cursor\rules\gherkin.mdc'
+    '.cursor\rules\project-detection.mdc'
+    '.cursor\rules\quality-gates.mdc'
+    '.github\agents\full-autonomous-cycle.agent.md'
+    '.kiro\steering\atdd-core.md'
+    '.kiro\steering\atdd-workflow.md'
+    '.kiro\steering\gherkin.md'
+    '.kiro\steering\legacy-integration.md'
+    '.kiro\steering\project-detection.md'
+    '.kiro\steering\quality-gates.md'
+    '.kiro\steering\spec-writing.md'
+)
+
+function Remove-RetiredPaths {
+    param(
+        [string]$Target,
+        [string[]]$Platforms,
+        [switch]$AllPlatforms
+    )
+
+    foreach ($relative in $RetiredPaths) {
+        if (-not $AllPlatforms) {
+            if ($relative -like '.github\*') {
+                $requiredPlatform = 'vscode'
+            }
+            elseif ($relative -like '.claude\*') {
+                $requiredPlatform = 'claude'
+            }
+            else {
+                continue
+            }
+
+            if ($Platforms -notcontains $requiredPlatform) { continue }
+        }
+
+        $path = Join-Path $Target $relative
+        if (-not (Test-Path $path)) { continue }
+
+        if ($DryRun) {
+            Write-Host "  WOULD REMOVE (retired) $relative" -ForegroundColor Cyan
+            continue
+        }
+
+        Remove-Item $path -Force
+        Write-Host "  REMOVE (retired) $relative" -ForegroundColor DarkYellow
+
+        # Prune now-empty parent directories (e.g. .cursor/rules, .kiro/steering)
+        $parent = Split-Path -Parent $path
+        while ($parent -and $parent -ne $Target -and (Test-Path $parent)) {
+            if (@(Get-ChildItem -Path $parent -Force).Count -eq 0) {
+                Remove-Item $parent -Force
+                $parent = Split-Path -Parent $parent
+            } else {
+                break
+            }
+        }
+    }
 }
 
 function Copy-Directory {
@@ -185,5 +253,9 @@ foreach ($platform in $Platforms) {
     }
     Write-Host ""
 }
+
+Write-Host "Retired files:" -ForegroundColor White
+Remove-RetiredPaths -Target $Target -Platforms $Platforms -AllPlatforms:$AllPlatformsSelected
+Write-Host ""
 
 Write-Host "Done. Run '/analyze-project' in your IDE to detect the project's stack." -ForegroundColor Green

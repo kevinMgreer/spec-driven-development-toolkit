@@ -131,7 +131,12 @@ before, and the drift is invisible until someone runs the weaker side.
 ```
 
 The install scripts merge into existing projects without overwriting — they skip files that already
-exist unless `--force` (bash) or `-Force` (PowerShell) is specified.
+exist unless `--force` (bash) or `-Force` (PowerShell) is specified. Re-running the current
+installer on a project previously installed from an older release also removes retired paths listed
+in `RETIRED_PATHS` / `$RetiredPaths` and prunes empty parent directories. Full installs clean up all
+listed paths; platform-scoped installs clean up only paths for selected platforms, and docs-only
+installs leave platform configuration untouched. Dry runs report planned retired-path removals
+without deleting files or directories.
 
 ### Manual Install
 
@@ -201,6 +206,12 @@ Only copy what you need:
 2. Create a thin adapter that references `docs/atdd/` content
 3. Add the directory to the layout in this file
 4. Add install instructions to the table above
+
+### I want to remove or rename a file the toolkit ships
+
+Add the old relative path to `$RetiredPaths` in `install.ps1` **and** `RETIRED_PATHS` in
+`install.sh`. Without this, re-running install on a project installed from an older release leaves
+the retired file behind instead of cleaning it up.
 
 ---
 

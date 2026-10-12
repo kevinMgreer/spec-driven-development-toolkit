@@ -20,6 +20,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET=""
 PLATFORMS=()
 DOCS_ONLY=false
+ALL_PLATFORMS=false
 NO_EXAMPLES=false
 FORCE=false
 DRY_RUN=false
@@ -42,7 +43,7 @@ usage() {
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --all)        PLATFORMS=(vscode claude agents); shift ;;
+        --all)        ALL_PLATFORMS=true; PLATFORMS=(vscode claude agents); shift ;;
         --vscode)     PLATFORMS+=(vscode); shift ;;
         --claude)     PLATFORMS+=(claude); shift ;;
         --agents)     PLATFORMS+=(agents); shift ;;
@@ -73,12 +74,80 @@ fi
 # platform configs.
 if [[ "$DOCS_ONLY" == "true" ]]; then
     PLATFORMS=()
+    ALL_PLATFORMS=false
 fi
 
 # Default to all platforms if none specified and user didn't request docs-only
 if [[ ${#PLATFORMS[@]} -eq 0 && "$DOCS_ONLY" != "true" ]]; then
+    ALL_PLATFORMS=true
     PLATFORMS=(vscode claude agents)
 fi
+
+# Paths this toolkit has shipped in a past release and since retired. cp never deletes a
+# destination file that's absent from the source, so without this list a re-install leaves stale
+# files behind that contradict the current version. Append to this list whenever a file is removed.
+RETIRED_PATHS=(
+    ".claude/commands/full-autonomous-cycle.md"
+    ".cursor/rules/atdd-core.mdc"
+    ".cursor/rules/atdd-workflow.mdc"
+    ".cursor/rules/gherkin.mdc"
+    ".cursor/rules/project-detection.mdc"
+    ".cursor/rules/quality-gates.mdc"
+    ".github/agents/full-autonomous-cycle.agent.md"
+    ".kiro/steering/atdd-core.md"
+    ".kiro/steering/atdd-workflow.md"
+    ".kiro/steering/gherkin.md"
+    ".kiro/steering/legacy-integration.md"
+    ".kiro/steering/project-detection.md"
+    ".kiro/steering/quality-gates.md"
+    ".kiro/steering/spec-writing.md"
+)
+
+remove_retired_paths() {
+    local selected_platform selected platform path
+
+    for rel in "${RETIRED_PATHS[@]}"; do
+        if [[ "$ALL_PLATFORMS" != true ]]; then
+            case "$rel" in
+                .github/*) selected_platform=vscode ;;
+                .claude/*) selected_platform=claude ;;
+                *) continue ;;
+            esac
+
+            selected=false
+            for platform in "${PLATFORMS[@]}"; do
+                if [[ "$platform" == "$selected_platform" ]]; then
+                    selected=true
+                    break
+                fi
+            done
+            [[ "$selected" == true ]] || continue
+        fi
+
+        path="$TARGET/$rel"
+        [[ -e "$path" ]] || continue
+
+        if [[ "$DRY_RUN" == true ]]; then
+            echo "  WOULD REMOVE (retired) $rel"
+            continue
+        fi
+
+        rm -f "$path"
+        echo "  REMOVE (retired) $rel"
+
+        # Prune now-empty parent directories (e.g. .cursor/rules, .kiro/steering)
+        local parent
+        parent="$(dirname "$path")"
+        while [[ "$parent" != "$TARGET" && -d "$parent" ]]; do
+            if [[ -z "$(ls -A "$parent" 2>/dev/null)" ]]; then
+                rmdir "$parent"
+                parent="$(dirname "$parent")"
+            else
+                break
+            fi
+        done
+    done
+}
 
 # Resolve target to absolute path
 TARGET="$(cd "$TARGET" 2>/dev/null && pwd || echo "$TARGET")"
@@ -211,5 +280,9 @@ EOF
     esac
     echo ""
 done
+
+echo "Retired files:"
+remove_retired_paths
+echo ""
 
 echo "Done. Run '/analyze-project' in your IDE to detect the project's stack."
